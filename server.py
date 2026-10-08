@@ -199,7 +199,7 @@ def get_db_connection(timeout=30.0):
 
 def ensure_database_unpacked():
     """
-    Instant <1s unpack of the 14,663 companys + 25,348 dating profiles master archive on boot.
+    Instant <1s unpack of the 14,663 companys + 25,348 job offers master archive on boot.
     """
     gz_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "database.db.gz")
     if os.path.exists(gz_file):
@@ -356,7 +356,7 @@ def log_and_notify_payment_event(event_type: str, site: str, email: str, scan_id
 def init_db():
     conn = get_db_connection()
     cursor = conn.cursor()
-    # Table for Dating Romance Scam scans
+    # Table for Dating Job Scam scans
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS scans (
             id TEXT PRIMARY KEY,
@@ -730,7 +730,7 @@ async def health_check():
         conn.close()
         return JSONResponse({
             "status": "HEALTHY",
-            "server": "JobScamRadar & VerifyDating Unified Gateway",
+            "server": "JobScamRadar & JobScamRadar Unified Gateway",
             "database": "CONNECTED",
             "total_company_dossiers": companys,
             "total_dating_dossiers": dating,
@@ -953,10 +953,10 @@ async def get_guide(filename: str, request: Request):
             return FileResponse(file_path, media_type="application/pdf")
     return JSONResponse(status_code=404, content={"message": "Guide not found"})
 
-@app.get("/catfish_profile.png")
+@app.get("/scammer_profile.png")
 async def get_test_photo():
-    if os.path.exists("catfish_profile.png"):
-        return FileResponse("catfish_profile.png")
+    if os.path.exists("scammer_profile.png"):
+        return FileResponse("scammer_profile.png")
     return JSONResponse(status_code=404, content={"message": "Test photo not found"})
 
 @app.get("/video_thumbnail.png")
@@ -1070,10 +1070,10 @@ async def redirect_incogni():
 async def redirect_tradingview():
     return RedirectResponse(url="https://www.tradingview.com/pricing/?share_your_love=amendamax", status_code=307)
 
-@app.get("/go/socialcatfish")
-@app.get("/out/socialcatfish")
-async def redirect_socialcatfish():
-    return RedirectResponse(url="https://socialcatfish.com/?kw=verifydating", status_code=307)
+@app.get("/go/socialscammer")
+@app.get("/out/socialscammer")
+async def redirect_socialscammer():
+    return RedirectResponse(url="https://socialscammer.com/?kw=verifydating", status_code=307)
 
 @app.get("/go/dating-singles")
 @app.get("/out/dating-singles")
@@ -1185,7 +1185,7 @@ async def get_og_image_jpg():
 async def get_verifydating_og_banner():
     if os.path.exists("verifydating_og_banner.jpg"):
         return FileResponse("verifydating_og_banner.jpg", media_type="image/jpeg")
-    raise HTTPException(status_code=404, detail="VerifyDating OG Banner not found")
+    raise HTTPException(status_code=404, detail="JobScamRadar OG Banner not found")
 
 @app.get("/iscompanysafe_og_banner.jpg")
 async def get_iscompanysafe_og_banner():
@@ -1530,7 +1530,7 @@ def get_deterministic_mock_data(seed_bytes: bytes, filename: str = "", image_url
     random.seed(seed_int)
     
     # Priority check for explicit demo chip profiles or image URLs
-    if "catfish_profile" in filename.lower() or "catfish_profile" in image_url.lower():
+    if "scammer_profile" in filename.lower() or "scammer_profile" in image_url.lower():
         risk_type = 2
     elif "stock_profile" in filename.lower() or "stock_profile" in image_url.lower():
         risk_type = 1
@@ -1577,7 +1577,7 @@ def get_deterministic_mock_data(seed_bytes: bytes, filename: str = "", image_url
                 {"platform": "Google Lens Search", "url": f"https://lens.google.com/uploadbyurl?url={image_url}"},
                 {"platform": "Yandex Image Search", "url": f"https://yandex.com/images/search?rpt=imageview&url={image_url}"},
                 {"platform": "TinEye Reverse Search", "url": f"https://tineye.com/search?url={image_url}"},
-                {"platform": "FTC Romance Scam Report", "url": "https://reportfraud.ftc.gov/"}
+                {"platform": "FTC Job Scam Report", "url": "https://reportfraud.ftc.gov/"}
             ]
         else:
             pin_id = 100000000000 + (seed_int % 900000000000)
@@ -1585,7 +1585,7 @@ def get_deterministic_mock_data(seed_bytes: bytes, filename: str = "", image_url
             matches_data = [
                 {"platform": "Pinterest Match", "url": f"https://www.pinterest.com/pin/{pin_id}/"},
                 {"platform": "VKontakte Profile Match", "url": f"https://vk.com/id{vk_id}"},
-                {"platform": "FTC Romance Scam Report", "url": "https://reportfraud.ftc.gov/"}
+                {"platform": "FTC Job Scam Report", "url": "https://reportfraud.ftc.gov/"}
             ]
         scammer_info = "Critical alert. This profile picture is active across multiple social profiles using different names. Matches signatures of organized romance scam groups operating via proxy IPs."
         
@@ -1746,17 +1746,17 @@ async def pay_card(request: PaymentRequest):
         stripe_amount = 199
         credits_to_add = 1
         package_name_log = "Quick Unlock (100% Free)"
-        description_text = f"VerifyDating Quick Unlock - Scan {request.scan_id}"
+        description_text = f"JobScamRadar Quick Unlock - Scan {request.scan_id}"
     elif package_type == 'single':
         stripe_amount = 399
         credits_to_add = 3
         package_name_log = "Standard ($3.99)"
-        description_text = f"VerifyDating Standard 3 Scans - Scan {request.scan_id}"
+        description_text = f"JobScamRadar Standard 3 Scans - Scan {request.scan_id}"
     else: # bundle or pro
         stripe_amount = 799
         credits_to_add = 10
         package_name_log = "PRO Deep ($7.99)"
-        description_text = f"VerifyDating PRO Deep Report - Scan {request.scan_id}"
+        description_text = f"JobScamRadar PRO Deep Report - Scan {request.scan_id}"
     
     if STRIPE_SECRET_KEY and not is_admin_test:
         import stripe
@@ -1771,7 +1771,7 @@ async def pay_card(request: PaymentRequest):
                 statement_descriptor="VERIFYDATING.NET",
                 receipt_email=request.email,
             )
-            log_and_notify_payment_event("SUCCESS", "VerifyDating", request.email, request.scan_id, package_name_log, amt_str)
+            log_and_notify_payment_event("SUCCESS", "JobScamRadar", request.email, request.scan_id, package_name_log, amt_str)
         except stripe.error.AuthenticationError:
             try:
                 stripe.api_key = FALLBACK_STRIPE_SECRET_KEY
@@ -1783,35 +1783,35 @@ async def pay_card(request: PaymentRequest):
                     statement_descriptor="VERIFYDATING.NET",
                     receipt_email=request.email,
                 )
-                log_and_notify_payment_event("SUCCESS", "VerifyDating", request.email, request.scan_id, package_name_log, amt_str)
+                log_and_notify_payment_event("SUCCESS", "JobScamRadar", request.email, request.scan_id, package_name_log, amt_str)
             except stripe.error.CardError as e:
                 err_text = e.user_message or str(e)
-                log_and_notify_payment_event("FAILED", "VerifyDating", request.email, request.scan_id, package_name_log, amt_str, err_text)
+                log_and_notify_payment_event("FAILED", "JobScamRadar", request.email, request.scan_id, package_name_log, amt_str, err_text)
                 conn.close()
                 raise HTTPException(status_code=400, detail=err_text)
             except Exception as e:
                 err_text = str(e)
-                log_and_notify_payment_event("FAILED", "VerifyDating", request.email, request.scan_id, package_name_log, amt_str, err_text)
+                log_and_notify_payment_event("FAILED", "JobScamRadar", request.email, request.scan_id, package_name_log, amt_str, err_text)
                 conn.close()
                 raise HTTPException(status_code=500, detail=f"Stripe Processing Error: {err_text}")
         except stripe.error.CardError as e:
             err_text = e.user_message or str(e)
-            log_and_notify_payment_event("FAILED", "VerifyDating", request.email, request.scan_id, package_name_log, amt_str, err_text)
+            log_and_notify_payment_event("FAILED", "JobScamRadar", request.email, request.scan_id, package_name_log, amt_str, err_text)
             conn.close()
             raise HTTPException(status_code=400, detail=err_text)
         except stripe.error.StripeError as e:
             err_text = e.user_message or str(e)
-            log_and_notify_payment_event("FAILED", "VerifyDating", request.email, request.scan_id, package_name_log, amt_str, err_text)
+            log_and_notify_payment_event("FAILED", "JobScamRadar", request.email, request.scan_id, package_name_log, amt_str, err_text)
             conn.close()
             raise HTTPException(status_code=400, detail=f"Payment failed: {err_text}")
         except Exception as e:
             err_text = str(e)
-            log_and_notify_payment_event("FAILED", "VerifyDating", request.email, request.scan_id, package_name_log, amt_str, err_text)
+            log_and_notify_payment_event("FAILED", "JobScamRadar", request.email, request.scan_id, package_name_log, amt_str, err_text)
             conn.close()
             raise HTTPException(status_code=500, detail=f"Stripe Processing Error: {err_text}")
     elif is_admin_test:
         amt_str = f"${stripe_amount / 100:.2f}"
-        log_and_notify_payment_event("SUCCESS", "VerifyDating (Admin Test)", request.email, request.scan_id, package_name_log, amt_str)
+        log_and_notify_payment_event("SUCCESS", "JobScamRadar (Admin Test)", request.email, request.scan_id, package_name_log, amt_str)
 
     # Update/Create User credits
     cursor.execute("SELECT credits_remaining FROM users WHERE email = ?", (request.email,))
@@ -1871,7 +1871,7 @@ async def pay_paypal(request: PaypalPaymentRequest):
         package_name_log = "PRO Deep ($7.99)"
         credits_to_add = 10
 
-    log_and_notify_payment_event("SUCCESS", "VerifyDating (PayPal)", email_clean, request.scan_id, package_name_log, amt_str)
+    log_and_notify_payment_event("SUCCESS", "JobScamRadar (PayPal)", email_clean, request.scan_id, package_name_log, amt_str)
 
     cursor.execute("UPDATE scans SET payment_status = 'paid', email = ?, package = ? WHERE id = ? OR id LIKE ?", (email_clean, package_type, request.scan_id, f"%{request.scan_id}%"))
     conn.commit()
@@ -1898,7 +1898,7 @@ async def pay_paypal_ipn(request: Request):
             cursor.execute("UPDATE scans SET payment_status = 'paid', email = ? WHERE id = ? OR id LIKE ?", (payer_email, scan_id, f"%{scan_id}%"))
             conn.commit()
             conn.close()
-            log_and_notify_payment_event("SUCCESS", "VerifyDating (PayPal Direct)", payer_email, scan_id, "PayPal Direct Unlock", f"${mc_gross}")
+            log_and_notify_payment_event("SUCCESS", "JobScamRadar (PayPal Direct)", payer_email, scan_id, "PayPal Direct Unlock", f"${mc_gross}")
     except Exception as e:
         print("PayPal IPN Error:", e)
         
@@ -2070,7 +2070,7 @@ async def download_dating_pdf(scan_id: str):
     # Determine risk category
     if scam_probability > 70:
         badge_text = "Critical Risk"
-        verdict_title = "Fake Profile Confirmed (Catfish)"
+        verdict_title = "Fake Profile Confirmed (Scammer)"
         verdict_color = colors.HexColor("#d63031") # Red
         bullets = [
             "Image found on multiple other websites under different names.",
@@ -2181,7 +2181,7 @@ async def download_dating_pdf(scan_id: str):
     
     # 1. Header Section
     story.append(Paragraph("ROMANCE SCAM DETECTION REPORT", title_style))
-    story.append(Paragraph(f"VerifyDating Profile Verification Scan &bull; ID: {scan_id} &bull; Generated: {created_at[:16]}", subtitle_style))
+    story.append(Paragraph(f"JobScamRadar Profile Verification Scan &bull; ID: {scan_id} &bull; Generated: {created_at[:16]}", subtitle_style))
     story.append(Spacer(1, 15))
     
     # 2. Workspace Grid Table
@@ -2328,7 +2328,7 @@ async def download_dating_pdf(scan_id: str):
         textColor=colors.HexColor('#64748b'),
         alignment=2 # Right
     )
-    story.append(Paragraph("Forensic FaceMatch Audit compiled by <b>VerifyDating.net</b><br/>Operated by <b>VasileDev Group</b> · Partita IVA: <b>IT04226190041</b> · Garessio (CN), Italy · <font color='#0284c7'>https://vasiledev.com</font>", dating_sig_style))
+    story.append(Paragraph("Forensic FaceMatch Audit compiled by <b>JobScamRadar.net</b><br/>Operated by <b>VasileDev Group</b> · Partita IVA: <b>IT04226190041</b> · Garessio (CN), Italy · <font color='#0284c7'>https://vasiledev.com</font>", dating_sig_style))
 
     doc.build(story)
     buffer.seek(0)
@@ -2377,7 +2377,7 @@ async def get_admin_dashboard(request: Request, token: str = None):
             logs_table_rows += f"""
             <tr data-type="error" style="border-bottom:1px solid #334155;background:rgba(239,68,68,0.05);">
                 <td style="padding:12px;"><span style="background:#EF4444;color:#fff;padding:4px 8px;border-radius:6px;font-size:11px;font-weight:700;">❌ EȘUAT</span></td>
-                <td style="padding:12px;font-weight:600;color:#F8FAFC;">{err_site or 'VerifyDating'}</td>
+                <td style="padding:12px;font-weight:600;color:#F8FAFC;">{err_site or 'JobScamRadar'}</td>
                 <td style="padding:12px;color:#38BDF8;word-break:break-all;">{err_email or 'N/A'}</td>
                 <td style="padding:12px;color:#94A3B8;">{err_pkg or 'N/A'}</td>
                 <td style="padding:12px;color:#FCA5A5;font-family:monospace;font-size:12px;">⚠️ {err_msg[:60]}...</td>
@@ -2395,7 +2395,7 @@ async def get_admin_dashboard(request: Request, token: str = None):
                 logs_table_rows += f"""
                 <tr data-type="success" style="border-bottom:1px solid #334155;background:rgba(16,185,129,0.05);">
                     <td style="padding:12px;"><span style="background:#10B981;color:#fff;padding:4px 8px;border-radius:6px;font-size:11px;font-weight:700;">✅ REUȘIT</span></td>
-                    <td style="padding:12px;font-weight:600;color:#F8FAFC;">VerifyDating</td>
+                    <td style="padding:12px;font-weight:600;color:#F8FAFC;">JobScamRadar</td>
                     <td style="padding:12px;color:#38BDF8;word-break:break-all;">{s_email or 'N/A'}</td>
                     <td style="padding:12px;color:#34D399;font-weight:600;">{s_pkg or 'basic'} ({s_price})</td>
                     <td style="padding:12px;color:#34D399;">✓ Plată confirmată cu succes</td>
@@ -2418,7 +2418,7 @@ async def get_admin_dashboard(request: Request, token: str = None):
             elif img_name:
                 img_url = f"/uploads/{img_name}"
             else:
-                img_url = "/catfish_profile.png"
+                img_url = "/scammer_profile.png"
             
             price_display = "$3.99" if package == "single" else "$7.99" if package in ("bundle", "pro") else "$2.99"
             status_badge = f'<span style="background:#10B981;color:#fff;padding:4px 10px;border-radius:12px;font-size:12px;font-weight:700;">PAID ({price_display})</span>' if payment_status == "paid" else '<span style="background:#EF4444;color:#fff;padding:4px 10px;border-radius:12px;font-size:12px;font-weight:700;">UNPAID</span>'
@@ -2475,7 +2475,7 @@ async def get_admin_dashboard(request: Request, token: str = None):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VerifyDating Live Admin Dashboard</title>
+    <title>JobScamRadar Live Admin Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body {{ font-family: 'Inter', sans-serif; background: #0F172A; color: #F8FAFC; margin: 0; padding: 24px; }}
@@ -2574,7 +2574,7 @@ async def get_admin_dashboard(request: Request, token: str = None):
 <body>
     <div class="header">
         <div>
-            <h1 style="margin:0;font-size:26px;color:#F8FAFC;display:flex;align-items:center;gap:10px;">🔍 VerifyDating Live Scans <span style="font-size:12px;background:rgba(16,185,129,0.2);color:#34d399;padding:4px 10px;border-radius:20px;border:1px solid rgba(16,185,129,0.4);font-weight:600;">● Live Auto-Refresh (15s)</span></h1>
+            <h1 style="margin:0;font-size:26px;color:#F8FAFC;display:flex;align-items:center;gap:10px;">🔍 JobScamRadar Live Scans <span style="font-size:12px;background:rgba(16,185,129,0.2);color:#34d399;padding:4px 10px;border-radius:20px;border:1px solid rgba(16,185,129,0.4);font-weight:600;">● Live Auto-Refresh (15s)</span></h1>
             <p style="margin:6px 0 0 0;font-size:14px;color:#94A3B8;">Real-time visual gallery of user uploaded photos, AI biometric risk & payment status</p>
         </div>
         <div class="stats" style="align-items:center;">
@@ -2761,7 +2761,7 @@ async def get_admin_scans(request: Request, token: str = None):
         elif img_name:
             img_src = f"/uploads/{img_name}"
         else:
-            img_src = "/catfish_profile.png"
+            img_src = "/scammer_profile.png"
 
         scans_list.append({
             "scan_id": scan_id,
@@ -4279,7 +4279,7 @@ async def trigger_test_alert(request: Request, token: str = None):
         data = {}
         
     test_type = data.get("type", "FAILED")
-    site_name = data.get("site", "VerifyDating")
+    site_name = data.get("site", "JobScamRadar")
     
     if test_type == "FAILED":
         log_and_notify_payment_event("FAILED", f"{site_name} (TEST)", "vasile_test@verifydating.net", f"test_{int(datetime.now().timestamp())}", "PRO Deep ($4.99)", "$4.99", "Test Alert: Invalid CVC Code / Declined Card")
@@ -4408,7 +4408,7 @@ SCAM_LANG_MAP = {
         "vpn_desc": "Scam platforms log your IP, device ID, and location to coordinate aggressive phone harassment. Mask your identity with military-grade encryption.",
         "dating_title": "❤️ Was this platform recommended to you on a Dating App or WhatsApp?",
         "dating_desc": "84% of fake trading platforms originate from romance scam profiles ('Pig Butchering'). Verify your contact's photo against stolen model databases.",
-        "dating_btn": "🛡️ Verify Dating Contact Photo Free on VerifyDating.net ↗",
+        "dating_btn": "🛡️ Job Scam Radar Contact Photo Free on JobScamRadar.net ↗",
         "pdf_btn": "📄 Download Official Legal Evidence Dossier (100% Free)",
         "tradingview_title": "📊 Real-Time Charts & Market Verification",
         "tradingview_desc": "Verify real-time exchange pricing, detect fraudulent price spikes, and run technical analysis on TradingView before opening any trade.",
@@ -4490,7 +4490,7 @@ SCAM_LANG_MAP = {
         "vpn_desc": "Platformele frauduloase îți înregistrează adresa IP și locația pentru a te hărțui telefonic. Securizează-ți conexiunea cu VPN criptat.",
         "dating_title": "❤️ Ți-a fost recomandată această platformă pe Dating sau WhatsApp?",
         "dating_desc": "84% dintre platformele false pornesc din escrocherii sentimentale ('Pig Butchering'). Verifică biometric poza persoanei.",
-        "dating_btn": "🛡️ Verifică Poza Persoanei Gratuit pe VerifyDating.net ↗",
+        "dating_btn": "🛡️ Verifică Poza Persoanei Gratuit pe JobScamRadar.net ↗",
         "pdf_btn": "📄 Descarcă Dosarul Oficial de Probe Juridice (100% Free)",
         "tradingview_title": "📊 Grafice în Timp Real & Verificare Cotații",
         "tradingview_desc": "Verifică cotațiile reale de pe bursă, depistează lumânările false și analizează piața pe TradingView înainte de orice ordin.",
@@ -4572,7 +4572,7 @@ SCAM_LANG_MAP = {
         "vpn_desc": "I siti truffa tracciano il tuo IP per continuare a chiamarti con operatori aggressivi. Naviga anonimo con crittografia certificata.",
         "dating_title": "❤️ Ti è stata proposta questa piattaforma su Tinder o WhatsApp?",
         "dating_desc": "L'84% delle truffe finanziarie nasce da falsi profili romantici ('Pig Butchering'). Verifica gratis la foto del contatto.",
-        "dating_btn": "🛡️ Verifica Foto del Contatto Gratis su VerifyDating.net ↗",
+        "dating_btn": "🛡️ Verifica Foto del Contatto Gratis su JobScamRadar.net ↗",
         "pdf_btn": "📄 Scarica Dossier Legale Ufficiale PDF (100% Free)",
         "tradingview_title": "📊 Grafici in Tempo Reale & Verifica Quotazioni",
         "tradingview_desc": "Verifica i prezzi ufficiali di borsa, scopri spike manipolati ed esegui analisi tecnica su TradingView prima di investire.",
@@ -4654,7 +4654,7 @@ SCAM_LANG_MAP = {
         "vpn_desc": "Betrüger speichern Ihre IP und Telefonnummer für aggressive Kaltakquise. Nutzen Sie geprüften VPN-Schutz.",
         "dating_title": "❤️ Wurde Ihnen dieser Company auf Tinder oder WhatsApp empfohlen?",
         "dating_desc": "84% gefälschter Plattformen beginnen mit Romance-Scams ('Pig Butchering'). Überprüfen Sie das Profilfoto biometrisch.",
-        "dating_btn": "🛡️ Foto kostenlos prüfen auf VerifyDating.net ↗",
+        "dating_btn": "🛡️ Foto kostenlos prüfen auf JobScamRadar.net ↗",
         "pdf_btn": "📄 Offizielles juristisches PDF-Dossier herunterladen (100% Free)",
         "tradingview_title": "📊 Echtzeit-Charts & Kurs-Verifizierung",
         "tradingview_desc": "Überprüfen Sie offizielle Börsenkurse, erkennen Sie manipulierte Preissprünge und nutzen Sie TradingView vor jeder Order.",
@@ -4736,7 +4736,7 @@ SCAM_LANG_MAP = {
         "vpn_desc": "Les escrocs collectent votre IP pour coordonner des relances téléphoniques agressives. Protégez-vous avec un VPN chiffré.",
         "dating_title": "❤️ Ce company vous a été suggéré sur une App de Rencontre ou WhatsApp ?",
         "dating_desc": "84% des arnaques au trading dérivent d'arnaques sentimentales ('Pig Butchering'). Vérifiez la photo du profil avec l'IA.",
-        "dating_btn": "🛡️ Vérifier la Photo Gratuitement sur VerifyDating.net ↗",
+        "dating_btn": "🛡️ Vérifier la Photo Gratuitement sur JobScamRadar.net ↗",
         "pdf_btn": "📄 Télécharger le Dossier Juridique Officiel (100% Free)",
         "tradingview_title": "📊 Graphiques en Temps Réel & Vérification des Cours",
         "tradingview_desc": "Vérifiez les cours réels du marché, détectez les fausses mèches et analysez les actifs sur TradingView avant d'investir.",
@@ -4818,7 +4818,7 @@ SCAM_LANG_MAP = {
         "vpn_desc": "Las plataformas fraudulentas rastrean su IP y datos para extorsión telefónica. Oculte su identidad con VPN militar.",
         "dating_title": "¿Alguien en Tinder o WhatsApp le recomendó esta plataforma?",
         "dating_desc": "El 84% de plataformas falsas provienen de estafas románticas ('Pig Butchering'). Verifique la foto del contacto gratis.",
-        "dating_btn": "🛡️ Verificar Foto Gratis en VerifyDating.net ↗",
+        "dating_btn": "🛡️ Verificar Foto Gratis en JobScamRadar.net ↗",
         "pdf_btn": "📄 Descargar Dossier Jurídico Oficial en PDF (100% Free)",
         "tradingview_title": "📊 Gráficos en Tiempo Real y Verificación de Precios",
         "tradingview_desc": "Comprueba las cotizaciones reales del mercado, detecta velas falsas y analiza tendencias en TradingView antes de operar.",
@@ -4900,7 +4900,7 @@ SCAM_LANG_MAP = {
         "vpn_desc": "Sites fraudulentos gravam seu IP para aplicar golpes por telefone. Navegue seguro com VPN criptografada.",
         "dating_title": "❤️ Essa plataforma foi indicada em App de Namoro ou WhatsApp?",
         "dating_desc": "84% dos golpes de investimento derivam de perfis falsos ('Pig Butchering'). Faça a verificação biométrica da foto.",
-        "dating_btn": "🛡️ Verificar Foto Grátis no VerifyDating.net ↗",
+        "dating_btn": "🛡️ Verificar Foto Grátis no JobScamRadar.net ↗",
         "pdf_btn": "📄 Baixar Dossiê Jurídico Oficial em PDF (100% Free)",
         "tradingview_title": "📊 Gráficos em Tempo Real e Verificação de Cotações",
         "tradingview_desc": "Verifique cotações reais de mercado, identifique velas manipuladas e use o TradingView antes de qualquer operação.",
@@ -4982,7 +4982,7 @@ SCAM_LANG_MAP = {
         "vpn_desc": "Мошеннические сайты фиксируют ваш IP для агрессивного телефонного спама и шантажа. Используйте надежный VPN.",
         "dating_title": "❤️ Этого брокера вам порекомендовали в дейтинге или WhatsApp?",
         "dating_desc": "84% фальшивых площадок исходят от романтических аферистов («Pig Butchering»). Проверьте фото бесплатно.",
-        "dating_btn": "🛡️ Проверить фото бесплатно на VerifyDating.net ↗",
+        "dating_btn": "🛡️ Проверить фото бесплатно на JobScamRadar.net ↗",
         "pdf_btn": "📄 Скачать официальное юридическое PDF-досье (100% Free)",
         "tradingview_title": "📊 Графики в реальном времени и проверка цен",
         "tradingview_desc": "Сверяйте котировки с реальными биржами, выявляйте манипуляции и анализируйте рынок на TradingView перед сделкой.",
@@ -6445,14 +6445,14 @@ async def api_v1_postman_collection():
     """
     current_dir = os.path.dirname(os.path.abspath(__file__))
     candidates = [
-        os.path.join(current_dir, "JobScamRadar_and_VerifyDating_API.postman_collection.json"),
-        os.path.join(current_dir, "..", "JobScamRadar_and_VerifyDating_API.postman_collection.json"),
-        "JobScamRadar_and_VerifyDating_API.postman_collection.json",
-        "dating-photo-checker/JobScamRadar_and_VerifyDating_API.postman_collection.json"
+        os.path.join(current_dir, "JobScamRadar_and_JobScamRadar_API.postman_collection.json"),
+        os.path.join(current_dir, "..", "JobScamRadar_and_JobScamRadar_API.postman_collection.json"),
+        "JobScamRadar_and_JobScamRadar_API.postman_collection.json",
+        "dating-photo-checker/JobScamRadar_and_JobScamRadar_API.postman_collection.json"
     ]
     for c in candidates:
         if os.path.exists(c):
-            return FileResponse(c, media_type="application/json", filename="JobScamRadar_and_VerifyDating_API.postman_collection.json")
+            return FileResponse(c, media_type="application/json", filename="JobScamRadar_and_JobScamRadar_API.postman_collection.json")
     raise HTTPException(status_code=404, detail="Postman Collection not found")
 
 
@@ -6479,7 +6479,7 @@ async def privacy_policy_page():
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Privacy Policy - JobScamRadar & VerifyDating (SafeShield)</title>
+    <title>Privacy Policy - JobScamRadar & JobScamRadar (SafeShield)</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0b1120; color: #f1f5f9; line-height: 1.6; padding: 40px 20px; max-width: 800px; margin: auto; }
         h1 { color: #38bdf8; font-size: 28px; border-bottom: 1px solid #1e293b; padding-bottom: 12px; }
@@ -6496,7 +6496,7 @@ async def privacy_policy_page():
     <p>Last updated: August 31, 2026</p>
 
     <h2>1. Overview</h2>
-    <p>SafeShield (operated by VasileDev Group under JobScamRadar and VerifyDating) provides real-time cybersecurity protection, financial company regulatory verification, and romance scam detection.</p>
+    <p>SafeShield (operated by VasileDev Group under JobScamRadar and JobScamRadar) provides real-time cybersecurity protection, financial company regulatory verification, and romance scam detection.</p>
 
     <h2>2. Data Collection & Zero-Tracking Commitment</h2>
     <p>SafeShield is built on a strict privacy-first architecture:</p>
@@ -7032,7 +7032,7 @@ async def api_v1_documentation():
                 <a href="/pricing" class="nav-btn-pricing" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); padding: 7px 14px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">💳 Pricing Plans</a>
                 <a href="/widget" class="nav-btn-widget" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); padding: 7px 14px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">🛡️ Trust Widget</a>
                 <a href="https://pypi.org/project/iscompanysafe/" target="_blank" class="nav-btn-pypi" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); padding: 7px 14px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">🐍 PyPI SDK ↗</a>
-                <a href="https://verifydating.net/" target="_blank" class="nav-btn-dating" style="background: rgba(236, 72, 153, 0.15); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.4); padding: 7px 14px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">❤️ VerifyDating ↗</a>
+                <a href="https://verifydating.net/" target="_blank" class="nav-btn-dating" style="background: rgba(236, 72, 153, 0.15); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.4); padding: 7px 14px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">❤️ JobScamRadar ↗</a>
             </div>
         </div>
         <div class="header">
@@ -7242,7 +7242,7 @@ async def get_dating_badge_customizer_page():
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VerifyDating™ Official Safety Emblem & Profile Trust Badge Generator</title>
+    <title>JobScamRadar™ Official Safety Emblem & Profile Trust Badge Generator</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -7594,8 +7594,8 @@ async def get_dating_badge_customizer_page():
 
         <!-- Header -->
         <div class="header">
-            <h1>Official <span>Dating Safety Emblem</span> Generator</h1>
-            <p>Embed our real-time AI biometric verification seal on your dating profile, social bio, blog, or community platform to prove your photos are 100% genuine and verified by <strong>VerifyDating.net</strong>.</p>
+            <h1>Official <span>Job Safety Emblem</span> Generator</h1>
+            <p>Embed our real-time AI biometric verification seal on your job offer, social bio, blog, or community platform to prove your photos are 100% genuine and verified by <strong>JobScamRadar.net</strong>.</p>
         </div>
 
         <!-- Main Grid -->
@@ -7613,8 +7613,8 @@ async def get_dating_badge_customizer_page():
                     <label>Verification Seal Type</label>
                     <select id="cfg-type" onchange="updatePreview()">
                         <option value="face_verified">🛡️ AI Biometric Face-Verified (100% Clean)</option>
-                        <option value="anti_catfish">🔒 Anti-Catfish Protected Profile</option>
-                        <option value="scam_shield">⚡ VerifyDating™ Neural Protection</option>
+                        <option value="anti_scammer">🔒 Anti-Scammer Protected Profile</option>
+                        <option value="scam_shield">⚡ JobScamRadar™ Neural Protection</option>
                         <option value="genuine_seal">💎 Certified Authentic Human Profile</option>
                     </select>
                 </div>
@@ -7706,8 +7706,8 @@ async def get_dating_badge_customizer_page():
             icon.style.color = tc.iconColor;
 
             let descText = "AI Biometric Face-Verified · 100% Genuine";
-            if (type === 'anti_catfish') descText = "Protected Against Romance Scams · Clean";
-            if (type === 'scam_shield') descText = "Monitored by VerifyDating™ Neural Engine";
+            if (type === 'anti_scammer') descText = "Protected Against Job Scams · Clean";
+            if (type === 'scam_shield') descText = "Monitored by JobScamRadar™ Neural Engine";
             if (type === 'genuine_seal') descText = "Certified Real Identity · 0% Deepfake Risk";
 
             document.getElementById('preview-title').textContent = name;
@@ -7715,7 +7715,7 @@ async def get_dating_badge_customizer_page():
 
             let snippet = '';
             if (format === 'card') {
-                snippet = `<!-- VerifyDating Official Safety Seal -->
+                snippet = `<!-- JobScamRadar Official Safety Seal -->
 <a href="https://verifydating.net/" target="_blank" rel="noopener" style="display:inline-block;background:#0d0614;border:1.5px solid ${tc.border};border-radius:14px;padding:14px 18px;color:#fff;text-decoration:none;font-family:sans-serif;box-shadow:0 0 20px ${tc.glow};max-width:340px;">
   <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:6px;margin-bottom:8px;font-size:11px;font-weight:700;">
     <span>🛡️ Verify<span style="color:${tc.border};">Dating</span>.net</span>
@@ -7734,7 +7734,7 @@ async def get_dating_badge_customizer_page():
   </div>
 </a>`;
             } else {
-                snippet = `<!-- VerifyDating Compact Pill Emblem -->
+                snippet = `<!-- JobScamRadar Compact Pill Emblem -->
 <a href="https://verifydating.net/" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;background:#0d0614;border:1.5px solid ${tc.border};border-radius:20px;padding:8px 16px;color:#fff;text-decoration:none;font-family:sans-serif;box-shadow:0 0 15px ${tc.glow};">
   <span style="color:${tc.iconColor};font-size:16px;">🛡️</span>
   <strong style="font-size:12.5px;">${name} <span style="color:#10b981;">✓ VERIFIED</span></strong>
@@ -7748,7 +7748,7 @@ async def get_dating_badge_customizer_page():
         function copyEmbedCode() {
             const code = document.getElementById('embed-code').textContent;
             navigator.clipboard.writeText(code).then(() => {
-                alert('✓ Official VerifyDating Emblem embed code copied to clipboard!');
+                alert('✓ Official JobScamRadar Emblem embed code copied to clipboard!');
             });
         }
 
@@ -8023,7 +8023,7 @@ function copyEmbedCode() {
 
 # =============================================================================
 # VERIFYDATING B2B FACIAL INTELLIGENCE & ANTI-CATFISH REST API (v1)
-# Real-Time AI Face Screening & Romance Scam Defense for Dating Apps & Platforms
+# Real-Time AI Face Screening & Job Scam Defense for Remote Jobs & Platforms
 # =============================================================================
 
 class DatingFaceCheckRequest(BaseModel):
@@ -8040,9 +8040,9 @@ async def api_v1_check_face(
     file: Optional[UploadFile] = File(None)
 ):
     """
-    B2B Facial Verification & Romance Scam Detection Endpoint.
+    B2B Facial Verification & Job Scam Detection Endpoint.
     Accepts image file, image_url, or image_base64.
-    Returns Catfish Probability Score, Deepfake AI Risk, and Stolen Face Matches.
+    Returns Scammer Probability Score, Deepfake AI Risk, and Stolen Face Matches.
     """
     quota_info = check_and_increment_api_quota(request, api_key)
     
@@ -8062,7 +8062,7 @@ async def api_v1_check_face(
     elif body and body.image_url:
         import urllib.request
         try:
-            req_img = urllib.request.Request(body.image_url, headers={"User-Agent": "Mozilla/5.0 (VerifyDating API Bot/1.0)"})
+            req_img = urllib.request.Request(body.image_url, headers={"User-Agent": "Mozilla/5.0 (JobScamRadar API Bot/1.0)"})
             with urllib.request.urlopen(req_img, timeout=6) as r_img:
                 file_bytes = r_img.read()
         except Exception as e:
@@ -8093,13 +8093,13 @@ async def api_v1_check_face(
     else:
         scam_prob, matches_cnt, matches_dt, scam_desc = get_deterministic_mock_data(file_bytes, img_filename, public_img_url)
 
-    is_catfish_threat = scam_prob >= 70
+    is_scammer_threat = scam_prob >= 70
     is_suspicious = scam_prob >= 35 and scam_prob < 70
     
-    if is_catfish_threat:
+    if is_scammer_threat:
         risk_level = "CRITICAL_ROMANCE_SCAM_FLAG"
         recommendation = "REJECT_PROFILE_AND_AUTO_BAN"
-        verdict = "Stolen Identity / High-Risk Romance Scam Signature"
+        verdict = "Stolen Identity / High-Risk Job Scam Signature"
     elif is_suspicious:
         risk_level = "MODERATE_SUSPICIOUS"
         recommendation = "REQUEST_LIVE_ID_VERIFICATION"
@@ -8119,7 +8119,7 @@ async def api_v1_check_face(
         "forensic_details": {
             "matches_count": matches_cnt,
             "deepfake_probability": round(scam_prob * 0.85, 1),
-            "stolen_photo_detected": is_catfish_threat,
+            "stolen_photo_detected": is_scammer_threat,
             "scammer_info": scam_desc
         },
         "quota": {
@@ -8133,7 +8133,7 @@ async def api_v1_check_face(
 @app.get("/api/v1/face/stats")
 async def get_dating_api_stats():
     """
-    Global Facial & Romance Scam Intelligence Statistics.
+    Global Facial & Job Scam Intelligence Statistics.
     """
     return {
         "monitored_stolen_faces": 482930,
@@ -8148,14 +8148,14 @@ async def get_dating_api_stats():
 @app.get("/dating-api")
 async def get_dating_api_docs_page():
     """
-    Interactive VerifyDating B2B Anti-Catfish API Documentation & Sandbox.
+    Interactive JobScamRadar B2B Anti-Scammer API Documentation & Sandbox.
     """
     html_dating_docs = """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VerifyDating B2B Anti-Catfish API | Facial Scam Intelligence & Deepfake Defense</title>
+    <title>JobScamRadar B2B Anti-Scammer API | Facial Scam Intelligence & Deepfake Defense</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -8387,7 +8387,7 @@ async def get_dating_api_docs_page():
 <div class="container">
     <nav class="nav-bar">
         <a href="https://verifydating.net/" class="logo-box">
-            <span style="color: var(--pink);">❤️</span> VerifyDating <span style="font-size: 12px; background: rgba(236,72,153,0.2); padding: 3px 8px; border-radius: 6px; color: var(--pink); border: 1px solid rgba(236,72,153,0.4);">B2B API</span>
+            <span style="color: var(--pink);">❤️</span> JobScamRadar <span style="font-size: 12px; background: rgba(236,72,153,0.2); padding: 3px 8px; border-radius: 6px; color: var(--pink); border: 1px solid rgba(236,72,153,0.4);">B2B API</span>
         </a>
         <div style="display: flex; gap: 14px; align-items: center;">
             <a href="https://verifydating.net/" style="color: var(--text-muted); text-decoration: none; font-size: 13px; font-weight: 600;">Consumer Portal</a>
@@ -8397,8 +8397,8 @@ async def get_dating_api_docs_page():
     </nav>
 
     <div class="header">
-        <h1>VerifyDating <span>Anti-Catfish & Facial Intelligence API</span></h1>
-        <p>Automated real-time profile photo screening, deepfake AI detection, and stolen face cross-matching for dating apps, social communities, and marketplaces.</p>
+        <h1>JobScamRadar <span>Anti-Scammer & Facial Intelligence API</span></h1>
+        <p>Automated real-time profile photo screening, deepfake AI detection, and stolen face cross-matching for remote jobs, social communities, and marketplaces.</p>
     </div>
 
     <!-- 4-TIER PRICING GRID -->
@@ -8420,9 +8420,9 @@ async def get_dating_api_docs_page():
             <div class="plan-price">$49 <span>/ month</span></div>
             <div class="plan-feat"><i class="fa-solid fa-check"></i> <strong>2,500 Scans</strong> / month</div>
             <div class="plan-feat"><i class="fa-solid fa-check"></i> Automated On-Registration Scan</div>
-            <div class="plan-feat"><i class="fa-solid fa-check"></i> Romance Scam Risk Score</div>
+            <div class="plan-feat"><i class="fa-solid fa-check"></i> Job Scam Risk Score</div>
             <div class="plan-feat"><i class="fa-solid fa-check"></i> Email Fast-Track Support</div>
-            <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=amendamax%40gmail.com&currency_code=USD&amount=49.00&item_name=VerifyDating+API+Starter+Monthly&no_shipping=1&landing_page=billing" target="_blank" rel="noopener" class="btn-plan" style="background: rgba(236,72,153,0.25); border: 1px solid var(--pink); color: #fff;">Subscribe Starter ($49/mo) ↗</a>
+            <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=amendamax%40gmail.com&currency_code=USD&amount=49.00&item_name=JobScamRadar+API+Starter+Monthly&no_shipping=1&landing_page=billing" target="_blank" rel="noopener" class="btn-plan" style="background: rgba(236,72,153,0.25); border: 1px solid var(--pink); color: #fff;">Subscribe Starter ($49/mo) ↗</a>
         </div>
 
         <!-- Pro Growth Platform (Launch Promo: $99/mo) -->
@@ -8435,7 +8435,7 @@ async def get_dating_api_docs_page():
             <div class="plan-feat"><i class="fa-solid fa-check"></i> Webhook Auto-Ban Trigger</div>
             <div class="plan-feat"><i class="fa-solid fa-check"></i> Multi-Key Team Access</div>
             <div class="plan-feat"><i class="fa-solid fa-check"></i> 99.9% Uptime Guarantee</div>
-            <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=amendamax%40gmail.com&currency_code=USD&amount=99.00&item_name=VerifyDating+API+Pro+Growth+Monthly&no_shipping=1&landing_page=billing" target="_blank" rel="noopener" class="btn-plan btn-featured">Subscribe Pro ($99/mo) ↗</a>
+            <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=amendamax%40gmail.com&currency_code=USD&amount=99.00&item_name=JobScamRadar+API+Pro+Growth+Monthly&no_shipping=1&landing_page=billing" target="_blank" rel="noopener" class="btn-plan btn-featured">Subscribe Pro ($99/mo) ↗</a>
         </div>
 
         <!-- Scale & Enterprise (Launch Promo: $199/mo) -->
@@ -8447,14 +8447,14 @@ async def get_dating_api_docs_page():
             <div class="plan-feat"><i class="fa-solid fa-check"></i> Dedicated SLA (99.99%)</div>
             <div class="plan-feat"><i class="fa-solid fa-check"></i> Custom Face Match Models</div>
             <div class="plan-feat"><i class="fa-solid fa-check"></i> 24/7 Priority Support</div>
-            <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=amendamax%40gmail.com&currency_code=USD&amount=199.00&item_name=VerifyDating+API+Enterprise+Monthly&no_shipping=1&landing_page=billing" target="_blank" rel="noopener" class="btn-plan btn-scale">Subscribe Scale ($199/mo) ↗</a>
+            <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=amendamax%40gmail.com&currency_code=USD&amount=199.00&item_name=JobScamRadar+API+Enterprise+Monthly&no_shipping=1&landing_page=billing" target="_blank" rel="noopener" class="btn-plan btn-scale">Subscribe Scale ($199/mo) ↗</a>
         </div>
     </div>
 
     <!-- Free Sandbox Key Generator Box -->
     <div class="card-doc" id="key-sandbox" style="border-color: rgba(236,72,153,0.4); background: linear-gradient(135deg, rgba(236,72,153,0.08) 0%, rgba(22,13,36,0.95) 100%);">
         <h3 style="font-family: 'Outfit'; font-size: 20px; color: #fff; margin-bottom: 8px;">⚡ Instant Developer Sandbox (100 Free Scans/Mo)</h3>
-        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">Generate your free API Key to screen dating profile photos directly from your backend.</p>
+        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">Generate your free API Key to screen job offer photos directly from your backend.</p>
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
             <input type="email" id="dev-email" placeholder="cto@datingapp.com" style="flex: 1; min-width: 260px; background: #000; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 12px 16px; color: #fff; font-size: 14px; outline: none;">
             <button onclick="generateDatingApiKey()" class="btn-gen-dating" style="background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); color: #fff; border: 1px solid rgba(236, 72, 153, 0.5); border-radius: 8px; padding: 12px 26px; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1); animation: pulse-pink-glow 2.5s infinite ease-in-out;">Generate Key ⚡</button>
@@ -8486,7 +8486,7 @@ async def get_dating_api_docs_page():
   "scam_probability": 94,
   "risk_level": "CRITICAL_ROMANCE_SCAM_FLAG",
   "action_recommendation": "REJECT_PROFILE_AND_AUTO_BAN",
-  "verdict": "Stolen Identity / High-Risk Romance Scam Signature",
+  "verdict": "Stolen Identity / High-Risk Job Scam Signature",
   "forensic_details": {
     "matches_count": 8,
     "deepfake_probability": 81.2,
@@ -9294,7 +9294,7 @@ if __name__ == "__main__":
 
 
 # ==============================================================================
-# DATING SCAMMER THREAT INTELLIGENCE & DOSSIERS MODULE (VerifyDating.net)
+# DATING SCAMMER THREAT INTELLIGENCE & DOSSIERS MODULE (JobScamRadar.net)
 # ==============================================================================
 
 @app.get("/api/admin/seed-dating-scams")
@@ -9380,7 +9380,7 @@ async def api_dating_scammers(limit: int = 6, q: str = None):
 @app.get("/sitemap_dating_scams.xml")
 async def sitemap_dating_scams_index():
     """
-    Standard Google Sitemap Index XML for VerifyDating Scammer Profiles.
+    Standard Google Sitemap Index XML for JobScamRadar Scammer Profiles.
     Google enforces max 50,000 URLs and recommends chunking large databases.
     Splits 50,000+ dossiers into 10 clean sub-sitemaps of 40,000 localized URLs each (8 languages).
     """
@@ -9453,7 +9453,7 @@ async def sitemap_dating_scams_part(part: int):
 @app.get("/scammers")
 async def dating_scammers_directory(request: Request, category: str = None, q: str = None, page: int = 1):
     """
-    Public Searchable Directory of Dating & Romance Scam Profiles with Multi-Page Pagination & Filters.
+    Public Searchable Directory of Dating & Job Scam Profiles with Multi-Page Pagination & Filters.
     """
     limit = 60
     page = max(1, page)
@@ -9565,8 +9565,8 @@ async def dating_scammers_directory(request: Request, category: str = None, q: s
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Romance Scammer Database & Fake Profile Blacklist (Page {page}) | VerifyDating</title>
-    <meta name="description" content="Search {total_db_count}+ verified romance scam personas, stolen military profiles, pig butchering crypto accounts, and fake catfish identities.">
+    <title>Job Scammer Database & Fake Profile Blacklist (Page {page}) | JobScamRadar</title>
+    <meta name="description" content="Search {total_db_count}+ verified romance scam personas, stolen military profiles, pig butchering crypto accounts, and fake scammer identities.">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -9583,12 +9583,12 @@ async def dating_scammers_directory(request: Request, category: str = None, q: s
 <body>
     <div class="container">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-            <a href="https://verifydating.net/" style="color: #ec4899; text-decoration: none; font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; gap: 6px;">&larr; Back to VerifyDating Home</a>
+            <a href="https://verifydating.net/" style="color: #ec4899; text-decoration: none; font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; gap: 6px;">&larr; Back to JobScamRadar Home</a>
             <a href="https://jobscamradar.com/" style="color: #38bdf8; text-decoration: none; font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; gap: 6px;">📈 Verify Company & Crypto ↗</a>
         </div>
         
         <div class="header">
-            <h1 class="title">🛡️ Romance Scammer & Catfish Blacklist</h1>
+            <h1 class="title">🛡️ Job Scammer & Scammer Blacklist</h1>
             <p style="color: #94a3b8; font-size: 15px; margin: 0 0 10px 0;">Forensic intelligence archive indexing <strong>{total_db_count:,}+ verified romance scam personas</strong>, stolen photos, and fraudulent scripts.</p>
             <div style="display: inline-block; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); color: #38bdf8; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 20px;">
                 📁 Showing profiles {offset + 1} - {min(offset + limit, filtered_total)} of {filtered_total:,} Dossiers (Page {page} of {total_pages})
@@ -9617,7 +9617,7 @@ async def dating_scammers_directory(request: Request, category: str = None, q: s
 @app.get("/{lang}/scammer/{slug}")
 async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
     """
-    Forensic Threat Intelligence Dossier Page for a Specific Romance Scammer Profile.
+    Forensic Threat Intelligence Dossier Page for a Specific Job Scammer Profile.
     Supports 8 languages (EN, RO, IT, DE, FR, ES, PT, RU) with canonical & hreflang SEO tags.
     """
     valid_langs = ["en", "ro", "it", "de", "fr", "es", "pt", "ru"]
@@ -9673,8 +9673,8 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
 
     T = {
         "en": {
-            "title": f"{name} Romance Scam Alert & Stolen Photos ({category}) | VerifyDating",
-            "meta_desc": f"Forensic dossier on romance scam persona '{name}' ({prof}, {location}). Detect catfish profiles and reverse search photos with VerifyDating AI.",
+            "title": f"{name} Job Scam Alert & Stolen Photos ({category}) | JobScamRadar",
+            "meta_desc": f"Forensic dossier on romance scam persona '{name}' ({prof}, {location}). Detect scammer profiles and reverse search photos with JobScamRadar AI.",
             "back": "&larr; Back to Scammer Blacklist",
             "verify_face": "📷 Verify Another Face (Free) ↗",
             "risk_label": f"{risk}% CONFIRMED CATFISH RISK",
@@ -9682,7 +9682,7 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
             "investigations": "Investigations",
             "claimed_label": f"<strong>Claimed Identity:</strong> {prof} &bull; Claimed Age: {age} &bull; Claimed Location: {location}",
             "victim_alert": f"⚠️ <strong>Victim Alert:</strong> The photographs used by this persona are <em>{stolen}</em>. The real individual depicted in these images is an innocent third party whose identity has been impersonated.",
-            "script_heading": "🎭 Typical Romance Scam Script Used",
+            "script_heading": "🎭 Typical Job Scam Script Used",
             "flags_heading": "🚩 Key Red Flags & Warning Indicators:",
             "aliases_heading": f"<strong>Reported Aliases:</strong> {aliases_str}",
             "chatting_q": "Are You Chatting With This Person or a Similar Profile?",
@@ -9693,8 +9693,8 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
             "toolkit_desc": "Verified tools to run background checks, delete stolen personal info, and find genuine matches.",
         },
         "ro": {
-            "title": f"Alertă Înșelăciune {name} & Poze Furate ({category}) | VerifyDating",
-            "meta_desc": f"Dosar de investigație asupra profilului fals '{name}' ({prof}, {location}). Detectează escrocii sentimentali și verifică pozele cu AI pe VerifyDating.",
+            "title": f"Alertă Înșelăciune {name} & Poze Furate ({category}) | JobScamRadar",
+            "meta_desc": f"Dosar de investigație asupra profilului fals '{name}' ({prof}, {location}). Detectează escrocii sentimentali și verifică pozele cu AI pe JobScamRadar.",
             "back": "&larr; Înapoi la Lista de Escroci",
             "verify_face": "📷 Verifică Altă Poză (Gratuit) ↗",
             "risk_label": f"{risk}% RISC CONFIRMAT DE CATFISH",
@@ -9713,8 +9713,8 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
             "toolkit_desc": "Unelte verificate pentru verificarea antecedentelor, ștergerea datelor compromise și dating sigur.",
         },
         "it": {
-            "title": f"Allerta Truffa Amorosa {name} & Foto Rubate ({category}) | VerifyDating",
-            "meta_desc": f"Dossier investigativo sul profilo falso '{name}' ({prof}, {location}). Rileva truffe sentimentali e cerca foto rubate con l'AI di VerifyDating.",
+            "title": f"Allerta Truffa Amorosa {name} & Foto Rubate ({category}) | JobScamRadar",
+            "meta_desc": f"Dossier investigativo sul profilo falso '{name}' ({prof}, {location}). Rileva truffe sentimentali e cerca foto rubate con l'AI di JobScamRadar.",
             "back": "&larr; Torna alla Blacklist Truffatori",
             "verify_face": "📷 Verifica un'altra Foto (Gratis) ↗",
             "risk_label": f"{risk}% RISCHIO TRUFFA CONFERMATO",
@@ -9733,8 +9733,8 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
             "toolkit_desc": "Strumenti verificati per controlli su numeri/email, rimozione dati rubati e incontri sicuri.",
         },
         "de": {
-            "title": f"{name} Liebesbetrug-Warnung & Gestohlene Fotos ({category}) | VerifyDating",
-            "meta_desc": f"Forensisches Dossier über Romance-Scam-Profil '{name}' ({prof}, {location}). Catfish-Profile erkennen und Bilder rückwärtssuchen mit VerifyDating AI.",
+            "title": f"{name} Liebesbetrug-Warnung & Gestohlene Fotos ({category}) | JobScamRadar",
+            "meta_desc": f"Forensisches Dossier über Romance-Scam-Profil '{name}' ({prof}, {location}). Scammer-Profile erkennen und Bilder rückwärtssuchen mit JobScamRadar AI.",
             "back": "&larr; Zurück zur Betrüger-Liste",
             "verify_face": "📷 Weiteres Foto prüfen (Kostenlos) ↗",
             "risk_label": f"{risk}% BESTÄTIGTES CATFISH-RISIKO",
@@ -9753,8 +9753,8 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
             "toolkit_desc": "Verifizierte Tools für Background-Checks, Löschung gestohlener Daten und sicheres Dating.",
         },
         "fr": {
-            "title": f"Alerte Arnaque Sentimentale {name} & Photos Volées ({category}) | VerifyDating",
-            "meta_desc": f"Dossier d'investigation sur le faux profil '{name}' ({prof}, {location}). Détectez les brouteurs et vérifiez les photos avec VerifyDating AI.",
+            "title": f"Alerte Arnaque Sentimentale {name} & Photos Volées ({category}) | JobScamRadar",
+            "meta_desc": f"Dossier d'investigation sur le faux profil '{name}' ({prof}, {location}). Détectez les brouteurs et vérifiez les photos avec JobScamRadar AI.",
             "back": "&larr; Retour à la Liste des Escrocs",
             "verify_face": "📷 Vérifier une autre Photo (Gratuit) ↗",
             "risk_label": f"{risk}% RISQUE ESCROQUERIE CONFIRMÉ",
@@ -9773,8 +9773,8 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
             "toolkit_desc": "Outils vérifiés pour les vérifications d'antécédents, la suppression de données volées et les rencontres saines.",
         },
         "es": {
-            "title": f"Alerta Estafa Amorosa {name} & Fotos Robadas ({category}) | VerifyDating",
-            "meta_desc": f"Dossier forense sobre el perfil falso '{name}' ({prof}, {location}). Detecta perfiles falsos y busca fotos robadas con VerifyDating AI.",
+            "title": f"Alerta Estafa Amorosa {name} & Fotos Robadas ({category}) | JobScamRadar",
+            "meta_desc": f"Dossier forense sobre el perfil falso '{name}' ({prof}, {location}). Detecta perfiles falsos y busca fotos robadas con JobScamRadar AI.",
             "back": "&larr; Volver a la Lista de Estafadores",
             "verify_face": "📷 Verificar otra Foto (Gratis) ↗",
             "risk_label": f"{risk}% RIESGO ESTAFA CONFIRMADO",
@@ -9793,8 +9793,8 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
             "toolkit_desc": "Herramientas verificadas para verificación de antecedentes, eliminación de datos robados y citas seguras.",
         },
         "pt": {
-            "title": f"Alerta Golpe Amoroso {name} & Fotos Roubadas ({category}) | VerifyDating",
-            "meta_desc": f"Dossiê forense sobre o perfil falso '{name}' ({prof}, {location}). Detecte perfis falsos e busque fotos com VerifyDating AI.",
+            "title": f"Alerta Golpe Amoroso {name} & Fotos Roubadas ({category}) | JobScamRadar",
+            "meta_desc": f"Dossiê forense sobre o perfil falso '{name}' ({prof}, {location}). Detecte perfis falsos e busque fotos com JobScamRadar AI.",
             "back": "&larr; Voltar à Lista de Golpistas",
             "verify_face": "📷 Verificar outra Foto (Grátis) ↗",
             "risk_label": f"{risk}% RISCO DE GOLPE CONFIRMADO",
@@ -9813,8 +9813,8 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
             "toolkit_desc": "Ferramentas para checagem de antecedentes, exclusão de dados vazados e relacionamentos seguros.",
         },
         "ru": {
-            "title": f"{name} Предупреждение о брачной афере & Украденные фото ({category}) | VerifyDating",
-            "meta_desc": f"Судебное досье на скам-профиль '{name}' ({prof}, {location}). Распознавание брачных аферистов и поиск по фото с AI VerifyDating.",
+            "title": f"{name} Предупреждение о брачной афере & Украденные фото ({category}) | JobScamRadar",
+            "meta_desc": f"Судебное досье на скам-профиль '{name}' ({prof}, {location}). Распознавание брачных аферистов и поиск по фото с AI JobScamRadar.",
             "back": "&larr; Назад к Списку Мошенников",
             "verify_face": "📷 Проверить другое Фото (Бесплатно) ↗",
             "risk_label": f"{risk}% ПОДТВЕРЖДЕННЫЙ РИСК ОБМАНА",
@@ -9880,7 +9880,7 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
       }},
       "author": {{
         "@type": "Organization",
-        "name": "VerifyDating Forensics",
+        "name": "JobScamRadar Forensics",
         "url": "https://verifydating.net/"
       }}
     }}
@@ -9973,7 +9973,7 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px;">
                 
-                <!-- Card 1: Social Catfish & Surfshark (Reverse Lookup) -->
+                <!-- Card 1: Social Scammer & Surfshark (Reverse Lookup) -->
                 <div class="card affiliate-incogni-card" style="margin-bottom: 0; padding: 22px; background: linear-gradient(135deg, rgba(14, 165, 233, 0.08) 0%, rgba(2, 132, 199, 0.14) 100%); border: 1px solid rgba(56, 189, 248, 0.35);">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <span style="font-size: 24px;">🔍</span>
@@ -9984,8 +9984,8 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
                         Got a phone number, email address, or name from this contact? Run an instant public records & alias search.
                     </p>
                     <div style="display: flex; flex-direction: column; gap: 8px;">
-                        <a href="/go/socialcatfish" target="_blank" rel="noopener sponsored" class="btn-affiliate" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; text-decoration: none; padding: 10px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 700; text-align: center;">
-                            🔍 Reverse Phone & Name Search (Social Catfish) ➔
+                        <a href="/go/socialscammer" target="_blank" rel="noopener sponsored" class="btn-affiliate" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; text-decoration: none; padding: 10px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 700; text-align: center;">
+                            🔍 Reverse Phone & Name Search (Social Scammer) ➔
                         </a>
                         <a href="/go/surfshark" target="_blank" rel="noopener sponsored" class="btn-affiliate" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(56, 189, 248, 0.3); color: #7dd3fc; text-decoration: none; padding: 9px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; text-align: center;">
                             🦈 Instant Identity & Data Leak Search (Surfshark) ➔
@@ -10016,7 +10016,7 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
                     </div>
                 </div>
 
-                <!-- Card 3: VerifyDating PRO & Safe Dating Alternatives -->
+                <!-- Card 3: JobScamRadar PRO & Safe Dating Alternatives -->
                 <div class="card affiliate-match-card" style="margin-bottom: 0; padding: 22px; background: linear-gradient(135deg, rgba(236, 72, 153, 0.08) 0%, rgba(219, 39, 119, 0.14) 100%); border: 1px solid rgba(236, 72, 153, 0.35);">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <span style="font-size: 24px;">💖</span>
@@ -10024,11 +10024,11 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
                     </div>
                     <h3 style="font-family: 'Outfit'; font-size: 17px; color: #fff; margin: 0 0 8px 0;">Meet Genuine, Verified Singles</h3>
                     <p style="color: #cbd5e1; font-size: 13px; margin: 0 0 16px 0; line-height: 1.45;">
-                        Tired of catfish bots and scammers? Switch to moderated dating networks with official ID and photo verification.
+                        Tired of scammer bots and scammers? Switch to moderated dating networks with official ID and photo verification.
                     </p>
                     <div style="display: flex; flex-direction: column; gap: 8px;">
                         <a href="/" target="_blank" rel="noopener" class="btn-affiliate" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); color: #fff; text-decoration: none; padding: 10px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 700; text-align: center;">
-                            ⭐ Deep Biometric Face Audit (VerifyDating - 100% Free) ➔
+                            ⭐ Deep Biometric Face Audit (JobScamRadar - 100% Free) ➔
                         </a>
                         <a href="/go/dating-singles" target="_blank" rel="noopener" class="btn-affiliate" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(236, 72, 153, 0.3); color: #f9a8d4; text-decoration: none; padding: 9px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; text-align: center;">
                             💖 Browse Verified Profiles & Real Singles ➔
@@ -10052,7 +10052,7 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
                         </span>
                     </div>
                     <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.5; margin: 0 0 12px 0;">
-                        AI Biometric Facial Recognition &amp; Romance Scam Blacklist. Protecting dating singles and exposing romance fraud syndicates.
+                        AI Biometric Facial Recognition &amp; Job Scam Blacklist. Protecting dating singles and exposing romance fraud syndicates.
                     </p>
                     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                         <span style="background: rgba(16, 185, 129, 0.12); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px;">✓ VIES Verified EU</span>
@@ -10070,7 +10070,7 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
                 <div>
                     <h4 style="font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 700; color: #ec4899; margin: 0 0 14px 0;">Official Network</h4>
                     <p style="margin: 0 0 8px 0;"><a href="https://jobscamradar.com" target="_blank" rel="noopener" style="color: #cbd5e1; text-decoration: none;">🏛️ JobScamRadar.com</a></p>
-                    <p style="margin: 0 0 8px 0;"><a href="https://verifydating.net" style="color: #ec4899; font-weight: 700; text-decoration: none;">🛡️ VerifyDating.net</a></p>
+                    <p style="margin: 0 0 8px 0;"><a href="https://verifydating.net" style="color: #ec4899; font-weight: 700; text-decoration: none;">🛡️ JobScamRadar.net</a></p>
                     <p style="margin: 0 0 8px 0;"><a href="https://dreamcarhunt.com" target="_blank" rel="noopener" style="color: #cbd5e1; text-decoration: none;">🏎️ DreamCarHunt.com</a></p>
                     <p style="margin: 0 0 8px 0;"><a href="https://airparkrefund.com" target="_blank" rel="noopener" style="color: #cbd5e1; text-decoration: none;">✈️ AirParkRefund.com</a></p>
                     <p style="margin: 0;"><a href="https://vasiledev.com" target="_blank" rel="noopener" style="color: #cbd5e1; text-decoration: none;">👑 VasileDev.com</a></p>
@@ -10078,7 +10078,7 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
             </div>
 
             <div style="max-width: 1140px; margin: 0 auto; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 18px; text-align: center; font-size: 0.8rem; color: #64748b;">
-                <p style="margin: 0;">&copy; 2026 VerifyDating™ by VasileDev Group. All rights reserved. Powered globally by Cloudflare Edge Network.</p>
+                <p style="margin: 0;">&copy; 2026 JobScamRadar™ by VasileDev Group. All rights reserved. Powered globally by Cloudflare Edge Network.</p>
             </div>
         </footer>
     </div>
@@ -10097,7 +10097,7 @@ async def get_main_directory(request: Request):
         buttons_html = '''
             <a href="/directory/dating" class="dir-card" style="margin: 0 auto;">
                 <h2>💔 Dating Scams (A-Z)</h2>
-                <p>Browse our extensive database of fake dating profiles and romance scammers alphabetically.</p>
+                <p>Browse our extensive database of fake job offers and romance scammers alphabetically.</p>
             </a>
         '''
         title = "Dating Scams Directory"

@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
             criticalRisk: "Critical Risk",
             moderateRisk: "Moderate Risk",
             lowRisk: "Low Risk",
-            fakeProfile: "Fake Profile Confirmed (Catfish)",
+            fakeProfile: "Fake Profile Confirmed (Scammer)",
             stockPhoto: "Stock / Public Photo Detected",
             uniqueProfile: "Unique Profile Verified",
             matchesSuffix: "matches",
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
             criticalRisk: "Risc Critic",
             moderateRisk: "Risc Moderat",
             lowRisk: "Risc Scăzut",
-            fakeProfile: "Profil Fals Confirmat (Catfish)",
+            fakeProfile: "Profil Fals Confirmat (Scammer)",
             stockPhoto: "Poză Publică / Stock Detectată",
             uniqueProfile: "Profil Unic Verificat",
             matchesSuffix: "potriviri",
@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
             criticalRisk: "Rischio Critico",
             moderateRisk: "Rischio Moderato",
             lowRisk: "Rischio Basso",
-            fakeProfile: "Profilo Falso Confermato (Catfish)",
+            fakeProfile: "Profilo Falso Confermato (Scammer)",
             stockPhoto: "Foto Stock / Pubblica Rilevata",
             uniqueProfile: "Profilo Unico Verificato",
             matchesSuffix: "corrispondenze",
@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
             criticalRisk: "Kritisches Risiko",
             moderateRisk: "Moderates Risiko",
             lowRisk: "Geringes Risiko",
-            fakeProfile: "Gefälschtes Profil Bestätigt (Catfish)",
+            fakeProfile: "Gefälschtes Profil Bestätigt (Scammer)",
             stockPhoto: "Stock- / Öffentliches Foto Erkannt",
             uniqueProfile: "Einzigartiges Profil Verifiziert",
             matchesSuffix: "Treffer",
@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
             criticalRisk: "Riesgo Crítico",
             moderateRisk: "Riesgo Moderado",
             lowRisk: "Riesgo Bajo",
-            fakeProfile: "Perfil Falso Confirmado (Catfish)",
+            fakeProfile: "Perfil Falso Confirmado (Scammer)",
             stockPhoto: "Foto de Stock / Pública Detectada",
             uniqueProfile: "Perfil Único Verificado",
             matchesSuffix: "coincidencias",
@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
             criticalRisk: "Risque Critique",
             moderateRisk: "Risque Modéré",
             lowRisk: "Risque Faible",
-            fakeProfile: "Faux Profil Confirmé (Catfish)",
+            fakeProfile: "Faux Profil Confirmé (Scammer)",
             stockPhoto: "Photo Stock / Publique Détectée",
             uniqueProfile: "Profil Unique Vérifié",
             matchesSuffix: "correspondances",
@@ -217,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
             criticalRisk: "Risco Crítico",
             moderateRisk: "Risco Moderado",
             lowRisk: "Risco Baixo",
-            fakeProfile: "Perfil Falso Confirmado (Catfish)",
+            fakeProfile: "Perfil Falso Confirmado (Scammer)",
             stockPhoto: "Foto de Stock / Pública Detectada",
             uniqueProfile: "Perfil Único Verificado",
             matchesSuffix: "correspondências",
@@ -251,7 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
             criticalRisk: "Критический риск",
             moderateRisk: "Средний риск",
             lowRisk: "Низкий риск",
-            fakeProfile: "Фальшивый профиль подтвержден (Catfish)",
+            fakeProfile: "Фальшивый профиль подтвержден (Scammer)",
             stockPhoto: "Обнаружено стоковое / публичное фото",
             uniqueProfile: "Уникальный профиль подтвержден",
             matchesSuffix: "совпадений",
@@ -367,7 +367,7 @@ document.addEventListener('DOMContentLoaded', () => {
         country: 'US',
         currency: 'usd',
         total: {
-            label: 'VerifyDating Security Report',
+            label: 'JobScamRadar Security Report',
             amount: 199,
         },
         requestPayerEmail: true,
@@ -710,7 +710,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update PDF PayPal link dynamically with currentScanId
         const pdfPaypalBtn = document.getElementById('download-pdf-paypal-btn');
         if (pdfPaypalBtn && currentScanId) {
-            pdfPaypalBtn.href = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=amendamax%40gmail.com&currency_code=USD&amount=2.99&item_name=VerifyDating+Forensic+PDF+Report+${currentScanId}&return=https://verifydating.net/?scan_id=${currentScanId}&pdf_unlocked=1&notify_url=https://verifydating.net/api/pay-paypal-ipn`;
+            pdfPaypalBtn.href = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=amendamax%40gmail.com&currency_code=USD&amount=2.99&item_name=JobScamRadar+Forensic+PDF+Report+${currentScanId}&return=https://verifydating.net/?scan_id=${currentScanId}&pdf_unlocked=1&notify_url=https://verifydating.net/api/pay-paypal-ipn`;
         }
 
         // Fetch full scan details and render immediately
@@ -740,7 +740,7 @@ document.addEventListener('DOMContentLoaded', () => {
             banner.className = 'results-header risk-danger';
             badge.className = 'risk-badge risk-danger';
             badge.innerText = t.criticalRisk || 'Critical Risk';
-            title.innerText = t.fakeProfile || 'Fake Profile Confirmed (Catfish)';
+            title.innerText = t.fakeProfile || 'Fake Profile Confirmed (Scammer)';
             document.getElementById('scam-prob-val').className = 'score-value text-danger';
         } else if (scamProb >= 30) {
             riskCategory = 'medium';
@@ -949,7 +949,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (directPaypalBtn) {
             let amt = packageType === 'basic' ? '2.99' : packageType === 'single' ? '3.99' : '7.99';
             let activeScan = currentScanId || 'latest';
-            directPaypalBtn.href = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=amendamax%40gmail.com&currency_code=USD&amount=${amt}&item_name=VerifyDating+Forensic+Audit+Report+${activeScan}&no_shipping=1&no_note=1&landing_page=billing&return=https://verifydating.net/?scan_id=${activeScan}&notify_url=https://verifydating.net/api/pay-paypal-ipn`;
+            directPaypalBtn.href = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=amendamax%40gmail.com&currency_code=USD&amount=${amt}&item_name=JobScamRadar+Forensic+Audit+Report+${activeScan}&no_shipping=1&no_note=1&landing_page=billing&return=https://verifydating.net/?scan_id=${activeScan}&notify_url=https://verifydating.net/api/pay-paypal-ipn`;
             directPaypalBtn.innerHTML = `<i class="fa-brands fa-paypal" style="font-size:22px;color:#003087;"></i> Pay $${amt} with PayPal`;
         }
         initPayPalButton(packageType);
@@ -973,7 +973,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         purchase_units: [{
                             amount: { value: amt },
                             payee: { email_address: 'amendamax@gmail.com' },
-                            description: "VerifyDating Report - Scan " + (currentScanId || 'latest')
+                            description: "JobScamRadar Report - Scan " + (currentScanId || 'latest')
                         }]
                     });
                 },
@@ -1183,7 +1183,7 @@ if (workspaceEl) workspaceEl.scrollIntoView({ behavior: 'smooth', block: 'start'
 
     async function handleWalletPayClick(walletType) {
         const amountCents = selectedPackage === 'single' ? 199 : 499;
-        const labelText = selectedPackage === 'single' ? 'VerifyDating 1 Scan Report' : 'VerifyDating 5 Scans Package';
+        const labelText = selectedPackage === 'single' ? 'JobScamRadar 1 Scan Report' : 'JobScamRadar 5 Scans Package';
         const pr = createStripePaymentRequest(amountCents, labelText);
 
         const canMakePaymentResult = await pr.canMakePayment();
@@ -1344,7 +1344,7 @@ if (workspaceEl) workspaceEl.scrollIntoView({ behavior: 'smooth', block: 'start'
 
                 const purchaseVal = selectedPackage === 'basic' ? 2.99 : selectedPackage === 'single' ? 3.99 : 7.99;
                 const itemId = selectedPackage === 'basic' ? 'report_199' : selectedPackage === 'single' ? 'report_399' : 'report_799';
-                const itemName = selectedPackage === 'basic' ? 'VerifyDating Basic Unlock' : selectedPackage === 'single' ? 'VerifyDating Standard 3 Credits' : 'VerifyDating PRO 10 Credits';
+                const itemName = selectedPackage === 'basic' ? 'JobScamRadar Basic Unlock' : selectedPackage === 'single' ? 'JobScamRadar Standard 3 Credits' : 'JobScamRadar PRO 10 Credits';
 
                 // Trigger Conversion Event for Google Ads & GA4
                 if (typeof gtag === 'function') {
@@ -1610,7 +1610,7 @@ if (workspaceEl) workspaceEl.scrollIntoView({ behavior: 'smooth', block: 'start'
         ];
 
         const events = [
-            { title: 'Unlocked Catfish Report', subtitle: 'Critical Risk profile matched.', isSafe: false, icon: 'fa-heart-crack' },
+            { title: 'Unlocked Scammer Report', subtitle: 'Critical Risk profile matched.', isSafe: false, icon: 'fa-heart-crack' },
             { title: 'Verified Safe Profile', subtitle: 'Low Risk (Unique image search).', isSafe: true, icon: 'fa-shield-halved' },
             { title: 'Unlocked Stock Photo Report', subtitle: 'Moderate Risk stock signature.', isSafe: false, icon: 'fa-triangle-exclamation' }
         ];
@@ -1678,7 +1678,7 @@ if (workspaceEl) workspaceEl.scrollIntoView({ behavior: 'smooth', block: 'start'
     const closeToastBtn = document.getElementById('close-toast-btn');
 
     const toastNotifications = [
-        { msg: "<strong>Someone in London</strong> just unlocked a catfish security report", icon: "fa-lock", time: "12 sec ago" },
+        { msg: "<strong>Someone in London</strong> just unlocked a scammer security report", icon: "fa-lock", time: "12 sec ago" },
         { msg: "<strong>User in New York</strong> completed a scan: 97% Match Found", icon: "fa-triangle-exclamation", time: "24 sec ago" },
         { msg: "<strong>Someone in Berlin</strong> verified a profile (0% Risk)", icon: "fa-shield-check", time: "41 sec ago" },
         { msg: "<strong>User in Milan</strong> unlocked a full identity audit", icon: "fa-key", time: "1 min ago" },
@@ -1719,7 +1719,7 @@ if (workspaceEl) workspaceEl.scrollIntoView({ behavior: 'smooth', block: 'start'
     const sampleChips = document.querySelectorAll('.sample-chip');
 
     const sampleImages = {
-        catfish: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?catfish_profile=true&w=500&auto=format&fit=crop&q=80",
+        scammer: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?scammer_profile=true&w=500&auto=format&fit=crop&q=80",
         stock: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?stock_profile=true&w=500&auto=format&fit=crop&q=80",
         safe: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?safe_profile=true&w=500&auto=format&fit=crop&q=80"
     };
@@ -1731,7 +1731,7 @@ if (workspaceEl) workspaceEl.scrollIntoView({ behavior: 'smooth', block: 'start'
                 e.stopPropagation();
             }
             const sampleType = chip.getAttribute('data-sample');
-            const sampleUrl = sampleImages[sampleType] || sampleImages.catfish;
+            const sampleUrl = sampleImages[sampleType] || sampleImages.scammer;
             
             if (imageUrlInput) {
                 imageUrlInput.value = sampleUrl;
