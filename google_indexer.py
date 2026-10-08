@@ -8,7 +8,9 @@ from google.oauth2 import service_account
 from google.auth.transport.requests import Request
 
 DB_PATH = "database.db"
-KEY_PATH = os.path.join("keys", "jobscam-indexer.json")
+KEY_PATH = "/etc/secrets/jobscam-indexer.json"
+if not os.path.exists(KEY_PATH):
+    KEY_PATH = os.path.join("keys", "jobscam-indexer.json")
 ENDPOINT = "https://indexing.googleapis.com/v3/urlNotifications:publish"
 
 TRACKER = "last_id_jobscam.txt"
