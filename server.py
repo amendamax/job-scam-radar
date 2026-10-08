@@ -683,7 +683,7 @@ async def startup_event():
                         "keyLocation": "https://verifydating.net/d89b14f6824945e4a81b7e4521798361.txt",
                         "urlList": [
                             "https://verifydating.net/scammers",
-                            "https://verifydating.net/sitemap-dating-scams.xml"
+                            "https://verifydating.net/sitemap-scammers.xml"
                         ]
                     }
                     req = urllib.request.Request("https://www.bing.com/indexnow", data=json.dumps(payload).encode('utf-8'), headers={"Content-Type": "application/json"})
@@ -1111,7 +1111,7 @@ async def get_robots(request: Request):
     host = request.headers.get("host", "").lower()
     is_dating = "dating" in host or "verifydating" in host
     domain = "verifydating.net" if is_dating else "jobscamradar.com"
-    extra_sitemap = "\nSitemap: https://verifydating.net/sitemap-dating-scams.xml" if is_dating else "\nSitemap: https://jobscamradar.com/sitemap-scam-reports.xml"
+    extra_sitemap = "\nSitemap: https://verifydating.net/sitemap-scammers.xml" if is_dating else "\nSitemap: https://jobscamradar.com/sitemap-scam-reports.xml"
     robots_content = f"""User-agent: *
 Allow: /
 Disallow: /admin
@@ -9376,7 +9376,7 @@ async def api_dating_scammers(limit: int = 6, q: str = None):
         })
     return JSONResponse({"status": "success", "total_profiles": total_count, "results": results})
 
-@app.get("/sitemap-dating-scams.xml")
+@app.get("/sitemap-scammers.xml")
 @app.get("/sitemap_dating_scams.xml")
 async def sitemap_dating_scams_index():
     """
@@ -9402,7 +9402,7 @@ async def sitemap_dating_scams_index():
     return Response(content=xml_index, media_type="application/xml")
 
 
-@app.get("/sitemap-dating-scams-{part}.xml")
+@app.get("/sitemap-scammers-{part}.xml")
 async def sitemap_dating_scams_part(part: int):
     """
     Individual chunked sub-sitemap of 5,000 dossiers * 8 languages = 40,000 URLs. Fast, validated, 0% timeout.
