@@ -957,10 +957,10 @@ async def get_test_photo():
         return FileResponse("scammer_profile.png")
     return JSONResponse(status_code=404, content={"message": "Test photo not found"})
 
-@app.get("/video_thumbnail.png")
+@app.get("/video_thumbnail_v2.png")
 async def get_video_thumbnail():
-    if os.path.exists("video_thumbnail.png"):
-        return FileResponse("video_thumbnail.png")
+    if os.path.exists("video_thumbnail_v2.png"):
+        return FileResponse("video_thumbnail_v2.png")
     return JSONResponse(status_code=404, content={"message": "Video thumbnail not found"})
 
 @app.get("/explainer.mp4")
