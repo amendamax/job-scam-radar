@@ -2568,7 +2568,17 @@ async def get_admin_dashboard(request: Request, token: str = None):
             }}
         }}
     </script>
-</head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-950R9NXTL9"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+
+  gtag('config', 'G-950R9NXTL9');
+</script>
+    </head>
 <body>
     <div class="header">
         <div>
@@ -5105,7 +5115,17 @@ async def get_scam_report_page(request: Request, slug: str, lang: str = "en"):
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/company-verifier/style.css">
-</head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-950R9NXTL9"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+
+  gtag('config', 'G-950R9NXTL9');
+</script>
+    </head>
 <body class="theme-company">
     <div class="site-wrapper" style="max-width: 1200px; margin: 0 auto; padding: 20px 15px;">
         
@@ -6487,7 +6507,17 @@ async def privacy_policy_page():
         .badge { display: inline-block; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid #0284c7; padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: bold; margin-bottom: 20px; }
         .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #1e293b; color: #64748b; font-size: 13px; }
     </style>
-</head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-950R9NXTL9"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+
+  gtag('config', 'G-950R9NXTL9');
+</script>
+    </head>
 <body>
     <div class="badge">VasileDev Group Cybersecurity & Privacy Standard</div>
     <h1>Privacy Policy — SafeShield Extension & Platform</h1>
@@ -7019,7 +7049,17 @@ async def api_v1_documentation():
         }
 
     </style>
-</head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-950R9NXTL9"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+
+  gtag('config', 'G-950R9NXTL9');
+</script>
+    </head>
 <body>
     <div class="container">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding: 12px 18px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; flex-wrap: wrap; gap: 12px;">
@@ -7574,7 +7614,17 @@ async def get_dating_badge_customizer_page():
             box-shadow: 0 0 25px rgba(236, 72, 153, 0.8);
         }
     </style>
-</head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-950R9NXTL9"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+
+  gtag('config', 'G-950R9NXTL9');
+</script>
+    </head>
 <body>
     <div class="container">
         <!-- Top Nav -->
@@ -7932,7 +7982,17 @@ async def get_badge_customizer_page(request: Request):
             box-shadow: 0 0 20px var(--primary-glow);
         }
     </style>
-</head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-950R9NXTL9"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+
+  gtag('config', 'G-950R9NXTL9');
+</script>
+    </head>
 <body>
 
 <div class="container">
@@ -8379,7 +8439,17 @@ async def get_dating_api_docs_page():
             margin-top: 10px;
         }
     </style>
-</head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-950R9NXTL9"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+
+  gtag('config', 'G-950R9NXTL9');
+</script>
+    </head>
 <body>
 
 <div class="container">
@@ -8809,7 +8879,17 @@ async def get_pricing_page():
         }
         .btn-enterprise:hover { transform: scale(1.02); }
     </style>
-</head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-950R9NXTL9"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+
+  gtag('config', 'G-950R9NXTL9');
+</script>
+    </head>
 <body>
 
 <div class="container">
@@ -9069,7 +9149,17 @@ async def get_domain_audit_page(domain_or_slug: str):
             box-shadow: 0 0 30px rgba(56,189,248,0.3);
         }}
     </style>
-</head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-950R9NXTL9"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+
+  gtag('config', 'G-950R9NXTL9');
+</script>
+    </head>
 <body>
 
 <div class="container">
@@ -9577,7 +9667,17 @@ async def dating_scammers_directory(request: Request, category: str = None, q: s
         .input-search {{ flex: 1; background: #0b1528; border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 12px 16px; color: #fff; font-size: 14px; outline: none; }}
         .btn-search {{ background: #ec4899; color: #fff; border: none; border-radius: 10px; padding: 12px 22px; font-weight: 700; cursor: pointer; }}
     </style>
-</head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-950R9NXTL9"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+
+  gtag('config', 'G-950R9NXTL9');
+</script>
+    </head>
 <body>
     <div class="container">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
@@ -9908,7 +10008,17 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
         .btn-affiliate {{ transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }}
         .btn-affiliate:hover {{ transform: translateY(-2px) scale(1.02); filter: brightness(1.2); box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5); }}
     </style>
-</head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-950R9NXTL9"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+
+  gtag('config', 'G-950R9NXTL9');
+</script>
+    </head>
 <body>
     <div class="container">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
@@ -10125,6 +10235,16 @@ async def get_main_directory(request: Request):
             .dir-card h2 {{ color: #f8fafc; margin-top: 0; }}
             .dir-card p {{ color: #94a3b8; }}
         </style>
+    
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-950R9NXTL9"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+
+  gtag('config', 'G-950R9NXTL9');
+</script>
     </head>
     <body>
         <div class="container">
@@ -10250,6 +10370,16 @@ async def get_directory_letter_page(request: Request, category: str, letter: str
             .pagination a:hover {{ background: #059669; text-decoration: none; }}
             .stat {{ color: #94a3b8; font-size: 14px; margin-bottom: 20px; }}
         </style>
+    
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-950R9NXTL9"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+
+  gtag('config', 'G-950R9NXTL9');
+</script>
     </head>
     <body>
         <div class="container">
