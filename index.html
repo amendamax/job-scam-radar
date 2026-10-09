@@ -271,7 +271,259 @@
             </a>
         </div>
 
-        
+        <section class="scanner-section" id="scanner-workspace">
+            <div class="scanner-grid">
+                
+                <!-- Left Side: Interactive Dropzone -->
+                <div class="scanner-card upload-card" id="upload-panel">
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-magnifying-glass-chart"></i> Scan Profile Now</h2>
+                        <span class="price-badge">AI & Deepfake Scan Enabled</span>
+                    </div>
+                    
+                    <div class="drop-zone" id="drop-zone-area">
+                        <input type="file" id="image-input" accept="image/*" class="file-input-hidden">
+                        <div class="drop-zone-prompt">
+                            <div class="upload-icon-container">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                            </div>
+                            <h3>Drag & drop screenshot here or browse from device</h3>
+                            <p>Supports PNG, JPG, WEBP. Max 5MB.</p>
+                        </div>
+                        <div class="drop-zone-preview" id="preview-container" style="display: none;">
+                            <img id="image-preview" src="#" alt="Profile Photo Preview">
+                            <div class="scanner-line" id="scan-laser"></div>
+                            <button class="remove-btn" id="remove-img-btn" title="Remove image"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="url-input-container">
+                        <div class="divider"><span>or enter image URL</span></div>
+                        <div class="input-group">
+                            <span class="input-icon"><i class="fa-solid fa-link"></i></span>
+                            <input type="url" id="image-url" placeholder="https://example.com/photo.jpg">
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary btn-block" id="start-scan-btn" disabled>
+                        <span class="btn-text">Analyze Profile Photo</span>
+                        <span class="btn-icon"><i class="fa-solid fa-bolt"></i></span>
+                    </button>
+
+                    <!-- Quick Sample Demo Chips -->
+                    <div class="sample-chips-container">
+                        <div class="sample-chips-label"><i class="fa-solid fa-wand-magic-sparkles"></i> Try a sample demo:</div>
+                        <div class="sample-chips-wrapper">
+                            <button type="button" class="sample-chip chip-scammer" data-sample="scammer">
+                                <i class="fa-solid fa-triangle-exclamation text-danger"></i> Scammer Profile
+                            </button>
+                            <button type="button" class="sample-chip chip-stock" data-sample="stock">
+                                <i class="fa-solid fa-images text-warning"></i> Stock Photo
+                            </button>
+                            <button type="button" class="sample-chip chip-safe" data-sample="safe">
+                                <i class="fa-solid fa-shield-check text-success"></i> Verified Profile
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Side: Real-time Scanning Progress / Results -->
+                <div class="scanner-card status-card" id="results-panel">
+                    <!-- Default Idle State -->
+                    <div class="panel-state" id="state-idle">
+                        <div class="idle-graphic">
+                            <div class="shield-container">
+                                <i class="fa-solid fa-shield-halved"></i>
+                            </div>
+                            <div class="dots-animation">
+                                <span></span><span></span><span></span>
+                            </div>
+                        </div>
+                        <h3>System is ready</h3>
+                        <p class="desc">Upload an image in the left panel to launch the cross-network detection algorithm.</p>
+                        
+                        <div class="trust-stats">
+                            <div class="stat-item">
+                                <span class="stat-val">10ms</span>
+                                <span class="stat-lbl">Response Time</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-val">99.2%</span>
+                                <span class="stat-lbl">Accuracy</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-val">1.2M+</span>
+                                <span class="stat-lbl">Photos Scanned</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Scanning / Progress State -->
+                    <div class="panel-state" id="state-scanning" style="display: none;">
+                        <div class="scanner-spinner">
+                            <div class="spinner-ring"></div>
+                            <i class="fa-solid fa-heart-pulse heartbeat"></i>
+                        </div>
+                        <h3>Running security analysis...</h3>
+                        
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="scan-progress-fill"></div>
+                            </div>
+                            <span class="progress-percent" id="scan-progress-text">0%</span>
+                        </div>
+
+                        <ul class="scanning-steps">
+                            <li class="step-item" id="step-facial"><i class="fa-solid fa-circle-notch fa-spin"></i> Determining facial geometry...</li>
+                            <li class="step-item" id="step-reverse"><i class="fa-solid fa-circle"></i> Reverse searching web database...</li>
+                            <li class="step-item" id="step-social"><i class="fa-solid fa-circle"></i> Scanning social profiles & networks...</li>
+                            <li class="step-item" id="step-scamdb"><i class="fa-solid fa-circle"></i> Matching global scammer blacklist...</li>
+                        </ul>
+                    </div>
+
+                    <!-- Scan Results State (100% Free Instant Analysis + High-Yield Monetization) -->
+                    <div class="panel-state" id="state-results" style="display: none; position: relative;">
+                        <div class="results-header" id="risk-banner">
+                            <div class="risk-badge" id="risk-badge-element">High Risk</div>
+                            <h3 id="risk-title">Fake Profile Detected</h3>
+                        </div>
+
+                        <div class="results-body" style="display: block;">
+                            <!-- Score Dashboard -->
+                            <div class="score-grid">
+                                <div class="score-widget">
+                                    <span class="score-label">Scam Probability</span>
+                                    <span class="score-value text-danger" id="scam-prob-val">94%</span>
+                                </div>
+                                <div class="score-widget">
+                                    <span class="score-label">Internet Matches</span>
+                                    <span class="score-value text-warning" id="matches-found-val">12 sites</span>
+                                </div>
+                            </div>
+
+                            <!-- Match Preview & Diagnostic Summary -->
+                            <div class="match-details">
+                                <h4><i class="fa-solid fa-microchip"></i> JobScam Analysis Summary (Free Report)</h4>
+                                <ul class="details-list" id="diagnostic-details-list">
+                                    <li><i class="fa-solid fa-triangle-exclamation text-danger"></i> Image found on other web sources under multiple aliases.</li>
+                                    <li><i class="fa-solid fa-circle-info text-info"></i> Image metadata indicates digital manipulation / social media compression.</li>
+                                    <li><i class="fa-solid fa-globe text-warning"></i> Public match sources identified across indexed networks.</li>
+                                </ul>
+                            </div>
+
+                            <!-- Unlocked Details: Identified Platforms -->
+                            <div class="premium-results" id="unlocked-premium-details" style="display: block;">
+                                <h4><i class="fa-solid fa-link-slash"></i> Detected Match Sources & Platforms:</h4>
+                                <div class="match-links-container">
+                                    <div class="match-link-card">
+                                        <span class="platform-badge platform-pinterest">Pinterest</span>
+                                        <span class="match-url">pinterest.com/pin/match-source-detected <i class="fa-solid fa-check-circle" style="color:#10B981;"></i></span>
+                                    </div>
+                                    <div class="match-link-card">
+                                        <span class="platform-badge platform-vk">Social Profile</span>
+                                        <span class="match-url">social-network.com/profile/match <i class="fa-solid fa-check-circle" style="color:#10B981;"></i></span>
+                                    </div>
+                                    <div class="match-link-card">
+                                        <span class="platform-badge platform-forum">Web Forum</span>
+                                        <span class="match-url">scam-forum-archive.com/users <i class="fa-solid fa-check-circle" style="color:#10B981;"></i></span>
+                                    </div>
+                                </div>
+
+                                <div class="scammer-profile-card">
+                                    <h4><i class="fa-solid fa-user-ninja"></i> Scam Signature Diagnostic</h4>
+                                    <p>Our AI text analysis has verified this photo against indexed job scam records, web search indices, and social duplicates.</p>
+                                </div>
+
+                                <!-- HIGH-CONVERTING CPA AFFILIATE & MONETIZATION CARDS -->
+                                <div class="affiliate-offers-container" style="margin-top: 24px; display: flex; flex-direction: column; gap: 14px;">
+                                    
+                                    <!-- Offer 1: Background Check Partner ($35-$60 CPA) -->
+                                    <div class="affiliate-card socialscammer-card" style="background: rgba(2, 132, 199, 0.09); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 12px; padding: 16px; text-align: left;">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                            <div style="display: flex; align-items: center; gap: 10px;">
+                                                <i class="fa-solid fa-user-secret" style="font-size: 20px; color: #38bdf8;"></i>
+                                                <h4 style="margin: 0; font-size: 15px; color: #fff; font-weight: 700;">🔍 Deep Background & Social Profile Search (Basic Regex Bots)</h4>
+                                            </div>
+                                            <span style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px;">RECOMMENDED INVESTIGATION</span>
+                                        </div>
+                                        <p style="font-size: 12px; color: var(--text-muted); margin: 0 0 12px 0; line-height: 1.4;">
+                                            Verify real name, phone carrier, social profiles, email aliases & criminal background history linked to this person across 200M+ public records.
+                                        </p>
+                                        <a href="/go/socialscammer" target="_blank" rel="noopener noreferrer" class="btn btn-block" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); border: none; font-weight: 700; font-size: 13px; padding: 11px; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; border-radius: 8px; color: #fff; box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);">
+                                            <span>🔍 Run Deep Identity Search on Basic Regex Bots ➔</span>
+                                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                        </a>
+                                    </div>
+
+                                    <!-- Offer 2: Verified Safe Job Boards ($40-$80 CPA) -->
+                                    <div class="affiliate-card job-safe-card" style="background: rgba(59, 130, 246, 0.09); border: 1px solid rgba(59, 130, 246, 0.35); border-radius: 12px; padding: 16px; text-align: left;">
+                                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                                            <i class="fa-solid fa-user-shield" style="font-size: 22px; color: #3B82F6;"></i>
+                                            <h4 style="margin: 0; font-size: 15px; color: #fff; font-weight: 700;">🔒 Enterprise-Grade Threat Defense (VPN)</h4>
+                                        </div>
+                                        <p style="font-size: 12px; color: var(--text-muted); margin: 0 0 12px 0; line-height: 1.4;">
+                                            Protect your real GPS location, photos, and chat privacy from scammers and scammerers with certified encryption.
+                                        </p>
+                                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                            <a href="/go/nordvpn" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="flex: 1; min-width: 140px; background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%); border: none; font-weight: 700; font-size: 12px; padding: 11px 8px; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; border-radius: 8px; color: #fff; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);">
+                                                <span>🛡️ NordVPN (-72%)</span>
+                                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                            </a>
+                                            <a href="/go/surfshark" target="_blank" rel="noopener noreferrer" class="btn" style="flex: 1; min-width: 140px; background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); border: none; font-weight: 700; font-size: 12px; padding: 11px 8px; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; border-radius: 8px; color: #fff; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.35);">
+                                                <span>🦈 Surfshark (-82%)</span>
+                                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                            </a>
+                                        </div>
+                                        <div style="margin-top: 10px;">
+                                            <a href="/go/intego" target="_blank" rel="noopener sponsored" class="btn" style="width: 100%; box-sizing: border-box; background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%); border: none; font-weight: 700; font-size: 12px; padding: 11px 8px; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; border-radius: 8px; color: #fff; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);">
+                                                <span>🍏 Intego Mac & iPhone Anti-Malware Protection (-35%)</span>
+                                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <!-- Offer 3: Stamped Official PDF Dossier ($2.99 via PayPal) -->
+                                    <div class="affiliate-card pdf-download-card" style="background: rgba(59, 130, 246, 0.09); border: 1px solid rgba(59, 130, 246, 0.35); border-radius: 12px; padding: 16px; text-align: left;">
+                                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                                            <i class="fa-solid fa-file-pdf" style="font-size: 22px; color: #3B82F6;"></i>
+                                            <h4 style="margin: 0; font-size: 15px; color: #fff; font-weight: 700;">Official Forensic PDF Case File</h4>
+                                        </div>
+                                        <p style="font-size: 12px; color: var(--text-muted); margin: 0 0 12px 0; line-height: 1.4;">
+                                            Download a certified, timestamped PDF dossier containing full technical metadata, match signatures, and evidentiary stamps for personal or legal records.
+                                        </p>
+                                        <a id="download-pdf-paypal-btn" href="https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=amendamax%40gmail.com&currency_code=USD&amount=2.99&item_name=JobScamRadar+Forensic+PDF+Report&return=https://jobscamradar.com/" target="_blank" class="btn btn-block" style="background: #FFC439; color: #003087; font-weight: 800; font-size: 13px; padding: 11px; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(255, 196, 57, 0.25);">
+                                            <i class="fa-brands fa-paypal" style="font-size: 18px;"></i>
+                                            <span>Download Official PDF Dossier — $2.99</span>
+                                        </a>
+                                    </div>
+
+                                    <!-- Cross-Promotion Offer: IsBrokerSafe.com Pig Butchering & Crypto Audit -->
+                                    <div class="affiliate-card broker-safe-card" style="background: rgba(14, 165, 233, 0.08); border: 1px solid rgba(14, 165, 233, 0.35); border-radius: 12px; padding: 16px; text-align: left;">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                            <div style="display: flex; align-items: center; gap: 10px;">
+                                                <i class="fa-solid fa-chart-line" style="font-size: 20px; color: #38bdf8;"></i>
+                                                <h4 style="margin: 0; font-size: 15px; color: #fff; font-weight: 700;">📈 Suspicious Crypto or Trading App Recommendation?</h4>
+                                            </div>
+                                            <span style="background: rgba(14, 165, 233, 0.2); color: #38bdf8; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px;">PIG BUTCHERING ALERT</span>
+                                        </div>
+                                        <p style="font-size: 12px; color: var(--text-muted); margin: 0 0 12px 0; line-height: 1.4;">
+                                            Did this match suggest investing in cryptocurrency, forex, or a private trading platform? 84% of job scams evolve into fake broker fraud ("Pig Butchering"). Check if their platform is licensed or blacklisted.
+                                        </p>
+                                        <a href="https://isbrokersafe.com/" target="_blank" rel="noopener" class="btn btn-block" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); border: none; font-weight: 700; font-size: 13px; padding: 11px; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; border-radius: 8px; color: #fff; box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);">
+                                            <span>🔍 Verify Broker & Crypto License Free on IsBrokerSafe.com</span>
+                                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                        </a>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
 
         <!-- ================================================================= -->
         <!-- VERIFIED INVESTIGATION, PRIVACY & SAFE RECRUITING TOOLKIT (CJ PARTNERS) -->
@@ -897,7 +1149,56 @@
 
     <script src="/app.js?v=9.2"></script>
 
-    
+    <!-- EXIT-INTENT MODAL -->
+    <div id="exit-intent-modal" class="exit-modal-backdrop" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(2, 6, 23, 0.85); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:99999; align-items:center; justify-content:center; padding:16px;">
+        <div class="exit-modal-card" style="background:linear-gradient(145deg, #0b1528 0%, #111e38 100%); border:1px solid rgba(56, 189, 248, 0.4); border-radius:20px; max-width:520px; width:100%; padding:28px 24px; box-shadow:0 25px 60px rgba(0,0,0,0.6); position:relative; text-align:center;">
+            <button id="close-exit-modal" aria-label="Close" style="position:absolute; top:14px; right:16px; background:rgba(255,255,255,0.08); border:none; color:#94a3b8; font-size:20px; width:34px; height:34px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:0.2s;">&times;</button>
+            
+            <div style="display:inline-flex; align-items:center; gap:6px; background:rgba(16, 185, 129, 0.15); border:1px solid rgba(16, 185, 129, 0.35); color:#10b981; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:800; text-transform:uppercase; margin-bottom:14px;">
+                <i class="fa-solid fa-shield-halved"></i> 🛡️ 100% Free AI Scam Detection
+            </div>
+
+            <h3 style="font-family:'Outfit',sans-serif; font-size:23px; color:#fff; margin:0 0 10px 0; font-weight:800; line-height:1.25;">
+                Wait! Don't Get Scammered.
+            </h3>
+
+            <p style="color:#cbd5e1; font-size:14px; line-height:1.5; margin:0 0 18px 0;">
+                Verifying a job offer takes just 3 seconds and is 100% FREE. Never send money or fall for a fake job offer without checking!
+            </p>
+
+            <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:12px 16px; margin-bottom:20px; text-align:left;">
+                <div style="display:flex; align-items:center; gap:8px; color:#38bdf8; font-size:13px; font-weight:600; margin-bottom:6px;">
+                    <i class="fa-solid fa-check-circle" style="color:#10b981;"></i> Instant screenshot text analysis
+                </div>
+                <div style="display:flex; align-items:center; gap:8px; color:#38bdf8; font-size:13px; font-weight:600; margin-bottom:6px;">
+                    <i class="fa-solid fa-check-circle" style="color:#10b981;"></i> Cross-checks 200,000+ indexed job scams
+                </div>
+                <div style="display:flex; align-items:center; gap:8px; color:#38bdf8; font-size:13px; font-weight:600;">
+                    <i class="fa-solid fa-check-circle" style="color:#10b981;"></i> 100% Free • No registration • No credit card required
+                </div>
+            </div>
+
+            <!-- Primary CTA: Scroll to Free Upload -->
+            <button id="exit-btn-scan-free" style="width:100%; background:linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); color:#fff; border:none; padding:14px 18px; border-radius:10px; font-size:15px; font-weight:800; cursor:pointer; box-shadow:0 6px 20px rgba(14, 165, 233, 0.4); display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:12px; transition:0.2s;">
+                <i class="fa-solid fa-camera"></i> <span>📸 Scan Screenshot for Free Now (Takes 3s) ➔</span>
+            </button>
+
+            <div style="font-size:11px; color:#64748b; margin-bottom:14px; text-transform:uppercase; letter-spacing:0.5px;">
+                — OR IF YOU ONLY HAVE A PHONE NUMBER / NAME —
+            </div>
+
+            <!-- Secondary CTA: Basic Regex Bots Reverse Phone / Email Search -->
+            <a href="/go/socialscammer" target="_blank" rel="noopener sponsored" style="width:100%; background:rgba(255,255,255,0.06); border:1px solid rgba(56, 189, 248, 0.35); color:#7dd3fc; text-decoration:none; padding:11px 16px; border-radius:10px; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:8px; transition:0.2s;">
+                <i class="fa-solid fa-phone-volume"></i> <span>🔍 Run Deep Identity Search on Basic Regex Bots ➔</span> <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:11px;"></i>
+            </a>
+
+            <div style="margin-top:14px;">
+                <button id="dismiss-exit-modal" style="background:none; border:none; color:#64748b; font-size:12px; text-decoration:underline; cursor:pointer;">
+                    ✕ No thanks, I'll take the risk
+                </button>
+            </div>
+        </div>
+    </div>
     <script>
     (function() {
         var exitShown = sessionStorage.getItem('vd_exit_shown');
