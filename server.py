@@ -355,13 +355,29 @@ def log_and_notify_payment_event(event_type: str, site: str, email: str, scan_id
 # ==========================================================================
 def init_db():
     conn = sqlite3.connect(DB_PATH, timeout=30.0)
-    conn.execute('DROP TABLE IF EXISTS dating_scam_profiles')
-    conn.execute('DROP TABLE IF EXISTS job_scam_profiles')
-    conn.execute('DROP TABLE IF EXISTS job_scam_reports')
+    
+    
+    
     conn.commit()
     conn.close()
+
     conn = get_db_connection()
     cursor = conn.cursor()
+    
+    # Force copy if persistent DB is empty but we have data in git
+    try:
+        cursor.execute("SELECT COUNT(*) FROM job_scam_reports")
+        count = cursor.fetchone()[0]
+        if count == 0 and os.path.exists("database.db"):
+            print("Persistent DB is empty! Copying populated database.db from Git repository...")
+            import shutil
+            conn.close()
+            shutil.copy("database.db", DB_PATH)
+            conn = get_db_connection()
+            cursor = conn.cursor()
+    except Exception as e:
+        print("Error checking DB:", e)
+
     # Table for Job Job Scam scans
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS scans (
@@ -9488,17 +9504,7 @@ async def job_scammers_directory(request: Request, category: str = None, q: str 
     cursor.execute("SELECT COUNT(*) FROM job_scam_reports")
     total_db_count = cursor.fetchone()[0]
     
-    if total_db_count < 10000:
-        conn.close()
-        try:
-            from job_scams_harvester import generate_job_scam_dossiers
-            generate_job_scam_dossiers(12500)
-        except Exception as e:
-            print(f"[OnDemand Seed Exception]: {e}")
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT COUNT(*) FROM job_scam_reports")
-        total_db_count = cursor.fetchone()[0]
+    
     
     # Base count for filtered query
     count_query = "SELECT COUNT(*) FROM job_scam_profiles WHERE 1=1"
