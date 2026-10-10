@@ -617,7 +617,7 @@ async def startup_event():
                 
             conn = get_db_connection()
             cursor = conn.cursor()
-            cursor.execute("SELECT COUNT(*) FROM job_scam_profiles")
+            cursor.execute("SELECT COUNT(*) FROM job_scam_reports")
             job_count = cursor.fetchone()[0]
             conn.close()
             if job_count < 10000:
@@ -665,7 +665,7 @@ async def health_check():
         cursor = conn.cursor()
         cursor.execute("SELECT COUNT(*) FROM job_scam_reports")
         companys = cursor.fetchone()[0]
-        cursor.execute("SELECT COUNT(*) FROM job_scam_profiles")
+        cursor.execute("SELECT COUNT(*) FROM job_scam_reports")
         job = cursor.fetchone()[0]
         conn.close()
         return JSONResponse({
@@ -693,7 +693,7 @@ async def sentinel_diagnostics():
         cursor = conn.cursor()
         cursor.execute("SELECT COUNT(*) FROM job_scam_reports")
         companys = cursor.fetchone()[0]
-        cursor.execute("SELECT COUNT(*) FROM job_scam_profiles")
+        cursor.execute("SELECT COUNT(*) FROM job_scam_reports")
         job = cursor.fetchone()[0]
         cursor.execute("PRAGMA integrity_check;")
         integrity = cursor.fetchone()[0]
@@ -9334,7 +9334,7 @@ async def admin_seed_job_scams():
         generate_job_scam_dossiers(10000)
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT COUNT(*) FROM job_scam_profiles")
+        cursor.execute("SELECT COUNT(*) FROM job_scam_reports")
         count = cursor.fetchone()[0]
         conn.close()
         return JSONResponse({"status": "success", "total_job_scam_profiles": count})
@@ -9365,7 +9365,7 @@ async def api_job_scammers(limit: int = 6, q: str = None):
     """
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT COUNT(*) FROM job_scam_profiles")
+    cursor.execute("SELECT COUNT(*) FROM job_scam_reports")
     total_count = cursor.fetchone()[0]
     
     if total_count == 0:
@@ -9378,7 +9378,7 @@ async def api_job_scammers(limit: int = 6, q: str = None):
         conn = get_db_connection()
         cursor = conn.cursor()
         
-    query_str = "SELECT slug, persona_name, gender, scam_category, claimed_age, claimed_profession, risk_score, views_count, first_reported_date FROM job_scam_profiles WHERE 1=1"
+    query_str = "SELECT slug, entity_name, 'N/A', warning_type, 'N/A', regulator, risk_score, 100, warning_date FROM job_scam_reports WHERE 1=1"
     params = []
     if q:
         query_str += " AND (persona_name LIKE ? OR claimed_profession LIKE ? OR scam_category LIKE ?)"
@@ -9488,7 +9488,7 @@ async def job_scammers_directory(request: Request, category: str = None, q: str 
 
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT COUNT(*) FROM job_scam_profiles")
+    cursor.execute("SELECT COUNT(*) FROM job_scam_reports")
     total_db_count = cursor.fetchone()[0]
     
     if total_db_count < 10000:
@@ -9500,7 +9500,7 @@ async def job_scammers_directory(request: Request, category: str = None, q: str 
             print(f"[OnDemand Seed Exception]: {e}")
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT COUNT(*) FROM job_scam_profiles")
+        cursor.execute("SELECT COUNT(*) FROM job_scam_reports")
         total_db_count = cursor.fetchone()[0]
     
     # Base count for filtered query
