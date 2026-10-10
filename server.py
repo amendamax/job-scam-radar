@@ -6418,7 +6418,7 @@ async def redirect_to_chrome_store():
     Redirects directly to official SafeShield Chrome Web Store extension page.
     """
     return RedirectResponse(
-        url="https://chromewebstore.google.com/detail/safeshield-company-job/kofccbiknbhbmjdpagddiiaggleehdoj",
+        url="https://chromewebstore.google.com/detail/safeshield-company-job/kofccbiknbhbmjdpagddiiaggelehdoj",
         status_code=302
     )
 
