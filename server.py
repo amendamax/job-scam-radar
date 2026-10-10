@@ -622,80 +622,16 @@ async def startup_event():
             print(f"[Startup Seed Exception]: {e}")
             
     def _daily_harvester():
-        time.sleep(60)  # Wait 1 minute after boot
+        time.sleep(60)
         while True:
             try:
-                print("[Daily Harvester] Checking new regulatory alerts from CONSOB, FCA, BaFin, CySEC...")
-                from scam_regulators_scraper import fetch_consob_blacklist_feed, fetch_fca_warning_feed, fetch_cysec_warning_feed, fetch_bafin_warning_feed
-                new_alerts = 0
-                new_alerts += fetch_consob_blacklist_feed()
-                new_alerts += fetch_fca_warning_feed()
-                new_alerts += fetch_cysec_warning_feed()
-                new_alerts += fetch_bafin_warning_feed()
-                if new_alerts > 0:
-                    print(f"[Daily Harvester] Discovered {new_alerts} new regulatory enforcement alerts! Notifying Bing & Yahoo via IndexNow...")
-                    try:
-                        import urllib.request, json
-                        payload = {
-                            "host": "jobscamradar.com",
-                            "key": "d89b14f6824945e4a81b7e4521798361",
-                            "keyLocation": "https://jobscamradar.com/d89b14f6824945e4a81b7e4521798361.txt",
-                            "urlList": [
-                                "https://jobscamradar.com/sitemap.xml",
-                                "https://jobscamradar.com/sitemap-scam-reports.xml"
-                            ]
-                        }
-                        req = urllib.request.Request("https://api.indexnow.org/indexnow", data=json.dumps(payload).encode('utf-8'), headers={"Content-Type": "application/json"})
-                        urllib.request.urlopen(req, timeout=15)
-                        print("[Daily Harvester] Successfully notified Bing & Yahoo IndexNow.")
-                    except Exception as e:
-                        print(f"[Daily Harvester IndexNow Error]: {e}")
-                else:
-                    print("[Daily Harvester] All regulatory archives are current and synchronized.")
+                import job_scams_harvester
+                job_scams_harvester.harvest_google_news_scams()
             except Exception as e:
-                print(f"[Daily Harvester Error]: {e}")
-                
-            # Run every 24 hours (86,400 seconds)
+                print(f'Error: {e}')
             time.sleep(86400)
 
-    def _weekly_job_harvester():
-        time.sleep(180)  # Wait 3 minutes after server boot
-        while True:
-            try:
-                print("[Weekly Job Harvester] Running scheduled weekly romance scam feed update (04:00 AM once a week)...")
-                from job_scams_harvester import generate_job_scam_dossiers
-                conn = get_db_connection()
-                cursor = conn.cursor()
-                cursor.execute("SELECT COUNT(*) FROM job_scam_profiles")
-                curr_count = cursor.fetchone()[0]
-                conn.close()
-                
-                # Expand by 500 fresh weekly scam profiles
-                new_target = curr_count + 500
-                generate_job_scam_dossiers(new_target)
-                
-                # Notify Bing & Yahoo IndexNow
-                try:
-                    import urllib.request, json
-                    payload = {
-                        "host": "verifyjob.net",
-                        "key": "d89b14f6824945e4a81b7e4521798361",
-                        "keyLocation": "https://verifyjob.net/d89b14f6824945e4a81b7e4521798361.txt",
-                        "urlList": [
-                            "https://verifyjob.net/scammers",
-                            "https://verifyjob.net/sitemap-scammers.xml"
-                        ]
-                    }
-                    req = urllib.request.Request("https://www.bing.com/indexnow", data=json.dumps(payload).encode('utf-8'), headers={"Content-Type": "application/json"})
-                    urllib.request.urlopen(req, timeout=15)
-                    print("[Weekly Job Harvester] Successfully notified Bing & Yahoo IndexNow of new weekly dossiers.")
-                except Exception as e:
-                    print(f"[Weekly Job Harvester IndexNow Error]: {e}")
-            except Exception as e:
-                print(f"[Weekly Job Harvester Error]: {e}")
-                
-            # Sleep 7 days (604,800 seconds = 1 week)
-            time.sleep(604800)
+    
 
     threading.Thread(target=_seed, daemon=True).start()
 
