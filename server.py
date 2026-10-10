@@ -356,6 +356,7 @@ def log_and_notify_payment_event(event_type: str, site: str, email: str, scan_id
 def init_db():
     conn = sqlite3.connect(DB_PATH, timeout=30.0)
     conn.execute('DROP TABLE IF EXISTS dating_scam_profiles')
+    conn.execute('DROP TABLE IF EXISTS job_scam_profiles')
     conn.execute('DROP TABLE IF EXISTS job_scam_reports')
     conn.commit()
     conn.close()
