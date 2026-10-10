@@ -8,7 +8,7 @@ import xml.etree.ElementTree as ET
 from datetime import datetime
 
 try:
-    from duckduckgo_search import DDGS
+    from ddgs import DDGS
 except ImportError:
     DDGS = None
 
