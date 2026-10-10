@@ -1095,8 +1095,7 @@ async def get_sitemap(request: Request):
     if not is_job:
         urls.append(f'  <url><loc>https://{domain}/widget</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>')
         urls.append(f'  <url><loc>https://{domain}/pricing</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>')
-        for b in ["interactive-companys", "avatrade", "xm", "exness", "etoro", "plus500"]:
-            urls.append(f'  <url><loc>https://{domain}/reviews/{b}</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>')
+        
             for l in langs:
                 urls.append(f'  <url><loc>https://{domain}/{l}/reviews/{b}</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>')
 
