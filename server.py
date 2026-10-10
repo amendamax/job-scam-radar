@@ -353,7 +353,7 @@ def log_and_notify_payment_event(event_type: str, site: str, email: str, scan_id
 # ==========================================================================
 # DATABASE INITIALIZATION
 # ==========================================================================
-def init_db():
+def init_db():\n    conn = sqlite3.connect(DB_PATH, timeout=timeout)\n    conn.execute('DROP TABLE IF EXISTS dating_scam_profiles')\n    conn.execute('DROP TABLE IF EXISTS regulatory_scam_reports')\n    conn.commit()\n    conn.close()
     conn = get_db_connection()
     cursor = conn.cursor()
     # Table for Job Job Scam scans
