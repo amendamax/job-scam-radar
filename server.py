@@ -353,7 +353,12 @@ def log_and_notify_payment_event(event_type: str, site: str, email: str, scan_id
 # ==========================================================================
 # DATABASE INITIALIZATION
 # ==========================================================================
-def init_db():\n    conn = sqlite3.connect(DB_PATH, timeout=timeout)\n    conn.execute('DROP TABLE IF EXISTS dating_scam_profiles')\n    conn.execute('DROP TABLE IF EXISTS job_scam_reports')\n    conn.commit()\n    conn.close()
+def init_db():
+    conn = sqlite3.connect(DB_PATH, timeout=timeout)
+    conn.execute('DROP TABLE IF EXISTS dating_scam_profiles')
+    conn.execute('DROP TABLE IF EXISTS job_scam_reports')
+    conn.commit()
+    conn.close()
     conn = get_db_connection()
     cursor = conn.cursor()
     # Table for Job Job Scam scans
@@ -1079,9 +1084,7 @@ async def get_sitemap(request: Request):
         f'  <url><loc>https://{domain}/</loc><lastmod>{today}</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>'
     ]
     
-    langs = ["ro", "it", "es", "fr", "de", "pt", "ru"]
-    for l in langs:
-        urls.append(f'  <url><loc>https://{domain}/{l}/</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>')
+    
         
     if is_job:
         urls.append(f'  <url><loc>https://verifyjob.net/scammers</loc><lastmod>{today}</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>')
@@ -5972,13 +5975,13 @@ async def get_scam_reports_sitemap_part(part: int, request: Request = None):
     part_rows = all_rows[start_idx:end_idx] if start_idx < total_rows else []
 
     base_url = "https://jobscamradar.com"
-    langs = ["en", "ro", "it", "de", "fr", "es", "pt", "ru"]
+    langs = ["en"]
 
     xml_entries = []
     for slug, created_at in part_rows:
         date_str = created_at.split(" ")[0] if created_at else "2026-08-25"
         for l in langs:
-            loc = f"{base_url}/{l}/scam-reports/{slug}" if l != "en" else f"{base_url}/scam-reports/{slug}"
+            loc = f"{base_url}/scam-reports/{slug}"
             xml_entries.append(f"""  <url>
     <loc>{loc}</loc>
     <lastmod>{date_str}</lastmod>
