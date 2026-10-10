@@ -9635,65 +9635,59 @@ async def job_scammers_directory(request: Request, category: str = None, q: str 
 
 @app.get("/scammer/{slug}")
 @app.get("/{lang}/scammer/{slug}")
-async def job_scammer_profile_dossier(slug: str, lang: str = "en"):
+async def job_scam_detail(request: Request, slug: str, lang: str = "en"):
     """
-    Forensic Threat Intelligence Dossier Page for a Specific Job Scammer Profile.
-    Supports 8 languages (EN, RO, IT, DE, FR, ES, PT, RU) with canonical & hreflang SEO tags.
+    Dossier on an individual Job Scam Report.
     """
-    valid_langs = ["en", "ro", "it", "de", "fr", "es", "pt", "ru"]
-    lang = lang.lower().strip() if lang else "en"
-    if lang not in valid_langs:
+    if lang not in ("en", "ro", "it", "es", "fr", "de", "pt", "ru"):
         lang = "en"
 
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("""
-        SELECT id, persona_name, gender, scam_category, claimed_age, claimed_location, claimed_profession, stolen_from_real_person, typical_script, scam_story, warning_flags, photo_urls, risk_score, reported_aliases, views_count, first_reported_date
-        FROM job_scam_profiles WHERE slug = ?
+        SELECT id, entity_name, domain, regulator, warning_type, warning_date, official_url, reason, jurisdiction, risk_score
+        FROM job_scam_reports WHERE slug = ?
     """, (slug,))
     row = cursor.fetchone()
-    if not row:
-        try:
-            from job_scams_harvester import create_profile_from_slug
-            profile_data = create_profile_from_slug(slug)
-            cursor.execute("""
-                INSERT OR IGNORE INTO job_scam_profiles 
-                (slug, persona_name, gender, scam_category, claimed_age, claimed_location, claimed_profession, stolen_from_real_person, typical_script, scam_story, warning_flags, photo_urls, risk_score, reported_aliases, views_count, first_reported_date, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, profile_data)
-            conn.commit()
-            cursor.execute("""
-                SELECT id, persona_name, gender, scam_category, claimed_age, claimed_location, claimed_profession, stolen_from_real_person, typical_script, scam_story, warning_flags, photo_urls, risk_score, reported_aliases, views_count, first_reported_date
-                FROM job_scam_profiles WHERE slug = ?
-            """, (slug,))
-            row = cursor.fetchone()
-        except Exception as e:
-            print(f"[On-Demand Profile Error]: {e}")
+    conn.close()
             
     if not row:
-        conn.close()
-        raise HTTPException(status_code=404, detail="Scam Profile Dossier Not Found")
+        raise HTTPException(status_code=404, detail="Job Scam Report Not Found")
         
-    pid, name, gender, category, age, location, prof, stolen, script, story, flags_json, photos_json, risk, aliases_json, views, rep_date = row
+    pid, name, domain, regulator, warning_type, warning_date, official_url, reason, jurisdiction, risk_score = row
     
-    # Increment view count safely without locking
-    try:
-        cursor.execute("UPDATE job_scam_profiles SET views_count = views_count + 1 WHERE id = ?", (pid,))
-        conn.commit()
-    except Exception as e:
-        print(f"[View Count Update Non-Fatal]: {e}")
-    finally:
-        conn.close()
+    real_score = risk_score * 10 if risk_score <= 10 else risk_score
     
-    flags = json.loads(flags_json) if flags_json else []
-    aliases = json.loads(aliases_json) if aliases_json else []
-    
-    flags_html = "".join([f'<li style="color: #f87171; margin-bottom: 6px;">🚩 <strong>{f}</strong></li>' for f in flags])
-    aliases_str = ", ".join(aliases) if aliases else name
-
     T = {
         "en": {
-            "title": f"{name} Job Scam Alert & Stolen Photos ({category}) | JobScamRadar",
+            "title": f"{name} Job Scam Alert ({warning_type}) | JobScamRadar",
+            "meta_desc": f"Forensic dossier on fake recruiter/job scam '{name}' ({domain}). Read the full report and protect yourself from {warning_type}.",
+            "back": "&larr; Back to Scammer Blacklist",
+            "verify_face": "📷 Verify Recruiter Face (Free) ↗",
+            "risk_label": f"{real_score}% CONFIRMED JOB SCAM RISK",
+            "reported": "Reported",
+            "investigations": "Investigations",
+            "claimed_label": f"<strong>Reported Entity:</strong> {name} &bull; Domain: {domain} &bull; Jurisdiction: {jurisdiction}",
+            "victim_alert": f"⚠️ <strong>Warning:</strong> The entity known as {name} has been flagged for {warning_type}.",
+            "script_heading": "🎭 Scam Alert Reason / Report",
+            "flags_heading": "🚩 Key Red Flags & Source:",
+            "aliases_heading": f"<strong>Official Warning Source:</strong> {regulator}",
+            "chatting_q": "Are You Being Recruited By This Company?",
+            "chatting_desc": "Don't send any money, cryptocurrency, or pay 'training' fees. Run our instant AI facial recognition audit on your recruiter to uncover if they are using stolen photos.",
+            "scan_cta": "📷 Run Free Biometric Photo Scan ➔",
+            "pdf_cta": "📄 Download Official PDF Report (100% Free)",
+            "toolkit_title": "🛡️ Official Investigation & Safety Toolkit",
+            "toolkit_desc": "Verified tools to run background checks, delete stolen personal info, and find genuine matches.",
+        }
+    }
+    
+    t = T.get(lang, T["en"])
+    
+    # We will use 'reason' for the script, 'official_url' for flags
+    script_html = f"""<p style='color: #cbd5e1; font-size: 15px; white-space: pre-wrap; margin-bottom: 25px;'>{reason}</p>"""
+    flags_html = f'<li style="color: #f87171; margin-bottom: 6px;">🚩 <strong>Source Link:</strong> <a href="{official_url}" style="color:#38bdf8;" target="_blank">{official_url}</a></li>'
+
+ Job Scam Alert & Stolen Photos ({category}) | JobScamRadar",
             "meta_desc": f"Forensic dossier on fake recruiter/job scam '{name}' ({prof}, {location}). Detect scammer profiles and reverse search photos with JobScamRadar AI.",
             "back": "&larr; Back to Scammer Blacklist",
             "verify_face": "📷 Verify Another Face (Free) ↗",
