@@ -9515,7 +9515,7 @@ async def job_scammers_directory(request: Request, category: str = None, q: str 
     if category:
         count_query += " AND warning_type LIKE ?"
         query_str += " AND warning_type LIKE ?"
-        params.append(f"%{category}%")
+        params.append(f"%{warning_type}%")
     if q:
         count_query += " AND (entity_name LIKE ? OR domain LIKE ? OR reason LIKE ?)"
         query_str += " AND (entity_name LIKE ? OR domain LIKE ? OR reason LIKE ?)"
@@ -9545,7 +9545,7 @@ async def job_scammers_directory(request: Request, category: str = None, q: str 
             <h3 style="font-family: 'Outfit', sans-serif; font-size: 18px; color: #fff; margin: 0 0 6px 0;">{name}</h3>
             <p style="color: #94a3b8; font-size: 13px; margin: 0 0 14px 0; line-height: 1.4;">Domain: {domain}</p>
             <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 12px;">
-                <span style="color: #64748b; font-size: 11px;">⚠️ Alert Date: {rep_date}</span>
+                <span style="color: #64748b; font-size: 11px;">⚠️ Alert Date: {warning_date}</span>
                 <a href="/scammer/{slug}" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); color: #fff; text-decoration: none; padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 700;">View Dossier ➔</a>
             </div>
         </div>
@@ -9558,7 +9558,7 @@ async def job_scammers_directory(request: Request, category: str = None, q: str 
     next_disabled = "opacity: 0.4; pointer-events: none;" if page >= total_pages else ""
     
     query_param_str = ""
-    if category: query_param_str += f"&category={category}"
+    if category: query_param_str += f"&category={warning_type}"
     if q: query_param_str += f"&q={q}"
     
     prev_url = f"/scammers?page={page - 1}{query_param_str}"
@@ -9718,7 +9718,7 @@ async def job_scam_detail(request: Request, slug: str, lang: str = "en"):
     {{
       "@context": "https://schema.org",
       "@type": "FactCheck",
-      "claimReviewed": "Persona '{name}' is a genuine job partner ({prof})",
+      "claimReviewed": "Persona '{name}' is a genuine job partner ({domain})",
       "reviewRating": {{
         "@type": "Rating",
         "ratingValue": "1",
@@ -9729,8 +9729,8 @@ async def job_scam_detail(request: Request, slug: str, lang: str = "en"):
       "itemReviewed": {{
         "@type": "Person",
         "name": "{name}",
-        "jobTitle": "{prof}",
-        "address": "{location}"
+        "jobTitle": "{domain}",
+        "address": "{jurisdiction}"
       }},
       "author": {{
         "@type": "Organization",
@@ -9786,10 +9786,10 @@ async def job_scam_detail(request: Request, slug: str, lang: str = "en"):
         <div class="card" style="border-top: 4px solid var(--red);">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
                 <div>
-                    <span class="badge-cat">{category}</span>
+                    <span class="badge-cat">{warning_type}</span>
                     <span class="badge-danger" style="margin-left: 8px;">{t['risk_label']}</span>
                 </div>
-                <span style="color: #64748b; font-size: 12px;">{t['reported']}: {rep_date} &bull; 👁️ {views} {t['investigations']}</span>
+                <span style="color: #64748b; font-size: 12px;">{t['reported']}: {warning_date} &bull; 👁️ 1 {t['investigations']}</span>
             </div>
             
             <h1 style="font-family: 'Outfit', sans-serif; font-size: 2.2rem; color: #fff; margin: 0 0 8px 0;">{name}</h1>
@@ -9803,7 +9803,7 @@ async def job_scam_detail(request: Request, slug: str, lang: str = "en"):
         <div class="card">
             <h2 style="font-family: 'Outfit'; font-size: 20px; color: #fff; margin: 0 0 12px 0;">{t['script_heading']}</h2>
             <div style="background: #020408; border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 16px; font-style: italic; color: #cbd5e1; font-size: 14px; line-height: 1.6; margin-bottom: 20px;">
-                "{script}"
+                "{reason}"
             </div>
             
             <h3 style="font-family: 'Outfit'; font-size: 17px; color: #fff; margin: 0 0 10px 0;">{t['flags_heading']}</h3>
@@ -10022,7 +10022,7 @@ async def get_job_directory(request: Request):
     return HTMLResponse(content=generate_az_page("Job Scams Directory (A-Z)", "/directory/job"))
 
 
-@app.get("/directory/{category}/{letter}")
+@app.get("/directory/{warning_type}/{letter}")
 async def get_directory_letter_page(request: Request, category: str, letter: str, page: int = 1):
     host = request.headers.get("host", "").lower()
     is_job_domain = "job" in host
@@ -10083,7 +10083,7 @@ async def get_directory_letter_page(request: Request, category: str, letter: str
             age = item[3] if item[3] else "??"
             # Adaugam ID-ul unic din slug pentru siguranta vizuala
             unique_id = slug.split('-')[-1] if '-' in slug else ''
-            display_name = f"{name} ({age}yo) - {cat} #{unique_id}"
+            display_name = f"{name} (N/Ayo) - {cat} #{unique_id}"
         else:
             domain = item[2] if item[2] else ""
             display_name = f"{name} - {domain}" if domain else name
@@ -10139,7 +10139,7 @@ async def get_directory_letter_page(request: Request, category: str, letter: str
     </head>
     <body>
         <div class="container">
-            <a href="/directory/{category}" class="back-link">&larr; Back to A-Z Index</a>
+            <a href="/directory/{warning_type}" class="back-link">&larr; Back to A-Z Index</a>
             <h1>{title_prefix} starting with "{letter}"</h1>
             <div class="stat">Found {total_count:,} profiles. Showing page {page} of {total_pages}.</div>
             <ul>
