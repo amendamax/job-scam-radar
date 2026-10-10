@@ -1210,21 +1210,7 @@
     <script>
     (function() {
         var exitShown = sessionStorage.getItem('vd_exit_shown');
-        var modal = document.getElementById('exit-intent-modal');
-        if (!modal) return;
-
-        function showExitModal() {
-            if (exitShown) return;
-            exitShown = 'true';
-            sessionStorage.setItem('vd_exit_shown', 'true');
-            modal.style.display = 'flex';
-        }
-
-        document.addEventListener('mouseleave', function(e) {
-            if (e.clientY <= 10 && !exitShown) {
-                showExitModal();
-            }
-        });
+        
 
         setTimeout(function() {
             if (!exitShown && window.innerWidth <= 768) {
