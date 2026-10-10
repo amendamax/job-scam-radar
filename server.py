@@ -353,7 +353,7 @@ def log_and_notify_payment_event(event_type: str, site: str, email: str, scan_id
 # ==========================================================================
 # DATABASE INITIALIZATION
 # ==========================================================================
-def init_db():\n    conn = sqlite3.connect(DB_PATH, timeout=timeout)\n    conn.execute('DROP TABLE IF EXISTS dating_scam_profiles')\n    conn.execute('DROP TABLE IF EXISTS regulatory_scam_reports')\n    conn.commit()\n    conn.close()
+def init_db():\n    conn = sqlite3.connect(DB_PATH, timeout=timeout)\n    conn.execute('DROP TABLE IF EXISTS dating_scam_profiles')\n    conn.execute('DROP TABLE IF EXISTS job_scam_reports')\n    conn.commit()\n    conn.close()
     conn = get_db_connection()
     cursor = conn.cursor()
     # Table for Job Job Scam scans
@@ -435,7 +435,7 @@ def init_db():\n    conn = sqlite3.connect(DB_PATH, timeout=timeout)\n    conn.e
     
     # Table for Regulatory Scam Reports (Programmatic SEO)
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS regulatory_scam_reports (
+        CREATE TABLE IF NOT EXISTS job_scam_reports (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             slug TEXT UNIQUE,
             entity_name TEXT NOT NULL,
@@ -459,8 +459,8 @@ def init_db():\n    conn = sqlite3.connect(DB_PATH, timeout=timeout)\n    conn.e
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_scans_id ON scans(id);")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_scans_created ON scans(created_at);")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_company_scans_id ON company_scans(id);")
-    cursor.execute("CREATE INDEX IF NOT EXISTS idx_reg_scam_slug ON regulatory_scam_reports(slug);")
-    cursor.execute("CREATE INDEX IF NOT EXISTS idx_reg_scam_domain ON regulatory_scam_reports(domain);")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_reg_scam_slug ON job_scam_reports(slug);")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_reg_scam_domain ON job_scam_reports(domain);")
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS crypto_votes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -528,7 +528,7 @@ def init_db():\n    conn = sqlite3.connect(DB_PATH, timeout=timeout)\n    conn.e
     # --- PERFORMANCE INDEXES PENTRU DIRECTORY ---
     try:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_job_name ON job_scam_profiles(persona_name);")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_company_name ON regulatory_scam_reports(entity_name);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_company_name ON job_scam_reports(entity_name);")
     except Exception as e:
         print(f"Index creation error: {e}")
         
@@ -601,7 +601,7 @@ async def startup_event():
         try:
             conn = get_db_connection()
             cursor = conn.cursor()
-            cursor.execute("SELECT COUNT(*) FROM regulatory_scam_reports")
+            cursor.execute("SELECT COUNT(*) FROM job_scam_reports")
             scam_count = cursor.fetchone()[0]
             conn.close()
             if scam_count < 14000:
@@ -721,7 +721,7 @@ async def health_check():
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT COUNT(*) FROM regulatory_scam_reports")
+        cursor.execute("SELECT COUNT(*) FROM job_scam_reports")
         companys = cursor.fetchone()[0]
         cursor.execute("SELECT COUNT(*) FROM job_scam_profiles")
         job = cursor.fetchone()[0]
@@ -749,7 +749,7 @@ async def sentinel_diagnostics():
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT COUNT(*) FROM regulatory_scam_reports")
+        cursor.execute("SELECT COUNT(*) FROM job_scam_reports")
         companys = cursor.fetchone()[0]
         cursor.execute("SELECT COUNT(*) FROM job_scam_profiles")
         job = cursor.fetchone()[0]
@@ -3445,7 +3445,7 @@ async def scan_company(request: CompanyScanRequest):
         cursor = conn.cursor()
         cursor.execute("""
             SELECT entity_name, domain, regulator, warning_type, warning_date, official_url, reason, jurisdiction, risk_score, slug
-            FROM regulatory_scam_reports
+            FROM job_scam_reports
             WHERE domain = ? OR domain LIKE ? OR LOWER(entity_name) = ? OR LOWER(entity_name) LIKE ?
             LIMIT 1
         """, (clean_domain, f"%{clean_domain}%", clean_name, f"%{clean_name}%"))
@@ -5017,7 +5017,7 @@ async def get_scam_report_page(request: Request, slug: str, lang: str = "en"):
     cursor = conn.cursor()
     cursor.execute("""
         SELECT entity_name, domain, regulator, warning_type, warning_date, official_url, reason, jurisdiction, risk_score, blacklisted_urls, clone_of
-        FROM regulatory_scam_reports WHERE slug = ?
+        FROM job_scam_reports WHERE slug = ?
     """, (slug,))
     row = cursor.fetchone()
     conn.close()
@@ -6025,7 +6025,7 @@ async def get_scam_reports_sitemap_index(request: Request = None):
 async def get_scam_reports_sitemap_part(part: int, request: Request = None):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT slug, created_at FROM regulatory_scam_reports ORDER BY id ASC")
+    cursor.execute("SELECT slug, created_at FROM job_scam_reports ORDER BY id ASC")
     all_rows = cursor.fetchall()
     conn.close()
 
@@ -6302,7 +6302,7 @@ async def api_v1_company_check(request: Request, query: str = "", api_key: str =
         slug_query = slugify(clean_name)
         cursor.execute("""
             SELECT entity_name, domain, regulator, warning_type, warning_date, official_url, reason, jurisdiction, risk_score, slug
-            FROM regulatory_scam_reports
+            FROM job_scam_reports
             WHERE domain = ? OR LOWER(entity_name) = ? OR slug = ?
                OR (length(?) >= 5 AND (domain LIKE ? OR LOWER(entity_name) LIKE ? OR slug LIKE ?))
             LIMIT 1
@@ -6380,7 +6380,7 @@ async def api_v1_regulatory_warnings(regulator: str = None, limit: int = 50, off
         filter_val = reg_map.get(regulator.lower(), f"%{regulator}%")
         cursor.execute("""
             SELECT id, slug, entity_name, domain, regulator, warning_type, warning_date, official_url, reason, jurisdiction, risk_score
-            FROM regulatory_scam_reports
+            FROM job_scam_reports
             WHERE regulator LIKE ?
             ORDER BY id DESC
             LIMIT ? OFFSET ?
@@ -6388,7 +6388,7 @@ async def api_v1_regulatory_warnings(regulator: str = None, limit: int = 50, off
     else:
         cursor.execute("""
             SELECT id, slug, entity_name, domain, regulator, warning_type, warning_date, official_url, reason, jurisdiction, risk_score
-            FROM regulatory_scam_reports
+            FROM job_scam_reports
             ORDER BY id DESC
             LIMIT ? OFFSET ?
         """, (limit, offset))
@@ -6397,9 +6397,9 @@ async def api_v1_regulatory_warnings(regulator: str = None, limit: int = 50, off
     
     # Get total count
     if regulator:
-        cursor.execute("SELECT COUNT(*) FROM regulatory_scam_reports WHERE regulator LIKE ?", (filter_val,))
+        cursor.execute("SELECT COUNT(*) FROM job_scam_reports WHERE regulator LIKE ?", (filter_val,))
     else:
-        cursor.execute("SELECT COUNT(*) FROM regulatory_scam_reports")
+        cursor.execute("SELECT COUNT(*) FROM job_scam_reports")
     total_count = cursor.fetchone()[0]
     conn.close()
     
@@ -6435,10 +6435,10 @@ async def api_v1_stats():
     """
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT COUNT(*) FROM regulatory_scam_reports")
+    cursor.execute("SELECT COUNT(*) FROM job_scam_reports")
     total_scams = cursor.fetchone()[0]
     
-    cursor.execute("SELECT regulator, COUNT(*) FROM regulatory_scam_reports GROUP BY regulator ORDER BY COUNT(*) DESC")
+    cursor.execute("SELECT regulator, COUNT(*) FROM job_scam_reports GROUP BY regulator ORDER BY COUNT(*) DESC")
     breakdown = [{"regulator": r[0], "count": r[1]} for r in cursor.fetchall()]
     conn.close()
     
@@ -9004,7 +9004,7 @@ async def get_domain_audit_page(domain_or_slug: str):
     cursor = conn.cursor()
     cursor.execute("""
         SELECT entity_name, domain, regulator, warning_type, warning_date, official_url, reason, jurisdiction, risk_score
-        FROM regulatory_scam_reports
+        FROM job_scam_reports
         WHERE domain = ? OR slug = ? LIMIT 1
     """, (clean_domain, clean_domain))
     row = cursor.fetchone()
@@ -9244,7 +9244,7 @@ async def download_scam_dossier_pdf(slug: str, lang: str = "en"):
     cursor = conn.cursor()
     cursor.execute("""
         SELECT entity_name, domain, regulator, warning_type, warning_date, official_url, reason, jurisdiction, risk_score
-        FROM regulatory_scam_reports
+        FROM job_scam_reports
         WHERE slug = ? LIMIT 1
     """, (slug,))
     row = cursor.fetchone()
@@ -9412,7 +9412,7 @@ async def admin_seed_company_scams():
         run_master_scraper()
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT COUNT(*) FROM regulatory_scam_reports")
+        cursor.execute("SELECT COUNT(*) FROM job_scam_reports")
         count = cursor.fetchone()[0]
         conn.close()
         return JSONResponse({"status": "success", "total_company_scam_reports": count})
@@ -10285,7 +10285,7 @@ async def get_directory_letter_page(request: Request, category: str, letter: str
     cursor = conn.cursor()
     
     if category == "companys":
-        table = "regulatory_scam_reports"
+        table = "job_scam_reports"
         name_col = "entity_name"
         link_base = "https://jobscamradar.com/scam-reports"
         title_prefix = "Company Scams"
