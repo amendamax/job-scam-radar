@@ -97,7 +97,7 @@ app.add_middleware(
     allow_origins=[
         "https://vasiledev.com",
         "https://jobscamradar.com",
-        "https://verifyjob.net",
+        "https://jobscamradar.com",
         "http://127.0.0.1:8000",
         "http://127.0.0.1:5500",
         "http://localhost:8000"
@@ -1050,8 +1050,8 @@ async def get_lang_company_review(lang: str, company_name: str, request: Request
 async def get_robots(request: Request):
     host = request.headers.get("host", "").lower()
     is_job = "job" in host or "verifyjob" in host
-    domain = "verifyjob.net" if is_job else "jobscamradar.com"
-    extra_sitemap = "\nSitemap: https://verifyjob.net/sitemap-scammers.xml" if is_job else "\nSitemap: https://jobscamradar.com/sitemap-scam-reports.xml"
+    domain = "jobscamradar.com"
+    extra_sitemap = "\nSitemap: https://jobscamradar.com/sitemap-scammers.xml" if is_job else "\nSitemap: https://jobscamradar.com/sitemap-scam-reports.xml"
     robots_content = f"""User-agent: *
 Allow: /
 Disallow: /admin
@@ -1076,7 +1076,7 @@ async def get_indexnow_key():
 async def get_sitemap(request: Request):
     host = request.headers.get("host", "").lower()
     is_job = "job" in host or "verifyjob" in host
-    domain = "verifyjob.net" if is_job else "jobscamradar.com"
+    domain = "jobscamradar.com"
     today = datetime.now().strftime("%Y-%m-%d")
     
     urls = [
@@ -1088,9 +1088,9 @@ async def get_sitemap(request: Request):
     
         
     if is_job:
-        urls.append(f'  <url><loc>https://verifyjob.net/scammers</loc><lastmod>{today}</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>')
-        urls.append(f'  <url><loc>https://verifyjob.net/widget</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>')
-        urls.append(f'  <url><loc>https://verifyjob.net/api/v1/job-docs</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>')
+        urls.append(f'  <url><loc>https://jobscamradar.com/scammers</loc><lastmod>{today}</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>')
+        urls.append(f'  <url><loc>https://jobscamradar.com/widget</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>')
+        urls.append(f'  <url><loc>https://jobscamradar.com/api/v1/job-docs</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>')
             
     if not is_job:
         urls.append(f'  <url><loc>https://{domain}/widget</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>')
@@ -1210,7 +1210,7 @@ async def list_admin_uploads(request: Request, token: str = None):
                 items.append({
                     "file": fname,
                     "source": "disk",
-                    "image_url": f"https://verifyjob.net/uploads/{fname}"
+                    "image_url": f"https://jobscamradar.com/uploads/{fname}"
                 })
                 
     # 2. Check SQLite DB records
@@ -1226,7 +1226,7 @@ async def list_admin_uploads(request: Request, token: str = None):
                     "file": fname,
                     "source": "db_recovered",
                     "created_at": r[1],
-                    "image_url": f"https://verifyjob.net/uploads/{fname}"
+                    "image_url": f"https://jobscamradar.com/uploads/{fname}"
                 })
         conn.close()
     except Exception as e:
@@ -4998,7 +4998,7 @@ async def get_scam_report_page(request: Request, slug: str, lang: str = "en"):
     
     urls_chips_html = "".join([f'<span style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.35); padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 0.85rem; text-decoration: line-through; margin-right: 6px;">🚫 {u}</span>' for u in blacklisted_urls if u])
     
-    target_vd_url = "https://verifyjob.net/" if lang == "en" else f"https://verifyjob.net/{lang}/"
+    target_vd_url = "https://jobscamradar.com/" if lang == "en" else f"https://jobscamradar.com/{lang}/"
     clean_reason = reason.replace('"', ' ').replace('\n', ' ').strip() if reason else ""
     clean_name = entity_name.replace('"', '').replace("'", "").strip() if entity_name else "Unknown Company"
     
@@ -7010,7 +7010,7 @@ async def api_v1_documentation():
                 <a href="/pricing" class="nav-btn-pricing" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); padding: 7px 14px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">💳 Pricing Plans</a>
                 <a href="/widget" class="nav-btn-widget" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); padding: 7px 14px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">🛡️ Trust Widget</a>
                 <a href="https://pypi.org/project/iscompanysafe/" target="_blank" class="nav-btn-pypi" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); padding: 7px 14px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">🐍 PyPI SDK ↗</a>
-                <a href="https://verifyjob.net/" target="_blank" class="nav-btn-job" style="background: rgba(236, 72, 153, 0.15); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.4); padding: 7px 14px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">❤️ JobScamRadar ↗</a>
+                <a href="https://jobscamradar.com/" target="_blank" class="nav-btn-job" style="background: rgba(236, 72, 153, 0.15); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.4); padding: 7px 14px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">❤️ JobScamRadar ↗</a>
             </div>
         </div>
         <div class="header">
@@ -7632,7 +7632,7 @@ async def get_job_badge_customizer_page():
                 
                 <div class="preview-box">
                     <!-- Full Card Preview -->
-                    <a id="preview-badge-card" href="https://verifyjob.net/" target="_blank" rel="noopener" class="emblem-card-box">
+                    <a id="preview-badge-card" href="https://jobscamradar.com/" target="_blank" rel="noopener" class="emblem-card-box">
                         <div class="emblem-top-header">
                             <div class="emblem-brand">
                                 🛡️ Verify<span>Job</span>.net
@@ -7704,7 +7704,7 @@ async def get_job_badge_customizer_page():
             let snippet = '';
             if (format === 'card') {
                 snippet = `<!-- JobScamRadar Official Safety Seal -->
-<a href="https://verifyjob.net/" target="_blank" rel="noopener" style="display:inline-block;background:#0d0614;border:1.5px solid ${tc.border};border-radius:14px;padding:14px 18px;color:#fff;text-decoration:none;font-family:sans-serif;box-shadow:0 0 20px ${tc.glow};max-width:340px;">
+<a href="https://jobscamradar.com/" target="_blank" rel="noopener" style="display:inline-block;background:#0d0614;border:1.5px solid ${tc.border};border-radius:14px;padding:14px 18px;color:#fff;text-decoration:none;font-family:sans-serif;box-shadow:0 0 20px ${tc.glow};max-width:340px;">
   <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:6px;margin-bottom:8px;font-size:11px;font-weight:700;">
     <span>🛡️ Verify<span style="color:${tc.border};">Job</span>.net</span>
     <span style="color:#10b981;">✓ VERIFIED 2026</span>
@@ -7723,7 +7723,7 @@ async def get_job_badge_customizer_page():
 </a>`;
             } else {
                 snippet = `<!-- JobScamRadar Compact Pill Emblem -->
-<a href="https://verifyjob.net/" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;background:#0d0614;border:1.5px solid ${tc.border};border-radius:20px;padding:8px 16px;color:#fff;text-decoration:none;font-family:sans-serif;box-shadow:0 0 15px ${tc.glow};">
+<a href="https://jobscamradar.com/" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;background:#0d0614;border:1.5px solid ${tc.border};border-radius:20px;padding:8px 16px;color:#fff;text-decoration:none;font-family:sans-serif;box-shadow:0 0 15px ${tc.glow};">
   <span style="color:${tc.iconColor};font-size:16px;">🛡️</span>
   <strong style="font-size:12.5px;">${name} <span style="color:#10b981;">✓ VERIFIED</span></strong>
   <span style="color:#38bdf8;font-size:11px;border-left:1px solid rgba(255,255,255,0.2);padding-left:8px;">verifyjob.net</span>
@@ -8394,11 +8394,11 @@ async def get_job_api_docs_page():
 
 <div class="container">
     <nav class="nav-bar">
-        <a href="https://verifyjob.net/" class="logo-box">
+        <a href="https://jobscamradar.com/" class="logo-box">
             <span style="color: var(--pink);">❤️</span> JobScamRadar <span style="font-size: 12px; background: rgba(236,72,153,0.2); padding: 3px 8px; border-radius: 6px; color: var(--pink); border: 1px solid rgba(236,72,153,0.4);">B2B API</span>
         </a>
         <div style="display: flex; gap: 14px; align-items: center;">
-            <a href="https://verifyjob.net/" style="color: var(--text-muted); text-decoration: none; font-size: 13px; font-weight: 600;">Consumer Portal</a>
+            <a href="https://jobscamradar.com/" style="color: var(--text-muted); text-decoration: none; font-size: 13px; font-weight: 600;">Consumer Portal</a>
             <a href="https://jobscamradar.com/api/v1/docs" target="_blank" style="color: var(--cyan); text-decoration: none; font-size: 13px; font-weight: 600;">JobScamRadar API ↗</a>
             <a href="#key-sandbox" style="background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); color: #fff; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 12.5px; font-weight: 800; border: 1px solid rgba(236, 72, 153, 0.4); transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; gap: 6px;" onmouseover="this.style.transform='translateY(-2px) scale(1.04)'; this.style.boxShadow='0 0 20px rgba(236,72,153,0.8)';" onmouseout="this.style.transform='none'; this.style.boxShadow='none';">⚡ Get Free API Key</a>
         </div>
@@ -8479,10 +8479,10 @@ async def get_job_api_docs_page():
         <h2 style="font-family: 'Outfit'; font-size: 24px; margin-bottom: 16px;">📚 API Reference: POST /api/v1/face/check</h2>
         <p style="color: var(--text-muted); font-size: 13.5px; margin-bottom: 16px;">Upload a profile picture file or pass a public image URL to verify authenticity against the global romance scam intelligence database.</p>
 
-        <div class="endpoint-pill">POST https://verifyjob.net/api/v1/face/check</div>
+        <div class="endpoint-pill">POST https://jobscamradar.com/api/v1/face/check</div>
 
         <div style="font-size: 13px; font-weight: 700; color: #fff; margin-top: 14px;">Example cURL Request:</div>
-        <div class="code-box">curl -X POST "https://verifyjob.net/api/v1/face/check" \
+        <div class="code-box">curl -X POST "https://jobscamradar.com/api/v1/face/check" \
   -H "X-API-Key: YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"image_url": "https://example.com/suspicious_profile_pic.jpg"}'</div>
@@ -9412,7 +9412,7 @@ async def sitemap_job_scams_index():
     Google enforces max 50,000 URLs and recommends chunking large databases.
     Splits 50,000+ dossiers into 10 clean sub-sitemaps of 40,000 localized URLs each (8 languages).
     """
-    base_url = "https://verifyjob.net"
+    base_url = "https://jobscamradar.com"
     today = datetime.now().strftime("%Y-%m-%d")
     
     parts_xml = "\n".join([
@@ -9456,7 +9456,7 @@ async def sitemap_job_scams_part(part: int):
     # If first part, include the main directory page
     if part == 1:
         xml.append('  <url>')
-        xml.append('    <loc>https://verifyjob.net/scammers</loc>')
+        xml.append('    <loc>https://jobscamradar.com/scammers</loc>')
         xml.append(f'    <lastmod>{today}</lastmod>')
         xml.append('    <changefreq>daily</changefreq>')
         xml.append('    <priority>0.9</priority>')
@@ -9467,7 +9467,7 @@ async def sitemap_job_scams_part(part: int):
         safe_slug = html_lib.escape(slug)
         lastmod = rep_date if rep_date else today
         for l in langs:
-            loc = f"https://verifyjob.net/{l}/scammer/{safe_slug}" if l != "en" else f"https://verifyjob.net/scammer/{safe_slug}"
+            loc = f"https://jobscamradar.com/{l}/scammer/{safe_slug}" if l != "en" else f"https://jobscamradar.com/scammer/{safe_slug}"
             xml.append('  <url>')
             xml.append(f'    <loc>{loc}</loc>')
             xml.append(f'    <lastmod>{lastmod}</lastmod>')
@@ -9621,7 +9621,7 @@ async def job_scammers_directory(request: Request, category: str = None, q: str 
 <body>
     <div class="container">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-            <a href="https://verifyjob.net/" style="color: #ec4899; text-decoration: none; font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; gap: 6px;">&larr; Back to JobScamRadar Home</a>
+            <a href="https://jobscamradar.com/" style="color: #ec4899; text-decoration: none; font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; gap: 6px;">&larr; Back to JobScamRadar Home</a>
             <a href="https://jobscamradar.com/" style="color: #38bdf8; text-decoration: none; font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; gap: 6px;">📈 Verify Company & Crypto ↗</a>
         </div>
         
@@ -9874,16 +9874,16 @@ async def job_scammer_profile_dossier(slug: str, lang: str = "en"):
     t = T.get(lang, T["en"])
 
     hreflangs_html = f"""
-    <link rel="canonical" href="https://verifyjob.net{f'/{lang}' if lang != 'en' else ''}/scammer/{slug}">
-    <link rel="alternate" hreflang="en" href="https://verifyjob.net/scammer/{slug}">
-    <link rel="alternate" hreflang="ro" href="https://verifyjob.net/ro/scammer/{slug}">
-    <link rel="alternate" hreflang="it" href="https://verifyjob.net/it/scammer/{slug}">
-    <link rel="alternate" hreflang="de" href="https://verifyjob.net/de/scammer/{slug}">
-    <link rel="alternate" hreflang="fr" href="https://verifyjob.net/fr/scammer/{slug}">
-    <link rel="alternate" hreflang="es" href="https://verifyjob.net/es/scammer/{slug}">
-    <link rel="alternate" hreflang="pt" href="https://verifyjob.net/pt/scammer/{slug}">
-    <link rel="alternate" hreflang="ru" href="https://verifyjob.net/ru/scammer/{slug}">
-    <link rel="alternate" hreflang="x-default" href="https://verifyjob.net/scammer/{slug}">
+    <link rel="canonical" href="https://jobscamradar.com{f'/{lang}' if lang != 'en' else ''}/scammer/{slug}">
+    <link rel="alternate" hreflang="en" href="https://jobscamradar.com/scammer/{slug}">
+    <link rel="alternate" hreflang="ro" href="https://jobscamradar.com/ro/scammer/{slug}">
+    <link rel="alternate" hreflang="it" href="https://jobscamradar.com/it/scammer/{slug}">
+    <link rel="alternate" hreflang="de" href="https://jobscamradar.com/de/scammer/{slug}">
+    <link rel="alternate" hreflang="fr" href="https://jobscamradar.com/fr/scammer/{slug}">
+    <link rel="alternate" hreflang="es" href="https://jobscamradar.com/es/scammer/{slug}">
+    <link rel="alternate" hreflang="pt" href="https://jobscamradar.com/pt/scammer/{slug}">
+    <link rel="alternate" hreflang="ru" href="https://jobscamradar.com/ru/scammer/{slug}">
+    <link rel="alternate" hreflang="x-default" href="https://jobscamradar.com/scammer/{slug}">
     """
     
     html = f"""<!DOCTYPE html>
@@ -9919,7 +9919,7 @@ async def job_scammer_profile_dossier(slug: str, lang: str = "en"):
       "author": {{
         "@type": "Organization",
         "name": "JobScamRadar Forensics",
-        "url": "https://verifyjob.net/"
+        "url": "https://jobscamradar.com/"
       }}
     }}
     </script>
@@ -9963,7 +9963,7 @@ async def job_scammer_profile_dossier(slug: str, lang: str = "en"):
     <div class="container">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
             <a href="/scammers" style="color: var(--pink); text-decoration: none; font-weight: 700; font-size: 14px;">{t.get('back', '&larr; Back')}</a>
-            <a href="https://verifyjob.net/" style="color: var(--cyan); text-decoration: none; font-weight: 700; font-size: 14px;">{t.get('verify_face', '📷 Verify Another Face (Free) ↗')}</a>
+            <a href="https://jobscamradar.com/" style="color: var(--cyan); text-decoration: none; font-weight: 700; font-size: 14px;">{t.get('verify_face', '📷 Verify Another Face (Free) ↗')}</a>
         </div>
         
         <!-- Header Card -->
@@ -10005,8 +10005,8 @@ async def job_scammer_profile_dossier(slug: str, lang: str = "en"):
                 {t['chatting_desc']}
             </p>
             <div style="display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;">
-                <a href="https://verifyjob.net/" class="btn-cta">{t['scan_cta']}</a>
-                <a href="https://verifyjob.net/" class="btn-pdf" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #fff;">🛡️ 100% Free Verification</a>
+                <a href="https://jobscamradar.com/" class="btn-cta">{t['scan_cta']}</a>
+                <a href="https://jobscamradar.com/" class="btn-pdf" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #fff;">🛡️ 100% Free Verification</a>
             </div>
         </div>
 
@@ -10118,7 +10118,7 @@ async def job_scammer_profile_dossier(slug: str, lang: str = "en"):
                 <div>
                     <h4 style="font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 700; color: #ec4899; margin: 0 0 14px 0;">Official Network</h4>
                     <p style="margin: 0 0 8px 0;"><a href="https://jobscamradar.com" target="_blank" rel="noopener" style="color: #cbd5e1; text-decoration: none;">🏛️ JobScamRadar.com</a></p>
-                    <p style="margin: 0 0 8px 0;"><a href="https://verifyjob.net" style="color: #ec4899; font-weight: 700; text-decoration: none;">🛡️ JobScamRadar.net</a></p>
+                    <p style="margin: 0 0 8px 0;"><a href="https://jobscamradar.com" style="color: #ec4899; font-weight: 700; text-decoration: none;">🛡️ JobScamRadar.net</a></p>
                     <p style="margin: 0 0 8px 0;"><a href="https://dreamcarhunt.com" target="_blank" rel="noopener" style="color: #cbd5e1; text-decoration: none;">🏎️ DreamCarHunt.com</a></p>
                     <p style="margin: 0 0 8px 0;"><a href="https://airparkrefund.com" target="_blank" rel="noopener" style="color: #cbd5e1; text-decoration: none;">✈️ AirParkRefund.com</a></p>
                     <p style="margin: 0;"><a href="https://vasiledev.com" target="_blank" rel="noopener" style="color: #cbd5e1; text-decoration: none;">👑 VasileDev.com</a></p>
@@ -10233,7 +10233,7 @@ async def get_directory_letter_page(request: Request, category: str, letter: str
     elif category == "job":
         table = "job_scam_profiles"
         name_col = "persona_name"
-        link_base = "https://verifyjob.net/scammer"
+        link_base = "https://jobscamradar.com/scammer"
         title_prefix = "Job Scams"
         extra_cols = ", scam_category, claimed_age"
     else:
