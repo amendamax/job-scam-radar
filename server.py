@@ -187,7 +187,7 @@ def get_db_connection(timeout=30.0):
     Ultra-resilient SQLite connection helper with WAL mode, memory temp_store,
     and automatic 10MB journal limit. Eliminates 'database or disk is full' permanently.
     """
-    conn = sqlite3.connect(DB_PATH, timeout=timeout)
+    conn = sqlite3.connect(DB_PATH, timeout=30.0)
     conn.execute("PRAGMA journal_mode = WAL;")
     conn.execute("PRAGMA busy_timeout = 30000;")
     conn.execute("PRAGMA synchronous = NORMAL;")
@@ -354,7 +354,7 @@ def log_and_notify_payment_event(event_type: str, site: str, email: str, scan_id
 # DATABASE INITIALIZATION
 # ==========================================================================
 def init_db():
-    conn = sqlite3.connect(DB_PATH, timeout=timeout)
+    conn = sqlite3.connect(DB_PATH, timeout=30.0)
     conn.execute('DROP TABLE IF EXISTS dating_scam_profiles')
     conn.execute('DROP TABLE IF EXISTS job_scam_reports')
     conn.commit()
