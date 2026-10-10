@@ -9544,26 +9544,7 @@ async def job_scammers_directory(request: Request, category: str = None, q: str 
         </div>
         """
     
-    # Category Pills
-    cats = [
-        ("", "All Profiles"),
-        ("Military", "🎖️ Military Scams"),
-        ("UN Humanitarian", "🩺 UN & Doctors"),
-        ("Oil Rig", "🛢️ Oil Rig & Marine"),
-        ("Pig Butchering", "📈 Crypto Scams"),
-        ("Diplomatic", "📦 Diplomatic Couriers"),
-        ("Aviation", "✈️ Pilots & Cargo")
-    ]
-    
-    cat_pills_html = '<div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 25px;">'
-    for c_slug, c_name in cats:
-        is_active = (category == c_slug) or (not category and c_slug == "")
-        active_style = "background: rgba(236,72,153,0.3); border-color: #ec4899; color: #fff; font-weight: 700;" if is_active else "background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.15); color: #cbd5e1;"
-        href = f"/scammers?category={c_slug}" if c_slug else "/scammers"
-        if q:
-            href += f"&q={q}"
-        cat_pills_html += f'<a href="{href}" style="padding: 6px 14px; border-radius: 20px; font-size: 12px; text-decoration: none; border: 1px solid; {active_style} transition: all 0.2s ease;">{c_name}</a>'
-    cat_pills_html += '</div>'
+    cat_pills_html = ''
 
     # Pagination HTML
     prev_disabled = "opacity: 0.4; pointer-events: none;" if page <= 1 else ""
@@ -9631,7 +9612,6 @@ async def job_scammers_directory(request: Request, category: str = None, q: str 
         
         <form method="GET" action="/scammers" class="search-box">
             <input type="text" name="q" class="input-search" placeholder="Search by name, claimed job, or alias (e.g. General, Surgeon, Sophie)..." value="{q or ''}">
-            {f'<input type="hidden" name="category" value="{category}">' if category else ''}
             <button type="submit" class="btn-search">Search</button>
         </form>
         
