@@ -5200,7 +5200,7 @@ async def get_scam_report_page(request: Request, slug: str, lang: str = "en"):
 
                     
                     <!-- Prop Trading Alternative (Injected) -->
-                    <div class="prop-trading-card" style="margin-bottom: 25px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(5, 150, 105, 0.12) 100%); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 14px; padding: 22px; text-align: left; box-shadow: 0 8px 24px rgba(0,0,0,0.2);">
+                    <div class="prop-trading-card" style="margin-bottom: 25px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(5, 150, 105, 0.12) 100%); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 14px; padding: 22px; text-align: left; box-shadow: 0 8px 24px rgba(0,0,0,0.2);">
                         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
                             <span style="font-size: 24px;">🛡️</span>
                             <h4 style="margin: 0; font-size: 16px; color: #34d399; font-weight: 800; font-family: 'Outfit', sans-serif;">{t.get('prop_trading_title', 'Safe Alternative: Prop Trading')}</h4>
@@ -5258,7 +5258,7 @@ async def get_scam_report_page(request: Request, slug: str, lang: str = "en"):
                     </div>
 
                     <!-- Safe Regulated Alternatives Section (GEO-TARGETED ACROSS 4-5 GLOBAL ZONES) -->
-                    <div id="safe-alternatives" style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.08) 0%, rgba(2, 132, 199, 0.14) 100%); border: 1px solid rgba(14, 165, 233, 0.35); border-radius: 14px; padding: 22px;">
+                    <div id="safe-alternatives" style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.25) 0%, rgba(2, 132, 199, 0.40) 100%); border: 1px solid rgba(14, 165, 233, 0.35); border-radius: 14px; padding: 22px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 8px;">
                             <h3 style="color: #38bdf8; font-family: 'Outfit'; font-size: 18px; margin: 0; font-weight: 800;">
                                 {t['safe_alternatives_title']}
@@ -5378,7 +5378,7 @@ async def get_scam_report_page(request: Request, slug: str, lang: str = "en"):
                     </div>
 
                     <!-- Job Cross-Promotion Card -->
-                    <div class="in-result-job-cross-card" style="margin-top: 18px; background: linear-gradient(135deg, rgba(236, 72, 153, 0.08) 0%, rgba(190, 24, 93, 0.12) 100%); border: 1px solid rgba(236, 72, 153, 0.35); border-radius: 12px; padding: 16px; text-align: left;">
+                    <div class="in-result-job-cross-card" style="margin-top: 18px; background: linear-gradient(135deg, rgba(236, 72, 153, 0.25) 0%, rgba(190, 24, 93, 0.12) 100%); border: 1px solid rgba(236, 72, 153, 0.35); border-radius: 12px; padding: 16px; text-align: left;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 <span style="font-size: 20px;">❤️</span>
@@ -10018,7 +10018,7 @@ async def job_scammer_profile_dossier(slug: str, lang: str = "en"):
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px;">
                 
                 <!-- Card 1: Social Scammer & Surfshark (Reverse Lookup) -->
-                <div class="card affiliate-incogni-card" style="margin-bottom: 0; padding: 22px; background: linear-gradient(135deg, rgba(14, 165, 233, 0.08) 0%, rgba(2, 132, 199, 0.14) 100%); border: 1px solid rgba(56, 189, 248, 0.35);">
+                <div class="card affiliate-incogni-card" style="margin-bottom: 0; padding: 22px; background: linear-gradient(135deg, rgba(14, 165, 233, 0.25) 0%, rgba(2, 132, 199, 0.40) 100%); border: 1px solid rgba(56, 189, 248, 0.35);">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <span style="font-size: 24px;">🔍</span>
                         <span style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px;">BACKGROUND AUDIT</span>
@@ -10038,7 +10038,7 @@ async def job_scammer_profile_dossier(slug: str, lang: str = "en"):
                 </div>
 
                 <!-- Card 2: Incogni & NordVPN (Privacy & Dark Web) -->
-                <div class="card affiliate-incogni-card" style="margin-bottom: 0; padding: 22px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(5, 150, 105, 0.14) 100%); border: 1px solid rgba(16, 185, 129, 0.35);">
+                <div class="card affiliate-incogni-card" style="margin-bottom: 0; padding: 22px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(5, 150, 105, 0.40) 100%); border: 1px solid rgba(16, 185, 129, 0.35);">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <span style="font-size: 24px;">🛡️</span>
                         <span style="background: rgba(16, 185, 129, 0.2); color: #34d399; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px;">DATA DEFENSE</span>
@@ -10061,7 +10061,7 @@ async def job_scammer_profile_dossier(slug: str, lang: str = "en"):
                 </div>
 
                 <!-- Card 3: JobScamRadar PRO & Safe Job Alternatives -->
-                <div class="card affiliate-match-card" style="margin-bottom: 0; padding: 22px; background: linear-gradient(135deg, rgba(236, 72, 153, 0.08) 0%, rgba(219, 39, 119, 0.14) 100%); border: 1px solid rgba(236, 72, 153, 0.35);">
+                <div class="card affiliate-match-card" style="margin-bottom: 0; padding: 22px; background: linear-gradient(135deg, rgba(236, 72, 153, 0.25) 0%, rgba(219, 39, 119, 0.40) 100%); border: 1px solid rgba(236, 72, 153, 0.35);">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <span style="font-size: 24px;">💖</span>
                         <span style="background: rgba(236, 72, 153, 0.2); color: #f472b6; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px;">VERIFIED DATING</span>
