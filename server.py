@@ -9455,7 +9455,7 @@ async def sitemap_job_scams_part(part: int):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
-        "SELECT slug, first_reported_date FROM job_scam_profiles ORDER BY id ASC LIMIT ? OFFSET ?",
+        "SELECT slug, warning_date FROM job_scam_reports ORDER BY id ASC LIMIT ? OFFSET ?",
         (chunk_size, offset)
     )
     rows = cursor.fetchall()
