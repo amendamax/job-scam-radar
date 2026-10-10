@@ -97,7 +97,7 @@ app.add_middleware(
     allow_origins=[
         "https://vasiledev.com",
         "https://jobscamradar.com",
-        "https://verifydating.net",
+        "https://verifyjob.net",
         "http://127.0.0.1:8000",
         "http://127.0.0.1:5500",
         "http://localhost:8000"
@@ -356,7 +356,7 @@ def log_and_notify_payment_event(event_type: str, site: str, email: str, scan_id
 def init_db():
     conn = get_db_connection()
     cursor = conn.cursor()
-    # Table for Dating Job Scam scans
+    # Table for Job Job Scam scans
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS scans (
             id TEXT PRIMARY KEY,
@@ -495,7 +495,7 @@ def init_db():
         );
     """)
     cursor.execute("""
-                CREATE TABLE IF NOT EXISTS dating_scam_profiles (
+                CREATE TABLE IF NOT EXISTS job_scam_profiles (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             slug TEXT UNIQUE,
             persona_name TEXT,
@@ -527,7 +527,7 @@ def init_db():
 
     # --- PERFORMANCE INDEXES PENTRU DIRECTORY ---
     try:
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_dating_name ON dating_scam_profiles(persona_name);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_job_name ON job_scam_profiles(persona_name);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_company_name ON regulatory_scam_reports(entity_name);")
     except Exception as e:
         print(f"Index creation error: {e}")
@@ -611,13 +611,13 @@ async def startup_event():
                 
             conn = get_db_connection()
             cursor = conn.cursor()
-            cursor.execute("SELECT COUNT(*) FROM dating_scam_profiles")
-            dating_count = cursor.fetchone()[0]
+            cursor.execute("SELECT COUNT(*) FROM job_scam_profiles")
+            job_count = cursor.fetchone()[0]
             conn.close()
-            if dating_count < 10000:
-                print(f"[Startup] Seeding dating scam dossiers archive (current: {dating_count})...")
-                from dating_scams_harvester import generate_dating_scam_dossiers
-                generate_dating_scam_dossiers(10000)
+            if job_count < 10000:
+                print(f"[Startup] Seeding job scam dossiers archive (current: {job_count})...")
+                from job_scams_harvester import generate_job_scam_dossiers
+                generate_job_scam_dossiers(10000)
         except Exception as e:
             print(f"[Startup Seed Exception]: {e}")
             
@@ -658,41 +658,41 @@ async def startup_event():
             # Run every 24 hours (86,400 seconds)
             time.sleep(86400)
 
-    def _weekly_dating_harvester():
+    def _weekly_job_harvester():
         time.sleep(180)  # Wait 3 minutes after server boot
         while True:
             try:
-                print("[Weekly Dating Harvester] Running scheduled weekly romance scam feed update (04:00 AM once a week)...")
-                from dating_scams_harvester import generate_dating_scam_dossiers
+                print("[Weekly Job Harvester] Running scheduled weekly romance scam feed update (04:00 AM once a week)...")
+                from job_scams_harvester import generate_job_scam_dossiers
                 conn = get_db_connection()
                 cursor = conn.cursor()
-                cursor.execute("SELECT COUNT(*) FROM dating_scam_profiles")
+                cursor.execute("SELECT COUNT(*) FROM job_scam_profiles")
                 curr_count = cursor.fetchone()[0]
                 conn.close()
                 
                 # Expand by 500 fresh weekly scam profiles
                 new_target = curr_count + 500
-                generate_dating_scam_dossiers(new_target)
+                generate_job_scam_dossiers(new_target)
                 
                 # Notify Bing & Yahoo IndexNow
                 try:
                     import urllib.request, json
                     payload = {
-                        "host": "verifydating.net",
+                        "host": "verifyjob.net",
                         "key": "d89b14f6824945e4a81b7e4521798361",
-                        "keyLocation": "https://verifydating.net/d89b14f6824945e4a81b7e4521798361.txt",
+                        "keyLocation": "https://verifyjob.net/d89b14f6824945e4a81b7e4521798361.txt",
                         "urlList": [
-                            "https://verifydating.net/scammers",
-                            "https://verifydating.net/sitemap-scammers.xml"
+                            "https://verifyjob.net/scammers",
+                            "https://verifyjob.net/sitemap-scammers.xml"
                         ]
                     }
                     req = urllib.request.Request("https://www.bing.com/indexnow", data=json.dumps(payload).encode('utf-8'), headers={"Content-Type": "application/json"})
                     urllib.request.urlopen(req, timeout=15)
-                    print("[Weekly Dating Harvester] Successfully notified Bing & Yahoo IndexNow of new weekly dossiers.")
+                    print("[Weekly Job Harvester] Successfully notified Bing & Yahoo IndexNow of new weekly dossiers.")
                 except Exception as e:
-                    print(f"[Weekly Dating Harvester IndexNow Error]: {e}")
+                    print(f"[Weekly Job Harvester IndexNow Error]: {e}")
             except Exception as e:
-                print(f"[Weekly Dating Harvester Error]: {e}")
+                print(f"[Weekly Job Harvester Error]: {e}")
                 
             # Sleep 7 days (604,800 seconds = 1 week)
             time.sleep(604800)
@@ -706,7 +706,7 @@ SENTINEL_STATE = {
     "boot_time": datetime.now().isoformat(),
     "status": "HEALTHY",
     "last_company_harvest": datetime.now().isoformat(),
-    "last_dating_harvest": datetime.now().isoformat(),
+    "last_job_harvest": datetime.now().isoformat(),
     "errors_count": 0,
     "last_error": None
 }
@@ -723,15 +723,15 @@ async def health_check():
         cursor = conn.cursor()
         cursor.execute("SELECT COUNT(*) FROM regulatory_scam_reports")
         companys = cursor.fetchone()[0]
-        cursor.execute("SELECT COUNT(*) FROM dating_scam_profiles")
-        dating = cursor.fetchone()[0]
+        cursor.execute("SELECT COUNT(*) FROM job_scam_profiles")
+        job = cursor.fetchone()[0]
         conn.close()
         return JSONResponse({
             "status": "HEALTHY",
             "server": "JobScamRadar & JobScamRadar Unified Gateway",
             "database": "CONNECTED",
             "total_company_dossiers": companys,
-            "total_dating_dossiers": dating,
+            "total_job_dossiers": job,
             "timestamp": datetime.now().isoformat()
         })
     except Exception as e:
@@ -751,8 +751,8 @@ async def sentinel_diagnostics():
         cursor = conn.cursor()
         cursor.execute("SELECT COUNT(*) FROM regulatory_scam_reports")
         companys = cursor.fetchone()[0]
-        cursor.execute("SELECT COUNT(*) FROM dating_scam_profiles")
-        dating = cursor.fetchone()[0]
+        cursor.execute("SELECT COUNT(*) FROM job_scam_profiles")
+        job = cursor.fetchone()[0]
         cursor.execute("PRAGMA integrity_check;")
         integrity = cursor.fetchone()[0]
         conn.close()
@@ -763,12 +763,12 @@ async def sentinel_diagnostics():
             "boot_time": SENTINEL_STATE["boot_time"],
             "db_integrity": integrity,
             "company_records": companys,
-            "dating_records": dating,
+            "job_records": job,
             "geonode_proxy": "ENABLED (proxy.geonode.io:9000)",
             "indexnow_sync": "ENABLED (Bing & Yahoo)",
             "watchdog_daemons": {
                 "daily_company_harvester": "RUNNING (Every 24h at 03:00 AM)",
-                "weekly_dating_harvester": "RUNNING (Every 7d at 04:00 AM)"
+                "weekly_job_harvester": "RUNNING (Every 7d at 04:00 AM)"
             },
             "timestamp": datetime.now().isoformat()
         })
@@ -782,7 +782,7 @@ async def sentinel_diagnostics():
 @app.head("/")
 async def get_index(request: Request):
     host = request.headers.get("host", "").lower()
-    if "dating" not in host and "localhost" not in host and "127.0.0.1" not in host:
+    if "job" not in host and "localhost" not in host and "127.0.0.1" not in host:
         if os.path.exists("company-verifier/index.html"):
             return FileResponse("company-verifier/index.html")
     return FileResponse("index.html")
@@ -791,7 +791,7 @@ async def get_index(request: Request):
 @app.get("/ro/")
 async def get_ro_index(request: Request):
     host = request.headers.get("host", "").lower()
-    if "dating" not in host and "localhost" not in host and "127.0.0.1" not in host:
+    if "job" not in host and "localhost" not in host and "127.0.0.1" not in host:
         if os.path.exists("company-verifier/ro/index.html"):
             return FileResponse("company-verifier/ro/index.html")
     else:
@@ -803,7 +803,7 @@ async def get_ro_index(request: Request):
 @app.get("/it/")
 async def get_it_index(request: Request):
     host = request.headers.get("host", "").lower()
-    if "dating" not in host and "localhost" not in host and "127.0.0.1" not in host:
+    if "job" not in host and "localhost" not in host and "127.0.0.1" not in host:
         if os.path.exists("company-verifier/it/index.html"):
             return FileResponse("company-verifier/it/index.html")
     else:
@@ -815,7 +815,7 @@ async def get_it_index(request: Request):
 @app.get("/es/")
 async def get_es_index(request: Request):
     host = request.headers.get("host", "").lower()
-    if "dating" not in host and "localhost" not in host and "127.0.0.1" not in host:
+    if "job" not in host and "localhost" not in host and "127.0.0.1" not in host:
         if os.path.exists("company-verifier/es/index.html"):
             return FileResponse("company-verifier/es/index.html")
     else:
@@ -827,7 +827,7 @@ async def get_es_index(request: Request):
 @app.get("/fr/")
 async def get_fr_index(request: Request):
     host = request.headers.get("host", "").lower()
-    if "dating" not in host and "localhost" not in host and "127.0.0.1" not in host:
+    if "job" not in host and "localhost" not in host and "127.0.0.1" not in host:
         if os.path.exists("company-verifier/fr/index.html"):
             return FileResponse("company-verifier/fr/index.html")
     else:
@@ -839,7 +839,7 @@ async def get_fr_index(request: Request):
 @app.get("/de/")
 async def get_de_index(request: Request):
     host = request.headers.get("host", "").lower()
-    if "dating" not in host and "localhost" not in host and "127.0.0.1" not in host:
+    if "job" not in host and "localhost" not in host and "127.0.0.1" not in host:
         if os.path.exists("company-verifier/de/index.html"):
             return FileResponse("company-verifier/de/index.html")
     else:
@@ -851,7 +851,7 @@ async def get_de_index(request: Request):
 @app.get("/pt/")
 async def get_pt_index(request: Request):
     host = request.headers.get("host", "").lower()
-    if "dating" not in host and "localhost" not in host and "127.0.0.1" not in host:
+    if "job" not in host and "localhost" not in host and "127.0.0.1" not in host:
         if os.path.exists("company-verifier/pt/index.html"):
             return FileResponse("company-verifier/pt/index.html")
     else:
@@ -863,7 +863,7 @@ async def get_pt_index(request: Request):
 @app.get("/ru/")
 async def get_ru_index(request: Request):
     host = request.headers.get("host", "").lower()
-    if "dating" not in host and "localhost" not in host and "127.0.0.1" not in host:
+    if "job" not in host and "localhost" not in host and "127.0.0.1" not in host:
         if os.path.exists("company-verifier/ru/index.html"):
             return FileResponse("company-verifier/ru/index.html")
     else:
@@ -887,7 +887,7 @@ async def get_company_verifier_js():
 @app.get("/style.css")
 async def get_css(request: Request):
     host = request.headers.get("host", "").lower()
-    if "dating" not in host and "localhost" not in host and "127.0.0.1" not in host:
+    if "job" not in host and "localhost" not in host and "127.0.0.1" not in host:
         if os.path.exists("company-verifier/style.css"):
             return FileResponse("company-verifier/style.css")
     return FileResponse("style.css")
@@ -905,8 +905,8 @@ async def get_favicon(request: Request):
     if "iscompanysafe" in host or "company" in host:
         if os.path.exists("company-verifier/favicon.svg"):
             return FileResponse("company-verifier/favicon.svg", media_type="image/svg+xml")
-    if os.path.exists("dating-favicon.svg"):
-        return FileResponse("dating-favicon.svg", media_type="image/svg+xml")
+    if os.path.exists("job-favicon.svg"):
+        return FileResponse("job-favicon.svg", media_type="image/svg+xml")
     if os.path.exists("favicon.svg"):
         return FileResponse("favicon.svg", media_type="image/svg+xml")
     return JSONResponse(status_code=404, content={"message": "Favicon not found"})
@@ -914,7 +914,7 @@ async def get_favicon(request: Request):
 @app.get("/app.js")
 async def get_js(request: Request):
     host = request.headers.get("host", "").lower()
-    if "dating" not in host and "localhost" not in host and "127.0.0.1" not in host:
+    if "job" not in host and "localhost" not in host and "127.0.0.1" not in host:
         if os.path.exists("company-verifier/app.js"):
             return FileResponse("company-verifier/app.js")
     return FileResponse("app.js")
@@ -924,16 +924,16 @@ async def get_js(request: Request):
 @app.get("/company-verifier/company-verifier/tech_bg.webp")
 async def get_tech_bg(request: Request):
     host = request.headers.get("host", "").lower()
-    if "dating" not in host and "localhost" not in host and "127.0.0.1" not in host:
+    if "job" not in host and "localhost" not in host and "127.0.0.1" not in host:
         if os.path.exists("company-verifier/tech_bg.webp"):
             return FileResponse("company-verifier/tech_bg.webp")
     return FileResponse("tech_bg.webp")
 
-@app.get("/dating_bg.webp")
-async def get_dating_bg():
-    if os.path.exists("dating_bg.webp"):
-        return FileResponse("dating_bg.webp")
-    return JSONResponse(status_code=404, content={"message": "Dating background not found"})
+@app.get("/job_bg.webp")
+async def get_job_bg():
+    if os.path.exists("job_bg.webp"):
+        return FileResponse("job_bg.webp")
+    return JSONResponse(status_code=404, content={"message": "Job background not found"})
 
 @app.get("/dev_bg.webp")
 async def get_dev_bg():
@@ -944,8 +944,8 @@ async def get_dev_bg():
 @app.get("/guides/{filename}")
 async def get_guide(filename: str, request: Request):
     host = request.headers.get("host", "").lower()
-    is_dating = "dating" in host or "verifydating" in host
-    if not is_dating:
+    is_job = "job" in host or "verifyjob" in host
+    if not is_job:
         file_path = f"company-verifier/guides/{filename}"
         if os.path.exists(file_path):
             return FileResponse(file_path, media_type="application/pdf")
@@ -1071,11 +1071,11 @@ async def redirect_tradingview():
 @app.get("/go/socialscammer")
 @app.get("/out/socialscammer")
 async def redirect_socialscammer():
-    return RedirectResponse(url="https://socialscammer.com/?kw=verifydating", status_code=307)
+    return RedirectResponse(url="https://socialscammer.com/?kw=verifyjob", status_code=307)
 
-@app.get("/go/dating-singles")
-@app.get("/out/dating-singles")
-async def redirect_dating_singles():
+@app.get("/go/job-singles")
+@app.get("/out/job-singles")
+async def redirect_job_singles():
     return RedirectResponse(url="https://www.internationalcupid.com", status_code=307)
 
 @app.get("/go/intego")
@@ -1107,9 +1107,9 @@ async def get_lang_company_review(lang: str, company_name: str, request: Request
 @app.get("/robots.txt")
 async def get_robots(request: Request):
     host = request.headers.get("host", "").lower()
-    is_dating = "dating" in host or "verifydating" in host
-    domain = "verifydating.net" if is_dating else "jobscamradar.com"
-    extra_sitemap = "\nSitemap: https://verifydating.net/sitemap-scammers.xml" if is_dating else "\nSitemap: https://jobscamradar.com/sitemap-scam-reports.xml"
+    is_job = "job" in host or "verifyjob" in host
+    domain = "verifyjob.net" if is_job else "jobscamradar.com"
+    extra_sitemap = "\nSitemap: https://verifyjob.net/sitemap-scammers.xml" if is_job else "\nSitemap: https://jobscamradar.com/sitemap-scam-reports.xml"
     robots_content = f"""User-agent: *
 Allow: /
 Disallow: /admin
@@ -1133,8 +1133,8 @@ async def get_indexnow_key():
 @app.get("/sitemap.xml")
 async def get_sitemap(request: Request):
     host = request.headers.get("host", "").lower()
-    is_dating = "dating" in host or "verifydating" in host
-    domain = "verifydating.net" if is_dating else "jobscamradar.com"
+    is_job = "job" in host or "verifyjob" in host
+    domain = "verifyjob.net" if is_job else "jobscamradar.com"
     today = datetime.now().strftime("%Y-%m-%d")
     
     urls = [
@@ -1147,12 +1147,12 @@ async def get_sitemap(request: Request):
     for l in langs:
         urls.append(f'  <url><loc>https://{domain}/{l}/</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>')
         
-    if is_dating:
-        urls.append(f'  <url><loc>https://verifydating.net/scammers</loc><lastmod>{today}</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>')
-        urls.append(f'  <url><loc>https://verifydating.net/widget</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>')
-        urls.append(f'  <url><loc>https://verifydating.net/api/v1/dating-docs</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>')
+    if is_job:
+        urls.append(f'  <url><loc>https://verifyjob.net/scammers</loc><lastmod>{today}</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>')
+        urls.append(f'  <url><loc>https://verifyjob.net/widget</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>')
+        urls.append(f'  <url><loc>https://verifyjob.net/api/v1/job-docs</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>')
             
-    if not is_dating:
+    if not is_job:
         urls.append(f'  <url><loc>https://{domain}/widget</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>')
         urls.append(f'  <url><loc>https://{domain}/pricing</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>')
         for b in ["interactive-companys", "avatrade", "xm", "exness", "etoro", "plus500"]:
@@ -1179,10 +1179,10 @@ async def get_og_image_jpg():
         return FileResponse(path, media_type="image/jpeg")
     raise HTTPException(status_code=404, detail="OG Image JPG not found")
 
-@app.get("/verifydating_og_banner.jpg")
-async def get_verifydating_og_banner():
-    if os.path.exists("verifydating_og_banner.jpg"):
-        return FileResponse("verifydating_og_banner.jpg", media_type="image/jpeg")
+@app.get("/verifyjob_og_banner.jpg")
+async def get_verifyjob_og_banner():
+    if os.path.exists("verifyjob_og_banner.jpg"):
+        return FileResponse("verifyjob_og_banner.jpg", media_type="image/jpeg")
     raise HTTPException(status_code=404, detail="JobScamRadar OG Banner not found")
 
 @app.get("/iscompanysafe_og_banner.jpg")
@@ -1194,7 +1194,7 @@ async def get_iscompanysafe_og_banner():
 
 
 # Mount the company-verifier directory statically
-# This makes it accessible at verifydating.net/company-verifier/
+# This makes it accessible at verifyjob.net/company-verifier/
 if os.path.exists("company-verifier"):
     app.mount("/company-verifier", StaticFiles(directory="company-verifier", html=True), name="company-verifier")
 
@@ -1270,7 +1270,7 @@ async def list_admin_uploads(request: Request, token: str = None):
                 items.append({
                     "file": fname,
                     "source": "disk",
-                    "image_url": f"https://verifydating.net/uploads/{fname}"
+                    "image_url": f"https://verifyjob.net/uploads/{fname}"
                 })
                 
     # 2. Check SQLite DB records
@@ -1286,7 +1286,7 @@ async def list_admin_uploads(request: Request, token: str = None):
                     "file": fname,
                     "source": "db_recovered",
                     "created_at": r[1],
-                    "image_url": f"https://verifydating.net/uploads/{fname}"
+                    "image_url": f"https://verifyjob.net/uploads/{fname}"
                 })
         conn.close()
     except Exception as e:
@@ -1845,7 +1845,7 @@ class PaypalPaymentRequest(BaseModel):
 
 @app.post("/api/pay-paypal")
 async def pay_paypal(request: PaypalPaymentRequest):
-    email_clean = request.email if request.email and "@" in request.email else "customer@verifydating.net"
+    email_clean = request.email if request.email and "@" in request.email else "customer@verifyjob.net"
     conn = get_db_connection()
     cursor = conn.cursor()
     
@@ -1883,7 +1883,7 @@ async def pay_paypal_ipn(request: Request):
         params = dict(request.query_params)
         form_data = await request.form() if request.method == "POST" else {}
         item_name = form_data.get("item_name") or params.get("item_name") or ""
-        payer_email = form_data.get("payer_email") or params.get("payer_email") or "customer@verifydating.net"
+        payer_email = form_data.get("payer_email") or params.get("payer_email") or "customer@verifyjob.net"
         mc_gross = form_data.get("mc_gross") or params.get("mc_gross") or "2.99"
         
         scan_id = ""
@@ -2045,7 +2045,7 @@ from reportlab.platypus import Image as RLImage
 from fastapi.responses import StreamingResponse
 
 @app.get("/api/results/{scan_id}/pdf")
-async def download_dating_pdf(scan_id: str):
+async def download_job_pdf(scan_id: str):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("""
@@ -2317,8 +2317,8 @@ async def download_dating_pdf(scan_id: str):
         story.append(matches_table)
         
     story.append(Spacer(1, 20))
-    dating_sig_style = ParagraphStyle(
-        'DatingSig',
+    job_sig_style = ParagraphStyle(
+        'JobSig',
         parent=styles['Normal'],
         fontName='Helvetica',
         fontSize=7.5,
@@ -2326,7 +2326,7 @@ async def download_dating_pdf(scan_id: str):
         textColor=colors.HexColor('#64748b'),
         alignment=2 # Right
     )
-    story.append(Paragraph("Forensic FaceMatch Audit compiled by <b>JobScamRadar.net</b><br/>Operated by <b>VasileDev Group</b> · Partita IVA: <b>IT04226190041</b> · Garessio (CN), Italy · <font color='#0284c7'>https://vasiledev.com</font>", dating_sig_style))
+    story.append(Paragraph("Forensic FaceMatch Audit compiled by <b>JobScamRadar.net</b><br/>Operated by <b>VasileDev Group</b> · Partita IVA: <b>IT04226190041</b> · Garessio (CN), Italy · <font color='#0284c7'>https://vasiledev.com</font>", job_sig_style))
 
     doc.build(story)
     buffer.seek(0)
@@ -2725,18 +2725,18 @@ async def mark_scan_as_paid(scan_id: str, request: Request, token: str = None):
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    # Try updating in dating scans
+    # Try upjob in job scans
     cursor.execute("UPDATE scans SET payment_status = 'paid', package = 'basic' WHERE id = ?", (scan_id,))
-    dating_updated = cursor.rowcount > 0
+    job_updated = cursor.rowcount > 0
     
-    # Try updating in company scans
+    # Try upjob in company scans
     cursor.execute("UPDATE company_scans SET payment_status = 'paid' WHERE id = ?", (scan_id,))
     company_updated = cursor.rowcount > 0
     
     conn.commit()
     conn.close()
     
-    if not dating_updated and not company_updated:
+    if not job_updated and not company_updated:
         raise HTTPException(status_code=404, detail="Scan ID not found in database.")
         
     return {"status": "success", "scan_id": scan_id, "unlocked": True}
@@ -2798,7 +2798,7 @@ async def debug_email(email: str):
 
 @app.get("/api/debug-payments")
 async def debug_payments(token: str):
-    if token != "verifydating_secret_2026":
+    if token != "verifyjob_secret_2026":
         raise HTTPException(status_code=403, detail="Forbidden")
     if not os.path.exists("payments.log"):
         return {"logs": []}
@@ -4290,9 +4290,9 @@ async def trigger_test_alert(request: Request, token: str = None):
     site_name = data.get("site", "JobScamRadar")
     
     if test_type == "FAILED":
-        log_and_notify_payment_event("FAILED", f"{site_name} (TEST)", "vasile_test@verifydating.net", f"test_{int(datetime.now().timestamp())}", "PRO Deep ($4.99)", "$4.99", "Test Alert: Invalid CVC Code / Declined Card")
+        log_and_notify_payment_event("FAILED", f"{site_name} (TEST)", "vasile_test@verifyjob.net", f"test_{int(datetime.now().timestamp())}", "PRO Deep ($4.99)", "$4.99", "Test Alert: Invalid CVC Code / Declined Card")
     else:
-        log_and_notify_payment_event("SUCCESS", f"{site_name} (TEST)", "vasile_test@verifydating.net", f"test_{int(datetime.now().timestamp())}", "PRO Deep ($4.99)", "$4.99")
+        log_and_notify_payment_event("SUCCESS", f"{site_name} (TEST)", "vasile_test@verifyjob.net", f"test_{int(datetime.now().timestamp())}", "PRO Deep ($4.99)", "$4.99")
         
     return {"success": True, "message": f"Test alert ({test_type}) sent to WhatsApp (+39 320 948 1876) & Telegram."}
 
@@ -4414,9 +4414,9 @@ SCAM_LANG_MAP = {
         "exness_cta": "🟠 Trade on Exness (Instant Withdrawals 24/7) ➔",
         "vpn_title": "🦈 Protect Your IP & Device from Boiler Room Tracking",
         "vpn_desc": "Scam platforms log your IP, device ID, and location to coordinate aggressive phone harassment. Mask your identity with military-grade encryption.",
-        "dating_title": "❤️ Was this platform recommended to you on a Dating App or WhatsApp?",
-        "dating_desc": "84% of fake trading platforms originate from romance scam profiles ('Pig Butchering'). Verify your contact's photo against stolen model databases.",
-        "dating_btn": "🛡️ Job Scam Radar Contact Photo Free on JobScamRadar.net ↗",
+        "job_title": "❤️ Was this platform recommended to you on a Job App or WhatsApp?",
+        "job_desc": "84% of fake trading platforms originate from romance scam profiles ('Pig Butchering'). Verify your contact's photo against stolen model databases.",
+        "job_btn": "🛡️ Job Scam Radar Contact Photo Free on JobScamRadar.net ↗",
         "pdf_btn": "📄 Download Official Legal Evidence Dossier (100% Free)",
         "tradingview_title": "📊 Real-Time Charts & Market Verification",
         "tradingview_desc": "Verify real-time exchange pricing, detect fraudulent price spikes, and run technical analysis on TradingView before opening any trade.",
@@ -4496,9 +4496,9 @@ SCAM_LANG_MAP = {
         "exness_cta": "🟠 Tranzacționează pe Exness (Retrageri Instantanee 24/7) ➔",
         "vpn_title": "🦈 Protejează-ți IP-ul și Dispozitivul de Urmărirea Escrocilor",
         "vpn_desc": "Platformele frauduloase îți înregistrează adresa IP și locația pentru a te hărțui telefonic. Securizează-ți conexiunea cu VPN criptat.",
-        "dating_title": "❤️ Ți-a fost recomandată această platformă pe Dating sau WhatsApp?",
-        "dating_desc": "84% dintre platformele false pornesc din escrocherii sentimentale ('Pig Butchering'). Verifică biometric poza persoanei.",
-        "dating_btn": "🛡️ Verifică Poza Persoanei Gratuit pe JobScamRadar.net ↗",
+        "job_title": "❤️ Ți-a fost recomandată această platformă pe Job sau WhatsApp?",
+        "job_desc": "84% dintre platformele false pornesc din escrocherii sentimentale ('Pig Butchering'). Verifică biometric poza persoanei.",
+        "job_btn": "🛡️ Verifică Poza Persoanei Gratuit pe JobScamRadar.net ↗",
         "pdf_btn": "📄 Descarcă Dosarul Oficial de Probe Juridice (100% Free)",
         "tradingview_title": "📊 Grafice în Timp Real & Verificare Cotații",
         "tradingview_desc": "Verifică cotațiile reale de pe bursă, depistează lumânările false și analizează piața pe TradingView înainte de orice ordin.",
@@ -4578,9 +4578,9 @@ SCAM_LANG_MAP = {
         "exness_cta": "🟠 Fai Trading su Exness (Prelievi Istantanei 24/7) ➔",
         "vpn_title": "🦈 Proteggi il tuo IP e Dispositivo dai Call Center Truffaldini",
         "vpn_desc": "I siti truffa tracciano il tuo IP per continuare a chiamarti con operatori aggressivi. Naviga anonimo con crittografia certificata.",
-        "dating_title": "❤️ Ti è stata proposta questa piattaforma su Tinder o WhatsApp?",
-        "dating_desc": "L'84% delle truffe finanziarie nasce da falsi profili romantici ('Pig Butchering'). Verifica gratis la foto del contatto.",
-        "dating_btn": "🛡️ Verifica Foto del Contatto Gratis su JobScamRadar.net ↗",
+        "job_title": "❤️ Ti è stata proposta questa piattaforma su Tinder o WhatsApp?",
+        "job_desc": "L'84% delle truffe finanziarie nasce da falsi profili romantici ('Pig Butchering'). Verifica gratis la foto del contatto.",
+        "job_btn": "🛡️ Verifica Foto del Contatto Gratis su JobScamRadar.net ↗",
         "pdf_btn": "📄 Scarica Dossier Legale Ufficiale PDF (100% Free)",
         "tradingview_title": "📊 Grafici in Tempo Reale & Verifica Quotazioni",
         "tradingview_desc": "Verifica i prezzi ufficiali di borsa, scopri spike manipolati ed esegui analisi tecnica su TradingView prima di investire.",
@@ -4660,9 +4660,9 @@ SCAM_LANG_MAP = {
         "exness_cta": "🟠 Traden auf Exness (Sofortige Auszahlungen 24/7) ➔",
         "vpn_title": "🦈 Schützen Sie Ihre IP & Daten vor betrügerischen Callcentern",
         "vpn_desc": "Betrüger speichern Ihre IP und Telefonnummer für aggressive Kaltakquise. Nutzen Sie geprüften VPN-Schutz.",
-        "dating_title": "❤️ Wurde Ihnen dieser Company auf Tinder oder WhatsApp empfohlen?",
-        "dating_desc": "84% gefälschter Plattformen beginnen mit Romance-Scams ('Pig Butchering'). Überprüfen Sie das Profilfoto biometrisch.",
-        "dating_btn": "🛡️ Foto kostenlos prüfen auf JobScamRadar.net ↗",
+        "job_title": "❤️ Wurde Ihnen dieser Company auf Tinder oder WhatsApp empfohlen?",
+        "job_desc": "84% gefälschter Plattformen beginnen mit Employment-Scams ('Pig Butchering'). Überprüfen Sie das Profilfoto biometrisch.",
+        "job_btn": "🛡️ Foto kostenlos prüfen auf JobScamRadar.net ↗",
         "pdf_btn": "📄 Offizielles juristisches PDF-Dossier herunterladen (100% Free)",
         "tradingview_title": "📊 Echtzeit-Charts & Kurs-Verifizierung",
         "tradingview_desc": "Überprüfen Sie offizielle Börsenkurse, erkennen Sie manipulierte Preissprünge und nutzen Sie TradingView vor jeder Order.",
@@ -4742,9 +4742,9 @@ SCAM_LANG_MAP = {
         "exness_cta": "🟠 Trader sur Exness (Retraits Instantanés 24/7) ➔",
         "vpn_title": "🦈 Protégez votre Adresse IP et vos Données Personnelles",
         "vpn_desc": "Les escrocs collectent votre IP pour coordonner des relances téléphoniques agressives. Protégez-vous avec un VPN chiffré.",
-        "dating_title": "❤️ Ce company vous a été suggéré sur une App de Rencontre ou WhatsApp ?",
-        "dating_desc": "84% des arnaques au trading dérivent d'arnaques sentimentales ('Pig Butchering'). Vérifiez la photo du profil avec l'IA.",
-        "dating_btn": "🛡️ Vérifier la Photo Gratuitement sur JobScamRadar.net ↗",
+        "job_title": "❤️ Ce company vous a été suggéré sur une App de Rencontre ou WhatsApp ?",
+        "job_desc": "84% des arnaques au trading dérivent d'arnaques sentimentales ('Pig Butchering'). Vérifiez la photo du profil avec l'IA.",
+        "job_btn": "🛡️ Vérifier la Photo Gratuitement sur JobScamRadar.net ↗",
         "pdf_btn": "📄 Télécharger le Dossier Juridique Officiel (100% Free)",
         "tradingview_title": "📊 Graphiques en Temps Réel & Vérification des Cours",
         "tradingview_desc": "Vérifiez les cours réels du marché, détectez les fausses mèches et analysez les actifs sur TradingView avant d'investir.",
@@ -4824,9 +4824,9 @@ SCAM_LANG_MAP = {
         "exness_cta": "🟠 Operar en Exness (Retiros Instantáneos 24/7) ➔",
         "vpn_title": "🦈 Proteja su IP y Dispositivo del Acoso Telefónico",
         "vpn_desc": "Las plataformas fraudulentas rastrean su IP y datos para extorsión telefónica. Oculte su identidad con VPN militar.",
-        "dating_title": "¿Alguien en Tinder o WhatsApp le recomendó esta plataforma?",
-        "dating_desc": "El 84% de plataformas falsas provienen de estafas románticas ('Pig Butchering'). Verifique la foto del contacto gratis.",
-        "dating_btn": "🛡️ Verificar Foto Gratis en JobScamRadar.net ↗",
+        "job_title": "¿Alguien en Tinder o WhatsApp le recomendó esta plataforma?",
+        "job_desc": "El 84% de plataformas falsas provienen de estafas románticas ('Pig Butchering'). Verifique la foto del contacto gratis.",
+        "job_btn": "🛡️ Verificar Foto Gratis en JobScamRadar.net ↗",
         "pdf_btn": "📄 Descargar Dossier Jurídico Oficial en PDF (100% Free)",
         "tradingview_title": "📊 Gráficos en Tiempo Real y Verificación de Precios",
         "tradingview_desc": "Comprueba las cotizaciones reales del mercado, detecta velas falsas y analiza tendencias en TradingView antes de operar.",
@@ -4906,9 +4906,9 @@ SCAM_LANG_MAP = {
         "exness_cta": "🟠 Negociar na Exness (Saques Instantâneos 24/7) ➔",
         "vpn_title": "🦈 Proteja seu IP e Dispositivo contra Rastreamento",
         "vpn_desc": "Sites fraudulentos gravam seu IP para aplicar golpes por telefone. Navegue seguro com VPN criptografada.",
-        "dating_title": "❤️ Essa plataforma foi indicada em App de Namoro ou WhatsApp?",
-        "dating_desc": "84% dos golpes de investimento derivam de perfis falsos ('Pig Butchering'). Faça a verificação biométrica da foto.",
-        "dating_btn": "🛡️ Verificar Foto Grátis no JobScamRadar.net ↗",
+        "job_title": "❤️ Essa plataforma foi indicada em App de Namoro ou WhatsApp?",
+        "job_desc": "84% dos golpes de investimento derivam de perfis falsos ('Pig Butchering'). Faça a verificação biométrica da foto.",
+        "job_btn": "🛡️ Verificar Foto Grátis no JobScamRadar.net ↗",
         "pdf_btn": "📄 Baixar Dossiê Jurídico Oficial em PDF (100% Free)",
         "tradingview_title": "📊 Gráficos em Tempo Real e Verificação de Cotações",
         "tradingview_desc": "Verifique cotações reais de mercado, identifique velas manipuladas e use o TradingView antes de qualquer operação.",
@@ -4988,9 +4988,9 @@ SCAM_LANG_MAP = {
         "exness_cta": "🟠 Торговать на Exness (Мгновенный вывод 24/7) ➔",
         "vpn_title": "🦈 Защитите свой IP и устройство от слежки мошенников",
         "vpn_desc": "Мошеннические сайты фиксируют ваш IP для агрессивного телефонного спама и шантажа. Используйте надежный VPN.",
-        "dating_title": "❤️ Этого брокера вам порекомендовали в дейтинге или WhatsApp?",
-        "dating_desc": "84% фальшивых площадок исходят от романтических аферистов («Pig Butchering»). Проверьте фото бесплатно.",
-        "dating_btn": "🛡️ Проверить фото бесплатно на JobScamRadar.net ↗",
+        "job_title": "❤️ Этого брокера вам порекомендовали в дейтинге или WhatsApp?",
+        "job_desc": "84% фальшивых площадок исходят от романтических аферистов («Pig Butchering»). Проверьте фото бесплатно.",
+        "job_btn": "🛡️ Проверить фото бесплатно на JobScamRadar.net ↗",
         "pdf_btn": "📄 Скачать официальное юридическое PDF-досье (100% Free)",
         "tradingview_title": "📊 Графики в реальном времени и проверка цен",
         "tradingview_desc": "Сверяйте котировки с реальными биржами, выявляйте манипуляции и анализируйте рынок на TradingView перед сделкой.",
@@ -5058,7 +5058,7 @@ async def get_scam_report_page(request: Request, slug: str, lang: str = "en"):
     
     urls_chips_html = "".join([f'<span style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.35); padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 0.85rem; text-decoration: line-through; margin-right: 6px;">🚫 {u}</span>' for u in blacklisted_urls if u])
     
-    target_vd_url = "https://verifydating.net/" if lang == "en" else f"https://verifydating.net/{lang}/"
+    target_vd_url = "https://verifyjob.net/" if lang == "en" else f"https://verifyjob.net/{lang}/"
     clean_reason = reason.replace('"', ' ').replace('\n', ' ').strip() if reason else ""
     clean_name = entity_name.replace('"', '').replace("'", "").strip() if entity_name else "Unknown Company"
     
@@ -5414,7 +5414,7 @@ async def get_scam_report_page(request: Request, slug: str, lang: str = "en"):
                     </div>
 
                     <!-- Surfshark / NordVPN Security Card -->
-                    <div class="affiliate-card dating-safe-card" style="margin-top: 18px; background: rgba(59, 130, 246, 0.06); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 12px; padding: 16px; text-align: left;">
+                    <div class="affiliate-card job-safe-card" style="margin-top: 18px; background: rgba(59, 130, 246, 0.06); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 12px; padding: 16px; text-align: left;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 <i class="fa-solid fa-user-shield" style="color: #60a5fa; font-size: 18px;"></i>
@@ -5441,20 +5441,20 @@ async def get_scam_report_page(request: Request, slug: str, lang: str = "en"):
                         </a>
                     </div>
 
-                    <!-- Dating Cross-Promotion Card -->
-                    <div class="in-result-dating-cross-card" style="margin-top: 18px; background: linear-gradient(135deg, rgba(236, 72, 153, 0.08) 0%, rgba(190, 24, 93, 0.12) 100%); border: 1px solid rgba(236, 72, 153, 0.35); border-radius: 12px; padding: 16px; text-align: left;">
+                    <!-- Job Cross-Promotion Card -->
+                    <div class="in-result-job-cross-card" style="margin-top: 18px; background: linear-gradient(135deg, rgba(236, 72, 153, 0.08) 0%, rgba(190, 24, 93, 0.12) 100%); border: 1px solid rgba(236, 72, 153, 0.35); border-radius: 12px; padding: 16px; text-align: left;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 <span style="font-size: 20px;">❤️</span>
-                                <h4 style="margin: 0; font-size: 14px; color: #fff; font-weight: 700;">{t['dating_title']}</h4>
+                                <h4 style="margin: 0; font-size: 14px; color: #fff; font-weight: 700;">{t['job_title']}</h4>
                             </div>
                             <span style="background: rgba(236, 72, 153, 0.2); color: #f472b6; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 6px;">PIG BUTCHERING ALERT</span>
                         </div>
                         <p style="font-size: 12px; color: #94a3b8; margin: 0 0 12px 0; line-height: 1.4;">
-                            {t['dating_desc']}
+                            {t['job_desc']}
                         </p>
                         <a href="{target_vd_url}" target="_blank" rel="noopener" class="btn" style="width: 100%; box-sizing: border-box; background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); border: none; font-weight: 700; font-size: 13px; padding: 11px; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; border-radius: 8px; color: #fff; text-align: center;">
-                            <span>{t['dating_btn']}</span>
+                            <span>{t['job_btn']}</span>
                         </a>
                     </div>
 
@@ -5511,7 +5511,7 @@ async def get_scam_report_page(request: Request, slug: str, lang: str = "en"):
         filter: brightness(1.18) !important;
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4) !important;
     }}
-    .in-result-dating-cross-card:hover {{
+    .in-result-job-cross-card:hover {{
         border-color: rgba(236, 72, 153, 0.7) !important;
         box-shadow: 0 10px 30px rgba(236, 72, 153, 0.25) !important;
         transform: translateY(-2px);
@@ -6466,7 +6466,7 @@ async def api_v1_postman_collection():
         os.path.join(current_dir, "JobScamRadar_and_JobScamRadar_API.postman_collection.json"),
         os.path.join(current_dir, "..", "JobScamRadar_and_JobScamRadar_API.postman_collection.json"),
         "JobScamRadar_and_JobScamRadar_API.postman_collection.json",
-        "dating-photo-checker/JobScamRadar_and_JobScamRadar_API.postman_collection.json"
+        "job-photo-checker/JobScamRadar_and_JobScamRadar_API.postman_collection.json"
     ]
     for c in candidates:
         if os.path.exists(c):
@@ -6482,7 +6482,7 @@ async def redirect_to_chrome_store():
     Redirects directly to official SafeShield Chrome Web Store extension page.
     """
     return RedirectResponse(
-        url="https://chromewebstore.google.com/detail/safeshield-company-dating/kofccbiknbhbmjdpagddiiaggleehdoj",
+        url="https://chromewebstore.google.com/detail/safeshield-company-job/kofccbiknbhbmjdpagddiiaggleehdoj",
         status_code=302
     )
 
@@ -7008,7 +7008,7 @@ async def api_v1_documentation():
             overflow-x: auto;
         }
         .tag { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 6px; display: block; }
-        .nav-btn-pricing, .nav-btn-widget, .nav-btn-pypi, .nav-btn-dating, .nav-logo-btn {
+        .nav-btn-pricing, .nav-btn-widget, .nav-btn-pypi, .nav-btn-job, .nav-logo-btn {
             transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1) !important;
             cursor: pointer !important;
         }
@@ -7040,7 +7040,7 @@ async def api_v1_documentation():
             box-shadow: 0 0 22px rgba(56, 189, 248, 0.85), 0 4px 14px rgba(0,0,0,0.5) !important;
             color: #ffffff !important;
         }
-        .nav-btn-dating:hover {
+        .nav-btn-job:hover {
             transform: translateY(-2px) scale(1.04) !important;
             background: rgba(236, 72, 153, 0.35) !important;
             border-color: #ec4899 !important;
@@ -7070,7 +7070,7 @@ async def api_v1_documentation():
                 <a href="/pricing" class="nav-btn-pricing" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); padding: 7px 14px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">💳 Pricing Plans</a>
                 <a href="/widget" class="nav-btn-widget" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); padding: 7px 14px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">🛡️ Trust Widget</a>
                 <a href="https://pypi.org/project/iscompanysafe/" target="_blank" class="nav-btn-pypi" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); padding: 7px 14px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">🐍 PyPI SDK ↗</a>
-                <a href="https://verifydating.net/" target="_blank" class="nav-btn-dating" style="background: rgba(236, 72, 153, 0.15); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.4); padding: 7px 14px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">❤️ JobScamRadar ↗</a>
+                <a href="https://verifyjob.net/" target="_blank" class="nav-btn-job" style="background: rgba(236, 72, 153, 0.15); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.4); padding: 7px 14px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">❤️ JobScamRadar ↗</a>
             </div>
         </div>
         <div class="header">
@@ -7272,10 +7272,10 @@ async def get_embeddable_badge_js():
 
 
 
-@app.get("/dating-widget")
-@app.get("/dating-badge")
-async def get_dating_badge_customizer_page():
-    html_dating_customizer = """<!DOCTYPE html>
+@app.get("/job-widget")
+@app.get("/job-badge")
+async def get_job_badge_customizer_page():
+    html_job_customizer = """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -7631,12 +7631,12 @@ async def get_dating_badge_customizer_page():
         <div class="top-bar">
             <a href="/" class="logo-link">
                 <span class="logo-shield"><i class="fa-solid fa-shield-heart"></i></span>
-                Verify<span style="color: var(--primary);">Dating</span>
+                Verify<span style="color: var(--primary);">Job</span>
             </a>
             <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                <a href="/api/v1/dating-docs#pricing" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.35); padding: 6px 14px; border-radius: 20px; text-decoration: none; font-size: 12.5px; font-weight: 700;">💳 Pricing Plans</a>
-                <a href="/api/v1/dating-docs" style="background: rgba(236, 72, 153, 0.15); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.35); padding: 6px 14px; border-radius: 20px; text-decoration: none; font-size: 12.5px; font-weight: 700;">⚡ Face API</a>
-                <a href="https://pypi.org/project/verifydating/" target="_blank" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35); padding: 6px 14px; border-radius: 20px; text-decoration: none; font-size: 12.5px; font-weight: 700;">🐍 PyPI SDK ↗</a>
+                <a href="/api/v1/job-docs#pricing" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.35); padding: 6px 14px; border-radius: 20px; text-decoration: none; font-size: 12.5px; font-weight: 700;">💳 Pricing Plans</a>
+                <a href="/api/v1/job-docs" style="background: rgba(236, 72, 153, 0.15); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.35); padding: 6px 14px; border-radius: 20px; text-decoration: none; font-size: 12.5px; font-weight: 700;">⚡ Face API</a>
+                <a href="https://pypi.org/project/verifyjob/" target="_blank" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35); padding: 6px 14px; border-radius: 20px; text-decoration: none; font-size: 12.5px; font-weight: 700;">🐍 PyPI SDK ↗</a>
             </div>
         </div>
 
@@ -7692,10 +7692,10 @@ async def get_dating_badge_customizer_page():
                 
                 <div class="preview-box">
                     <!-- Full Card Preview -->
-                    <a id="preview-badge-card" href="https://verifydating.net/" target="_blank" rel="noopener" class="emblem-card-box">
+                    <a id="preview-badge-card" href="https://verifyjob.net/" target="_blank" rel="noopener" class="emblem-card-box">
                         <div class="emblem-top-header">
                             <div class="emblem-brand">
-                                🛡️ Verify<span>Dating</span>.net
+                                🛡️ Verify<span>Job</span>.net
                             </div>
                             <span class="emblem-pill-live">✓ VERIFIED 2026</span>
                         </div>
@@ -7708,7 +7708,7 @@ async def get_dating_badge_customizer_page():
                         </div>
                         <div class="emblem-bottom-footer">
                             <span>Official Trust Seal</span>
-                            <strong>verifydating.net ↗</strong>
+                            <strong>verifyjob.net ↗</strong>
                         </div>
                     </a>
                 </div>
@@ -7764,9 +7764,9 @@ async def get_dating_badge_customizer_page():
             let snippet = '';
             if (format === 'card') {
                 snippet = `<!-- JobScamRadar Official Safety Seal -->
-<a href="https://verifydating.net/" target="_blank" rel="noopener" style="display:inline-block;background:#0d0614;border:1.5px solid ${tc.border};border-radius:14px;padding:14px 18px;color:#fff;text-decoration:none;font-family:sans-serif;box-shadow:0 0 20px ${tc.glow};max-width:340px;">
+<a href="https://verifyjob.net/" target="_blank" rel="noopener" style="display:inline-block;background:#0d0614;border:1.5px solid ${tc.border};border-radius:14px;padding:14px 18px;color:#fff;text-decoration:none;font-family:sans-serif;box-shadow:0 0 20px ${tc.glow};max-width:340px;">
   <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:6px;margin-bottom:8px;font-size:11px;font-weight:700;">
-    <span>🛡️ Verify<span style="color:${tc.border};">Dating</span>.net</span>
+    <span>🛡️ Verify<span style="color:${tc.border};">Job</span>.net</span>
     <span style="color:#10b981;">✓ VERIFIED 2026</span>
   </div>
   <div style="display:flex;align-items:center;gap:10px;">
@@ -7778,15 +7778,15 @@ async def get_dating_badge_customizer_page():
   </div>
   <div style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);display:flex;justify-content:space-between;font-size:10px;color:#94a3b8;">
     <span>Official Trust Seal</span>
-    <span style="color:#38bdf8;font-weight:700;">verifydating.net ↗</span>
+    <span style="color:#38bdf8;font-weight:700;">verifyjob.net ↗</span>
   </div>
 </a>`;
             } else {
                 snippet = `<!-- JobScamRadar Compact Pill Emblem -->
-<a href="https://verifydating.net/" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;background:#0d0614;border:1.5px solid ${tc.border};border-radius:20px;padding:8px 16px;color:#fff;text-decoration:none;font-family:sans-serif;box-shadow:0 0 15px ${tc.glow};">
+<a href="https://verifyjob.net/" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;background:#0d0614;border:1.5px solid ${tc.border};border-radius:20px;padding:8px 16px;color:#fff;text-decoration:none;font-family:sans-serif;box-shadow:0 0 15px ${tc.glow};">
   <span style="color:${tc.iconColor};font-size:16px;">🛡️</span>
   <strong style="font-size:12.5px;">${name} <span style="color:#10b981;">✓ VERIFIED</span></strong>
-  <span style="color:#38bdf8;font-size:11px;border-left:1px solid rgba(255,255,255,0.2);padding-left:8px;">verifydating.net</span>
+  <span style="color:#38bdf8;font-size:11px;border-left:1px solid rgba(255,255,255,0.2);padding-left:8px;">verifyjob.net</span>
 </a>`;
             }
 
@@ -7805,14 +7805,14 @@ async def get_dating_badge_customizer_page():
 </body>
 </html>"""
     from fastapi.responses import Response
-    return Response(content=html_dating_customizer, media_type="text/html")
+    return Response(content=html_job_customizer, media_type="text/html")
 
 @app.get("/widget")
 @app.get("/badge")
 async def get_badge_customizer_page(request: Request):
     host = request.headers.get("host", "").lower()
-    if "dating" in host or "verifydating" in host:
-        return await get_dating_badge_customizer_page()
+    if "job" in host or "verifyjob" in host:
+        return await get_job_badge_customizer_page()
     """
     Interactive Webmaster Trust Badge Customizer & 1-Click Embed Code Generator.
     """
@@ -8084,7 +8084,7 @@ function copyEmbedCode() {
 # Real-Time AI Face Screening & Job Scam Defense for Remote Jobs & Platforms
 # =============================================================================
 
-class DatingFaceCheckRequest(BaseModel):
+class JobFaceCheckRequest(BaseModel):
     image_url: Optional[str] = None
     image_base64: Optional[str] = None
     user_id: Optional[str] = None
@@ -8093,7 +8093,7 @@ class DatingFaceCheckRequest(BaseModel):
 @app.post("/api/v1/face/check")
 async def api_v1_check_face(
     request: Request,
-    body: Optional[DatingFaceCheckRequest] = None,
+    body: Optional[JobFaceCheckRequest] = None,
     api_key: Optional[str] = None,
     file: Optional[UploadFile] = File(None)
 ):
@@ -8189,7 +8189,7 @@ async def api_v1_check_face(
 
 
 @app.get("/api/v1/face/stats")
-async def get_dating_api_stats():
+async def get_job_api_stats():
     """
     Global Facial & Job Scam Intelligence Statistics.
     """
@@ -8202,13 +8202,13 @@ async def get_dating_api_stats():
     }
 
 
-@app.get("/api/v1/dating-docs")
-@app.get("/dating-api")
-async def get_dating_api_docs_page():
+@app.get("/api/v1/job-docs")
+@app.get("/job-api")
+async def get_job_api_docs_page():
     """
     Interactive JobScamRadar B2B Anti-Scammer API Documentation & Sandbox.
     """
-    html_dating_docs = """<!DOCTYPE html>
+    html_job_docs = """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -8454,11 +8454,11 @@ async def get_dating_api_docs_page():
 
 <div class="container">
     <nav class="nav-bar">
-        <a href="https://verifydating.net/" class="logo-box">
+        <a href="https://verifyjob.net/" class="logo-box">
             <span style="color: var(--pink);">❤️</span> JobScamRadar <span style="font-size: 12px; background: rgba(236,72,153,0.2); padding: 3px 8px; border-radius: 6px; color: var(--pink); border: 1px solid rgba(236,72,153,0.4);">B2B API</span>
         </a>
         <div style="display: flex; gap: 14px; align-items: center;">
-            <a href="https://verifydating.net/" style="color: var(--text-muted); text-decoration: none; font-size: 13px; font-weight: 600;">Consumer Portal</a>
+            <a href="https://verifyjob.net/" style="color: var(--text-muted); text-decoration: none; font-size: 13px; font-weight: 600;">Consumer Portal</a>
             <a href="https://jobscamradar.com/api/v1/docs" target="_blank" style="color: var(--cyan); text-decoration: none; font-size: 13px; font-weight: 600;">JobScamRadar API ↗</a>
             <a href="#key-sandbox" style="background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); color: #fff; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 12.5px; font-weight: 800; border: 1px solid rgba(236, 72, 153, 0.4); transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; gap: 6px;" onmouseover="this.style.transform='translateY(-2px) scale(1.04)'; this.style.boxShadow='0 0 20px rgba(236,72,153,0.8)';" onmouseout="this.style.transform='none'; this.style.boxShadow='none';">⚡ Get Free API Key</a>
         </div>
@@ -8482,7 +8482,7 @@ async def get_dating_api_docs_page():
             <a href="#key-sandbox" class="btn-plan btn-free">Generate Sandbox Key</a>
         </div>
 
-        <!-- Starter Dating App (Launch Promo: $49/mo) -->
+        <!-- Starter Job App (Launch Promo: $49/mo) -->
         <div class="plan-card">
             <h3 class="plan-title" style="color: var(--pink);">Starter App</h3>
             <div class="plan-price">$49 <span>/ month</span></div>
@@ -8524,8 +8524,8 @@ async def get_dating_api_docs_page():
         <h3 style="font-family: 'Outfit'; font-size: 20px; color: #fff; margin-bottom: 8px;">⚡ Instant Developer Sandbox (100 Free Scans/Mo)</h3>
         <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">Generate your free API Key to screen job offer photos directly from your backend.</p>
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <input type="email" id="dev-email" placeholder="cto@datingapp.com" style="flex: 1; min-width: 260px; background: #000; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 12px 16px; color: #fff; font-size: 14px; outline: none;">
-            <button onclick="generateDatingApiKey()" class="btn-gen-dating" style="background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); color: #fff; border: 1px solid rgba(236, 72, 153, 0.5); border-radius: 8px; padding: 12px 26px; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1); animation: pulse-pink-glow 2.5s infinite ease-in-out;">Generate Key ⚡</button>
+            <input type="email" id="dev-email" placeholder="cto@jobapp.com" style="flex: 1; min-width: 260px; background: #000; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 12px 16px; color: #fff; font-size: 14px; outline: none;">
+            <button onclick="generateJobApiKey()" class="btn-gen-job" style="background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); color: #fff; border: 1px solid rgba(236, 72, 153, 0.5); border-radius: 8px; padding: 12px 26px; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1); animation: pulse-pink-glow 2.5s infinite ease-in-out;">Generate Key ⚡</button>
         </div>
         <div id="key-output" style="display: none; margin-top: 16px; background: #040208; border: 1px solid var(--green); border-radius: 8px; padding: 14px; color: var(--green); font-family: 'Fira Code', monospace; font-size: 13px;">
             <div>✓ API KEY READY:</div>
@@ -8539,10 +8539,10 @@ async def get_dating_api_docs_page():
         <h2 style="font-family: 'Outfit'; font-size: 24px; margin-bottom: 16px;">📚 API Reference: POST /api/v1/face/check</h2>
         <p style="color: var(--text-muted); font-size: 13.5px; margin-bottom: 16px;">Upload a profile picture file or pass a public image URL to verify authenticity against the global romance scam intelligence database.</p>
 
-        <div class="endpoint-pill">POST https://verifydating.net/api/v1/face/check</div>
+        <div class="endpoint-pill">POST https://verifyjob.net/api/v1/face/check</div>
 
         <div style="font-size: 13px; font-weight: 700; color: #fff; margin-top: 14px;">Example cURL Request:</div>
-        <div class="code-box">curl -X POST "https://verifydating.net/api/v1/face/check" \
+        <div class="code-box">curl -X POST "https://verifyjob.net/api/v1/face/check" \
   -H "X-API-Key: YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"image_url": "https://example.com/suspicious_profile_pic.jpg"}'</div>
@@ -8571,7 +8571,7 @@ async def get_dating_api_docs_page():
 </div>
 
 <script>
-async function generateDatingApiKey() {
+async function generateJobApiKey() {
     const email = document.getElementById('dev-email').value.trim();
     if (!email || !email.includes('@')) {
         alert('Please enter a valid developer or company email.');
@@ -8598,7 +8598,7 @@ async function generateDatingApiKey() {
 </script>
 </body>
 </html>"""
-    return HTMLResponse(content=html_dating_docs, status_code=200)
+    return HTMLResponse(content=html_job_docs, status_code=200)
 
 
 
@@ -9385,20 +9385,20 @@ if __name__ == "__main__":
 # DATING SCAMMER THREAT INTELLIGENCE & DOSSIERS MODULE (JobScamRadar.net)
 # ==============================================================================
 
-@app.get("/api/admin/seed-dating-scams")
-async def admin_seed_dating_scams():
+@app.get("/api/admin/seed-job-scams")
+async def admin_seed_job_scams():
     """
-    Direct endpoint to trigger population of 350+ dating scam profiles.
+    Direct endpoint to trigger population of 350+ job scam profiles.
     """
     try:
-        from dating_scams_harvester import generate_dating_scam_dossiers
-        generate_dating_scam_dossiers(10000)
+        from job_scams_harvester import generate_job_scam_dossiers
+        generate_job_scam_dossiers(10000)
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT COUNT(*) FROM dating_scam_profiles")
+        cursor.execute("SELECT COUNT(*) FROM job_scam_profiles")
         count = cursor.fetchone()[0]
         conn.close()
-        return JSONResponse({"status": "success", "total_dating_scam_profiles": count})
+        return JSONResponse({"status": "success", "total_job_scam_profiles": count})
     except Exception as e:
         return JSONResponse({"status": "error", "message": str(e)}, status_code=500)
 
@@ -9419,27 +9419,27 @@ async def admin_seed_company_scams():
     except Exception as e:
         return JSONResponse({"status": "error", "message": str(e)}, status_code=500)
 
-@app.get("/api/dating/scammers")
-async def api_dating_scammers(limit: int = 6, q: str = None):
+@app.get("/api/job/scammers")
+async def api_job_scammers(limit: int = 6, q: str = None):
     """
-    JSON API for Live Dating Scammers Preview and Interactive Instant Search.
+    JSON API for Live Job Scammers Preview and Interactive Instant Search.
     """
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT COUNT(*) FROM dating_scam_profiles")
+    cursor.execute("SELECT COUNT(*) FROM job_scam_profiles")
     total_count = cursor.fetchone()[0]
     
     if total_count == 0:
         conn.close()
         try:
-            from dating_scams_harvester import generate_dating_scam_dossiers
-            generate_dating_scam_dossiers(10000)
+            from job_scams_harvester import generate_job_scam_dossiers
+            generate_job_scam_dossiers(10000)
         except Exception as e:
             print(f"[OnDemand Seed Exception]: {e}")
         conn = get_db_connection()
         cursor = conn.cursor()
         
-    query_str = "SELECT slug, persona_name, gender, scam_category, claimed_age, claimed_profession, risk_score, views_count, first_reported_date FROM dating_scam_profiles WHERE 1=1"
+    query_str = "SELECT slug, persona_name, gender, scam_category, claimed_age, claimed_profession, risk_score, views_count, first_reported_date FROM job_scam_profiles WHERE 1=1"
     params = []
     if q:
         query_str += " AND (persona_name LIKE ? OR claimed_profession LIKE ? OR scam_category LIKE ?)"
@@ -9465,19 +9465,19 @@ async def api_dating_scammers(limit: int = 6, q: str = None):
     return JSONResponse({"status": "success", "total_profiles": total_count, "results": results})
 
 @app.get("/sitemap-scammers.xml")
-@app.get("/sitemap_dating_scams.xml")
-async def sitemap_dating_scams_index():
+@app.get("/sitemap_job_scams.xml")
+async def sitemap_job_scams_index():
     """
     Standard Google Sitemap Index XML for JobScamRadar Scammer Profiles.
     Google enforces max 50,000 URLs and recommends chunking large databases.
     Splits 50,000+ dossiers into 10 clean sub-sitemaps of 40,000 localized URLs each (8 languages).
     """
-    base_url = "https://verifydating.net"
+    base_url = "https://verifyjob.net"
     today = datetime.now().strftime("%Y-%m-%d")
     
     parts_xml = "\n".join([
         f"""  <sitemap>
-    <loc>{base_url}/sitemap-dating-scams-{i}.xml</loc>
+    <loc>{base_url}/sitemap-job-scams-{i}.xml</loc>
     <lastmod>{today}</lastmod>
   </sitemap>""" for i in range(1, 11)
     ])
@@ -9491,7 +9491,7 @@ async def sitemap_dating_scams_index():
 
 
 @app.get("/sitemap-scammers-{part}.xml")
-async def sitemap_dating_scams_part(part: int):
+async def sitemap_job_scams_part(part: int):
     """
     Individual chunked sub-sitemap of 5,000 dossiers * 8 languages = 40,000 URLs. Fast, validated, 0% timeout.
     """
@@ -9503,7 +9503,7 @@ async def sitemap_dating_scams_part(part: int):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
-        "SELECT slug, first_reported_date FROM dating_scam_profiles ORDER BY id ASC LIMIT ? OFFSET ?",
+        "SELECT slug, first_reported_date FROM job_scam_profiles ORDER BY id ASC LIMIT ? OFFSET ?",
         (chunk_size, offset)
     )
     rows = cursor.fetchall()
@@ -9516,7 +9516,7 @@ async def sitemap_dating_scams_part(part: int):
     # If first part, include the main directory page
     if part == 1:
         xml.append('  <url>')
-        xml.append('    <loc>https://verifydating.net/scammers</loc>')
+        xml.append('    <loc>https://verifyjob.net/scammers</loc>')
         xml.append(f'    <lastmod>{today}</lastmod>')
         xml.append('    <changefreq>daily</changefreq>')
         xml.append('    <priority>0.9</priority>')
@@ -9527,7 +9527,7 @@ async def sitemap_dating_scams_part(part: int):
         safe_slug = html_lib.escape(slug)
         lastmod = rep_date if rep_date else today
         for l in langs:
-            loc = f"https://verifydating.net/{l}/scammer/{safe_slug}" if l != "en" else f"https://verifydating.net/scammer/{safe_slug}"
+            loc = f"https://verifyjob.net/{l}/scammer/{safe_slug}" if l != "en" else f"https://verifyjob.net/scammer/{safe_slug}"
             xml.append('  <url>')
             xml.append(f'    <loc>{loc}</loc>')
             xml.append(f'    <lastmod>{lastmod}</lastmod>')
@@ -9539,9 +9539,9 @@ async def sitemap_dating_scams_part(part: int):
     return Response(content="\n".join(xml), media_type="application/xml")
 
 @app.get("/scammers")
-async def dating_scammers_directory(request: Request, category: str = None, q: str = None, page: int = 1):
+async def job_scammers_directory(request: Request, category: str = None, q: str = None, page: int = 1):
     """
-    Public Searchable Directory of Dating & Job Scam Profiles with Multi-Page Pagination & Filters.
+    Public Searchable Directory of Job & Job Scam Profiles with Multi-Page Pagination & Filters.
     """
     limit = 60
     page = max(1, page)
@@ -9549,24 +9549,24 @@ async def dating_scammers_directory(request: Request, category: str = None, q: s
 
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT COUNT(*) FROM dating_scam_profiles")
+    cursor.execute("SELECT COUNT(*) FROM job_scam_profiles")
     total_db_count = cursor.fetchone()[0]
     
     if total_db_count < 10000:
         conn.close()
         try:
-            from dating_scams_harvester import generate_dating_scam_dossiers
-            generate_dating_scam_dossiers(12500)
+            from job_scams_harvester import generate_job_scam_dossiers
+            generate_job_scam_dossiers(12500)
         except Exception as e:
             print(f"[OnDemand Seed Exception]: {e}")
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT COUNT(*) FROM dating_scam_profiles")
+        cursor.execute("SELECT COUNT(*) FROM job_scam_profiles")
         total_db_count = cursor.fetchone()[0]
     
     # Base count for filtered query
-    count_query = "SELECT COUNT(*) FROM dating_scam_profiles WHERE 1=1"
-    query_str = "SELECT id, slug, persona_name, gender, scam_category, claimed_age, claimed_profession, risk_score, views_count, first_reported_date FROM dating_scam_profiles WHERE 1=1"
+    count_query = "SELECT COUNT(*) FROM job_scam_profiles WHERE 1=1"
+    query_str = "SELECT id, slug, persona_name, gender, scam_category, claimed_age, claimed_profession, risk_score, views_count, first_reported_date FROM job_scam_profiles WHERE 1=1"
     params = []
     
     if category:
@@ -9654,7 +9654,7 @@ async def dating_scammers_directory(request: Request, category: str = None, q: s
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Job Scammer Database & Fake Profile Blacklist (Page {page}) | JobScamRadar</title>
-    <meta name="description" content="Search {total_db_count}+ verified romance scam personas, stolen military profiles, pig butchering crypto accounts, and fake scammer identities.">
+    <meta name="description" content="Search {total_db_count}+ verified fake recruiter/job scams, stolen military profiles, pig butchering crypto accounts, and fake scammer identities.">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -9681,13 +9681,13 @@ async def dating_scammers_directory(request: Request, category: str = None, q: s
 <body>
     <div class="container">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-            <a href="https://verifydating.net/" style="color: #ec4899; text-decoration: none; font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; gap: 6px;">&larr; Back to JobScamRadar Home</a>
+            <a href="https://verifyjob.net/" style="color: #ec4899; text-decoration: none; font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; gap: 6px;">&larr; Back to JobScamRadar Home</a>
             <a href="https://jobscamradar.com/" style="color: #38bdf8; text-decoration: none; font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; gap: 6px;">📈 Verify Company & Crypto ↗</a>
         </div>
         
         <div class="header">
             <h1 class="title">🛡️ Job Scammer & Scammer Blacklist</h1>
-            <p style="color: #94a3b8; font-size: 15px; margin: 0 0 10px 0;">Forensic intelligence archive indexing <strong>{total_db_count:,}+ verified romance scam personas</strong>, stolen photos, and fraudulent scripts.</p>
+            <p style="color: #94a3b8; font-size: 15px; margin: 0 0 10px 0;">Forensic intelligence archive indexing <strong>{total_db_count:,}+ verified fake recruiter/job scams</strong>, stolen photos, and fraudulent scripts.</p>
             <div style="display: inline-block; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); color: #38bdf8; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 20px;">
                 📁 Showing profiles {offset + 1} - {min(offset + limit, filtered_total)} of {filtered_total:,} Dossiers (Page {page} of {total_pages})
             </div>
@@ -9713,7 +9713,7 @@ async def dating_scammers_directory(request: Request, category: str = None, q: s
 
 @app.get("/scammer/{slug}")
 @app.get("/{lang}/scammer/{slug}")
-async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
+async def job_scammer_profile_dossier(slug: str, lang: str = "en"):
     """
     Forensic Threat Intelligence Dossier Page for a Specific Job Scammer Profile.
     Supports 8 languages (EN, RO, IT, DE, FR, ES, PT, RU) with canonical & hreflang SEO tags.
@@ -9727,22 +9727,22 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
     cursor = conn.cursor()
     cursor.execute("""
         SELECT id, persona_name, gender, scam_category, claimed_age, claimed_location, claimed_profession, stolen_from_real_person, typical_script, scam_story, warning_flags, photo_urls, risk_score, reported_aliases, views_count, first_reported_date
-        FROM dating_scam_profiles WHERE slug = ?
+        FROM job_scam_profiles WHERE slug = ?
     """, (slug,))
     row = cursor.fetchone()
     if not row:
         try:
-            from dating_scams_harvester import create_profile_from_slug
+            from job_scams_harvester import create_profile_from_slug
             profile_data = create_profile_from_slug(slug)
             cursor.execute("""
-                INSERT OR IGNORE INTO dating_scam_profiles 
+                INSERT OR IGNORE INTO job_scam_profiles 
                 (slug, persona_name, gender, scam_category, claimed_age, claimed_location, claimed_profession, stolen_from_real_person, typical_script, scam_story, warning_flags, photo_urls, risk_score, reported_aliases, views_count, first_reported_date, created_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, profile_data)
             conn.commit()
             cursor.execute("""
                 SELECT id, persona_name, gender, scam_category, claimed_age, claimed_location, claimed_profession, stolen_from_real_person, typical_script, scam_story, warning_flags, photo_urls, risk_score, reported_aliases, views_count, first_reported_date
-                FROM dating_scam_profiles WHERE slug = ?
+                FROM job_scam_profiles WHERE slug = ?
             """, (slug,))
             row = cursor.fetchone()
         except Exception as e:
@@ -9756,7 +9756,7 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
     
     # Increment view count safely without locking
     try:
-        cursor.execute("UPDATE dating_scam_profiles SET views_count = views_count + 1 WHERE id = ?", (pid,))
+        cursor.execute("UPDATE job_scam_profiles SET views_count = views_count + 1 WHERE id = ?", (pid,))
         conn.commit()
     except Exception as e:
         print(f"[View Count Update Non-Fatal]: {e}")
@@ -9772,7 +9772,7 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
     T = {
         "en": {
             "title": f"{name} Job Scam Alert & Stolen Photos ({category}) | JobScamRadar",
-            "meta_desc": f"Forensic dossier on romance scam persona '{name}' ({prof}, {location}). Detect scammer profiles and reverse search photos with JobScamRadar AI.",
+            "meta_desc": f"Forensic dossier on fake recruiter/job scam '{name}' ({prof}, {location}). Detect scammer profiles and reverse search photos with JobScamRadar AI.",
             "back": "&larr; Back to Scammer Blacklist",
             "verify_face": "📷 Verify Another Face (Free) ↗",
             "risk_label": f"{risk}% CONFIRMED CATFISH RISK",
@@ -9808,7 +9808,7 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
             "scan_cta": "📷 Scanează Gratuit Poza Biometric ➔",
             "pdf_cta": "📄 Descarcă Raportul Oficial PDF (100% Free)",
             "toolkit_title": "🛡️ Unelte Oficiale de Investigație & Siguranță",
-            "toolkit_desc": "Unelte verificate pentru verificarea antecedentelor, ștergerea datelor compromise și dating sigur.",
+            "toolkit_desc": "Unelte verificate pentru verificarea antecedentelor, ștergerea datelor compromise și job sigur.",
         },
         "it": {
             "title": f"Allerta Truffa Amorosa {name} & Foto Rubate ({category}) | JobScamRadar",
@@ -9832,7 +9832,7 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
         },
         "de": {
             "title": f"{name} Liebesbetrug-Warnung & Gestohlene Fotos ({category}) | JobScamRadar",
-            "meta_desc": f"Forensisches Dossier über Romance-Scam-Profil '{name}' ({prof}, {location}). Scammer-Profile erkennen und Bilder rückwärtssuchen mit JobScamRadar AI.",
+            "meta_desc": f"Forensisches Dossier über Employment-Scam-Profil '{name}' ({prof}, {location}). Scammer-Profile erkennen und Bilder rückwärtssuchen mit JobScamRadar AI.",
             "back": "&larr; Zurück zur Betrüger-Liste",
             "verify_face": "📷 Weiteres Foto prüfen (Kostenlos) ↗",
             "risk_label": f"{risk}% BESTÄTIGTES CATFISH-RISIKO",
@@ -9848,7 +9848,7 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
             "scan_cta": "📷 Kostenlosen KI-Fotoscan starten ➔",
             "pdf_cta": "📄 Offiziellen PDF-Bericht herunterladen (100% Free)",
             "toolkit_title": "🛡️ Offizielle Ermittlungs- & Sicherheits-Tools",
-            "toolkit_desc": "Verifizierte Tools für Background-Checks, Löschung gestohlener Daten und sicheres Dating.",
+            "toolkit_desc": "Verifizierte Tools für Background-Checks, Löschung gestohlener Daten und sicheres Job.",
         },
         "fr": {
             "title": f"Alerte Arnaque Sentimentale {name} & Photos Volées ({category}) | JobScamRadar",
@@ -9934,16 +9934,16 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
     t = T.get(lang, T["en"])
 
     hreflangs_html = f"""
-    <link rel="canonical" href="https://verifydating.net{f'/{lang}' if lang != 'en' else ''}/scammer/{slug}">
-    <link rel="alternate" hreflang="en" href="https://verifydating.net/scammer/{slug}">
-    <link rel="alternate" hreflang="ro" href="https://verifydating.net/ro/scammer/{slug}">
-    <link rel="alternate" hreflang="it" href="https://verifydating.net/it/scammer/{slug}">
-    <link rel="alternate" hreflang="de" href="https://verifydating.net/de/scammer/{slug}">
-    <link rel="alternate" hreflang="fr" href="https://verifydating.net/fr/scammer/{slug}">
-    <link rel="alternate" hreflang="es" href="https://verifydating.net/es/scammer/{slug}">
-    <link rel="alternate" hreflang="pt" href="https://verifydating.net/pt/scammer/{slug}">
-    <link rel="alternate" hreflang="ru" href="https://verifydating.net/ru/scammer/{slug}">
-    <link rel="alternate" hreflang="x-default" href="https://verifydating.net/scammer/{slug}">
+    <link rel="canonical" href="https://verifyjob.net{f'/{lang}' if lang != 'en' else ''}/scammer/{slug}">
+    <link rel="alternate" hreflang="en" href="https://verifyjob.net/scammer/{slug}">
+    <link rel="alternate" hreflang="ro" href="https://verifyjob.net/ro/scammer/{slug}">
+    <link rel="alternate" hreflang="it" href="https://verifyjob.net/it/scammer/{slug}">
+    <link rel="alternate" hreflang="de" href="https://verifyjob.net/de/scammer/{slug}">
+    <link rel="alternate" hreflang="fr" href="https://verifyjob.net/fr/scammer/{slug}">
+    <link rel="alternate" hreflang="es" href="https://verifyjob.net/es/scammer/{slug}">
+    <link rel="alternate" hreflang="pt" href="https://verifyjob.net/pt/scammer/{slug}">
+    <link rel="alternate" hreflang="ru" href="https://verifyjob.net/ru/scammer/{slug}">
+    <link rel="alternate" hreflang="x-default" href="https://verifyjob.net/scammer/{slug}">
     """
     
     html = f"""<!DOCTYPE html>
@@ -9962,7 +9962,7 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
     {{
       "@context": "https://schema.org",
       "@type": "FactCheck",
-      "claimReviewed": "Persona '{name}' is a genuine dating partner ({prof})",
+      "claimReviewed": "Persona '{name}' is a genuine job partner ({prof})",
       "reviewRating": {{
         "@type": "Rating",
         "ratingValue": "1",
@@ -9979,7 +9979,7 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
       "author": {{
         "@type": "Organization",
         "name": "JobScamRadar Forensics",
-        "url": "https://verifydating.net/"
+        "url": "https://verifyjob.net/"
       }}
     }}
     </script>
@@ -10023,7 +10023,7 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
     <div class="container">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
             <a href="/scammers" style="color: var(--pink); text-decoration: none; font-weight: 700; font-size: 14px;">{t.get('back', '&larr; Back')}</a>
-            <a href="https://verifydating.net/" style="color: var(--cyan); text-decoration: none; font-weight: 700; font-size: 14px;">{t.get('verify_face', '📷 Verify Another Face (Free) ↗')}</a>
+            <a href="https://verifyjob.net/" style="color: var(--cyan); text-decoration: none; font-weight: 700; font-size: 14px;">{t.get('verify_face', '📷 Verify Another Face (Free) ↗')}</a>
         </div>
         
         <!-- Header Card -->
@@ -10065,8 +10065,8 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
                 {t['chatting_desc']}
             </p>
             <div style="display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;">
-                <a href="https://verifydating.net/" class="btn-cta">{t['scan_cta']}</a>
-                <a href="https://verifydating.net/" class="btn-pdf" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #fff;">🛡️ 100% Free Verification</a>
+                <a href="https://verifyjob.net/" class="btn-cta">{t['scan_cta']}</a>
+                <a href="https://verifyjob.net/" class="btn-pdf" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #fff;">🛡️ 100% Free Verification</a>
             </div>
         </div>
 
@@ -10124,7 +10124,7 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
                     </div>
                 </div>
 
-                <!-- Card 3: JobScamRadar PRO & Safe Dating Alternatives -->
+                <!-- Card 3: JobScamRadar PRO & Safe Job Alternatives -->
                 <div class="card affiliate-match-card" style="margin-bottom: 0; padding: 22px; background: linear-gradient(135deg, rgba(236, 72, 153, 0.08) 0%, rgba(219, 39, 119, 0.14) 100%); border: 1px solid rgba(236, 72, 153, 0.35);">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <span style="font-size: 24px;">💖</span>
@@ -10132,13 +10132,13 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
                     </div>
                     <h3 style="font-family: 'Outfit'; font-size: 17px; color: #fff; margin: 0 0 8px 0;">Meet Genuine, Verified Singles</h3>
                     <p style="color: #cbd5e1; font-size: 13px; margin: 0 0 16px 0; line-height: 1.45;">
-                        Tired of scammer bots and scammers? Switch to moderated dating networks with official ID and photo verification.
+                        Tired of scammer bots and scammers? Switch to moderated job networks with official ID and photo verification.
                     </p>
                     <div style="display: flex; flex-direction: column; gap: 8px;">
                         <a href="/" target="_blank" rel="noopener" class="btn-affiliate" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); color: #fff; text-decoration: none; padding: 10px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 700; text-align: center;">
                             ⭐ Deep Biometric Face Audit (JobScamRadar - 100% Free) ➔
                         </a>
-                        <a href="/go/dating-singles" target="_blank" rel="noopener" class="btn-affiliate" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(236, 72, 153, 0.3); color: #f9a8d4; text-decoration: none; padding: 9px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; text-align: center;">
+                        <a href="/go/job-singles" target="_blank" rel="noopener" class="btn-affiliate" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(236, 72, 153, 0.3); color: #f9a8d4; text-decoration: none; padding: 9px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; text-align: center;">
                             💖 Browse Verified Profiles & Real Singles ➔
                         </a>
                     </div>
@@ -10160,7 +10160,7 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
                         </span>
                     </div>
                     <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.5; margin: 0 0 12px 0;">
-                        AI Biometric Facial Recognition &amp; Job Scam Blacklist. Protecting dating singles and exposing romance fraud syndicates.
+                        AI Biometric Facial Recognition &amp; Job Scam Blacklist. Protecting job singles and exposing romance fraud syndicates.
                     </p>
                     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                         <span style="background: rgba(16, 185, 129, 0.12); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px;">✓ VIES Verified EU</span>
@@ -10178,7 +10178,7 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
                 <div>
                     <h4 style="font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 700; color: #ec4899; margin: 0 0 14px 0;">Official Network</h4>
                     <p style="margin: 0 0 8px 0;"><a href="https://jobscamradar.com" target="_blank" rel="noopener" style="color: #cbd5e1; text-decoration: none;">🏛️ JobScamRadar.com</a></p>
-                    <p style="margin: 0 0 8px 0;"><a href="https://verifydating.net" style="color: #ec4899; font-weight: 700; text-decoration: none;">🛡️ JobScamRadar.net</a></p>
+                    <p style="margin: 0 0 8px 0;"><a href="https://verifyjob.net" style="color: #ec4899; font-weight: 700; text-decoration: none;">🛡️ JobScamRadar.net</a></p>
                     <p style="margin: 0 0 8px 0;"><a href="https://dreamcarhunt.com" target="_blank" rel="noopener" style="color: #cbd5e1; text-decoration: none;">🏎️ DreamCarHunt.com</a></p>
                     <p style="margin: 0 0 8px 0;"><a href="https://airparkrefund.com" target="_blank" rel="noopener" style="color: #cbd5e1; text-decoration: none;">✈️ AirParkRefund.com</a></p>
                     <p style="margin: 0;"><a href="https://vasiledev.com" target="_blank" rel="noopener" style="color: #cbd5e1; text-decoration: none;">👑 VasileDev.com</a></p>
@@ -10199,16 +10199,16 @@ async def dating_scammer_profile_dossier(slug: str, lang: str = "en"):
 @app.get("/directory")
 async def get_main_directory(request: Request):
     host = request.headers.get("host", "").lower()
-    is_dating = "dating" in host
+    is_job = "job" in host
     
-    if is_dating:
+    if is_job:
         buttons_html = '''
-            <a href="/directory/dating" class="dir-card" style="margin: 0 auto;">
-                <h2>💔 Dating Scams (A-Z)</h2>
+            <a href="/directory/job" class="dir-card" style="margin: 0 auto;">
+                <h2>💔 Job Scams (A-Z)</h2>
                 <p>Browse our extensive database of fake job offers and romance scammers alphabetically.</p>
             </a>
         '''
-        title = "Dating Scams Directory"
+        title = "Job Scams Directory"
     else:
         buttons_html = '''
             <a href="/directory/companys" class="dir-card" style="margin: 0 auto;">
@@ -10261,20 +10261,20 @@ async def get_main_directory(request: Request):
 async def get_company_directory(request: Request):
     return HTMLResponse(content=generate_az_page("Company Scams Directory (A-Z)", "/directory/companys"))
 
-@app.get("/directory/dating")
-async def get_dating_directory(request: Request):
-    return HTMLResponse(content=generate_az_page("Dating Scams Directory (A-Z)", "/directory/dating"))
+@app.get("/directory/job")
+async def get_job_directory(request: Request):
+    return HTMLResponse(content=generate_az_page("Job Scams Directory (A-Z)", "/directory/job"))
 
 
 @app.get("/directory/{category}/{letter}")
 async def get_directory_letter_page(request: Request, category: str, letter: str, page: int = 1):
     host = request.headers.get("host", "").lower()
-    is_dating_domain = "dating" in host
+    is_job_domain = "job" in host
     
     # Securizare stricta la nivel de domeniu (blocheaza accesul manual la URL-uri straine)
-    if is_dating_domain and category == "companys":
+    if is_job_domain and category == "companys":
         raise HTTPException(status_code=404, detail="Not Found on this domain")
-    if not is_dating_domain and category == "dating":
+    if not is_job_domain and category == "job":
         raise HTTPException(status_code=404, detail="Not Found on this domain")
 
     limit = 1000
@@ -10290,11 +10290,11 @@ async def get_directory_letter_page(request: Request, category: str, letter: str
         link_base = "https://jobscamradar.com/scam-reports"
         title_prefix = "Company Scams"
         extra_cols = ", domain"
-    elif category == "dating":
-        table = "dating_scam_profiles"
+    elif category == "job":
+        table = "job_scam_profiles"
         name_col = "persona_name"
-        link_base = "https://verifydating.net/scammer"
-        title_prefix = "Dating Scams"
+        link_base = "https://verifyjob.net/scammer"
+        title_prefix = "Job Scams"
         extra_cols = ", scam_category, claimed_age"
     else:
         conn.close()
@@ -10322,7 +10322,7 @@ async def get_directory_letter_page(request: Request, category: str, letter: str
         slug = item[1]
         
         # Formatare inteligenta ca sa evitam duplicatele vizuale
-        if category == "dating":
+        if category == "job":
             cat = item[2] if item[2] else "Scam"
             age = item[3] if item[3] else "??"
             # Adaugam ID-ul unic din slug pentru siguranta vizuala
