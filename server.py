@@ -50,7 +50,7 @@ FOOTER_HTML = """<footer style="background-color: #05080f; padding: 60px 20px 20
 </footer>"""
 
 def wrap_html(title, content):
-    return f"""<!DOCTYPE html>
+    template = """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -92,6 +92,7 @@ def wrap_html(title, content):
 </body>
 </html>
 """
+    return template.replace('{title}', title).replace('{content}', content).replace('{HEADER_HTML}', HEADER_HTML).replace('{FOOTER_HTML}', FOOTER_HTML)
 
 import html as html_lib
 from datetime import datetime
