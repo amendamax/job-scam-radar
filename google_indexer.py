@@ -76,7 +76,7 @@ def main():
     c = conn.cursor()
     
     # Aducem inregistrarile noi
-    c.execute("SELECT id, slug FROM regulatory_scam_reports WHERE id > ? ORDER BY id ASC LIMIT 200", (last_id,))
+    c.execute("SELECT id, slug FROM job_scam_reports WHERE id > ? ORDER BY id ASC LIMIT 200", (last_id,))
     rows = c.fetchall()
     
     if not rows:
