@@ -1,5 +1,98 @@
 import os
 import sqlite3
+
+HEADER_HTML = """<header>
+        <h1 style="text-decoration: none;"><a href="/" style="color: #38bdf8; text-decoration: none;">JobScamRadar</a></h1>
+    </header>"""
+FOOTER_HTML = """<footer style="background-color: #05080f; padding: 60px 20px 20px 20px; font-family: system-ui, -apple-system, sans-serif; color: #94a3b8; font-size: 14px; border-top: 1px solid #1e293b; margin-top: 60px;">
+    <div style="max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px;">
+        
+        <div>
+            <h3 style="color: #f8fafc; margin-top: 0; font-size: 18px; display: flex; align-items: center; gap: 8px;">
+                <span style="width: 20px; height: 20px; background-color: #1e293b; border-radius: 4px; display: inline-block;"></span>
+                JOBSCAM<span style="color: #38bdf8;">RADAR</span>
+            </h3>
+            <p style="line-height: 1.6; margin-bottom: 20px;">Employment fraud defense system. Identifying fake recruitment agencies, task scams, and human trafficking operations.</p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <span style="background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 4px 8px; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.2); font-size: 12px;">✔️ VIES Verified EU</span>
+                <span style="background: rgba(56, 189, 248, 0.1); color: #38bdf8; padding: 4px 8px; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.2); font-size: 12px;">⭐ 100% Free Public Utility</span>
+            </div>
+        </div>
+
+        <div>
+            <h4 style="color: #38bdf8; margin-top: 0; font-size: 16px; margin-bottom: 20px;">VasileDev Group Ecosystem</h4>
+            <ul style="list-style: none; padding: 0; margin: 0; line-height: 2.2;">
+                <li><strong>VAT / P.IVA:</strong> <span style="background: rgba(56, 189, 248, 0.1); color: #38bdf8; padding: 2px 6px; border-radius: 4px;">IT04226190041</span></li>
+                <li><strong>Locations:</strong> Garessio (CN), Italy & Odobești, Romania</li>
+                <li><strong>Direct:</strong> amendamax@vasiledev.com</li>
+            </ul>
+        </div>
+
+        <div>
+            <h4 style="color: #38bdf8; margin-top: 0; font-size: 16px; margin-bottom: 20px;">Official Network</h4>
+            <ul style="list-style: none; padding: 0; margin: 0; line-height: 2.2;">
+                <li><a href="https://isbrokersafe.com" style="color: #94a3b8; text-decoration: none;">🛡️ IsBrokerSafe.com</a></li>
+                <li><a href="https://jobscamradar.com" style="color: #38bdf8; font-weight: bold; text-decoration: none;">💼 JobScamRadar.com</a></li>
+                <li><a href="https://pillscamradar.com" style="color: #94a3b8; text-decoration: none;">💊 PillScamRadar.com</a></li>
+                <li><a href="https://verifydating.net" style="color: #94a3b8; text-decoration: none;">❤️ VerifyDating.net</a></li>
+                <li><a href="https://appscamradar.com" style="color: #94a3b8; text-decoration: none;">📱 AppScamRadar.com</a></li>
+                <li><a href="https://dreamcarhunt.com" style="color: #94a3b8; text-decoration: none;">🏎️ DreamCarHunt.com</a></li>
+                <li><a href="https://airparkrefund.com" style="color: #94a3b8; text-decoration: none;">✈️ AirParkRefund.com</a></li>
+                <li><a href="https://vasiledev.com" style="color: #94a3b8; text-decoration: none;">👨‍💻 VasileDev.com</a></li>
+            </ul>
+        </div>
+
+    </div>
+    
+    <div style="text-align: center; margin-top: 60px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.05); color: #64748b; font-size: 13px;">
+        &copy; 2026 JobScamRadar™ by VasileDev Group. All rights reserved. Powered globally by Cloudflare Edge Network.
+    </div>
+</footer>"""
+
+def wrap_html(title, content):
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{title}</title>
+    <style>
+        body { 
+            font-family: system-ui, -apple-system, sans-serif; 
+            margin: 0; padding: 0; 
+            background: linear-gradient(to bottom, rgba(15,23,42,0.85), rgba(2,6,23,1)), url('/dev_bg.webp') center top / cover fixed;
+            color: #f8fafc;
+        }
+        header { background-color: rgba(15,23,42,0.9); padding: 20px; text-align: center; border-bottom: 1px solid #1e293b; }
+        header h1 { margin: 0; font-size: 28px; }
+        header h1 a { color: #38bdf8; text-decoration: none; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; min-height: 60vh; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .card { background-color: rgba(15,23,42,0.9); border: 1px solid #1e293b; border-radius: 8px; padding: 20px; transition: transform 0.2s; text-decoration: none; color: inherit; display: block; }
+        .card:hover { transform: translateY(-3px); border-color: #38bdf8; }
+        .card h4 { margin: 0 0 10px 0; font-size: 18px; color: #e2e8f0; }
+        .card p { margin: 0; font-size: 14px; color: #94a3b8; line-height: 1.4; }
+        .badge { display: inline-block; font-size: 12px; font-weight: bold; padding: 3px 8px; border-radius: 4px; margin-bottom: 10px; color: white; }
+        
+        .dossier { background: rgba(11,21,40,0.9); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 30px; }
+        .dossier .header { border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px; margin-bottom: 20px; }
+        .dossier h1 { margin: 0 0 10px 0; }
+        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .detail-item { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
+        .detail-item strong { color: #94a3b8; display: block; font-size: 12px; text-transform: uppercase; margin-bottom: 5px; }
+        .reason { margin-top: 30px; padding: 20px; background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; border-radius: 0 8px 8px 0; }
+    </style>
+</head>
+<body>
+    {HEADER_HTML}
+    <div class="container">
+        {content}
+    </div>
+    {FOOTER_HTML}
+</body>
+</html>
+"""
+
 import html as html_lib
 from datetime import datetime
 from fastapi import FastAPI, Request, HTTPException
@@ -83,10 +176,7 @@ def serve_dev_bg():
 
 
 @app.get("/scammers")
-def job_scams_directory(request: Request):
-    """
-    Directory listing of all Job Scams.
-    """
+def job_scams_list():
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("""
@@ -101,47 +191,27 @@ def job_scams_directory(request: Request):
     for row in rows:
         slug, entity_name, domain, warning_type, warning_date, risk_score = row
         score_color = "#ef4444" if risk_score and risk_score >= 80 else "#f59e0b"
-        
         items_html += f"""
-        <a href="/scammer/{html_lib.escape(slug)}" style="text-decoration: none; display: block;">
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin-bottom: 10px; color: white;">
-                <h3 style="margin: 0 0 5px 0;">{html_lib.escape(entity_name)} <span style="font-size: 12px; padding: 2px 6px; background: {score_color}; border-radius: 4px; margin-left: 10px;">Risk: {risk_score}%</span></h3>
-                <p style="margin: 0; font-size: 14px; color: #94a3b8;">Domain: {html_lib.escape(domain)} | Type: {html_lib.escape(warning_type)}</p>
-                <p style="margin: 5px 0 0 0; font-size: 12px; color: #64748b;">Warned: {warning_date}</p>
-            </div>
+        <a href="/scammer/{html_lib.escape(slug)}" class="card">
+            <div class="badge" style="background-color: {score_color};">Risk: {risk_score}%</div>
+            <h4>{html_lib.escape(entity_name)}</h4>
+            <p><strong>Domain:</strong> {html_lib.escape(domain)}<br>
+            <strong>Type:</strong> {html_lib.escape(warning_type)}<br>
+            <strong>Warned:</strong> {warning_date}</p>
         </a>
         """
 
-    html = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Job Scam Directory - JobScamRadar</title>
-    <style>
-        body {{ font-family: system-ui, -apple-system, sans-serif; background: #05080f; color: white; padding: 20px; }}
-        .container {{ max-width: 800px; margin: 0 auto; }}
-        h1 {{ border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }}
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Job Scam Directory ({len(rows)} Cases)</h1>
-        <a href="/" style="color: #38bdf8; text-decoration: none; display: inline-block; margin-bottom: 20px;">&larr; Back to Home</a>
-        <div class="list">
+    content = f"""
+        <h1 style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 20px;">Job Scam Directory ({len(rows)} Cases)</h1>
+        <div class="grid">
             {items_html}
         </div>
-    </div>
-</body>
-</html>
-"""
-    return HTMLResponse(content=html)
+    """
+    return HTMLResponse(content=wrap_html("Job Scam Directory - JobScamRadar", content))
+
 
 @app.get("/scammer/{slug}")
 def job_scam_detail(request: Request, slug: str, lang: str = "en"):
-    """
-    Dossier on an individual Job Scam Report.
-    """
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("""
@@ -158,95 +228,59 @@ def job_scam_detail(request: Request, slug: str, lang: str = "en"):
     
     score_color = "#ef4444" if risk_score and risk_score >= 80 else "#f59e0b"
 
-    html = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{html_lib.escape(name)} - Scam Alert | JobScamRadar</title>
-    <style>
-        body {{ font-family: system-ui, -apple-system, sans-serif; background: #05080f; color: white; padding: 20px; line-height: 1.6; }}
-        .container {{ max-width: 800px; margin: 0 auto; background: #0b1528; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 30px; }}
-        .header {{ border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px; margin-bottom: 20px; }}
-        h1 {{ margin: 0 0 10px 0; }}
-        .badge {{ display: inline-block; background: {score_color}; color: white; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 14px; margin-bottom: 20px; }}
-        .details-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }}
-        .detail-item {{ background: rgba(255,255,255,0.02); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }}
-        .detail-item strong {{ color: #94a3b8; display: block; font-size: 12px; text-transform: uppercase; margin-bottom: 5px; }}
-        .reason {{ margin-top: 30px; padding: 20px; background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; border-radius: 0 8px 8px 0; }}
-    </style>
-    <script type="application/ld+json">
-    {{
-      "@context": "https://schema.org",
-      "@type": "ClaimReview",
-      "datePublished": "{warning_date}",
-      "url": "https://jobscamradar.com/scammer/{slug}",
-      "author": {{
-        "@type": "Organization",
-        "name": "JobScamRadar",
-        "url": "https://jobscamradar.com"
-      }},
-      "claimReviewed": "The company '{html_lib.escape(name)}' is offering legitimate jobs",
-      "reviewRating": {{
-        "@type": "Rating",
-        "ratingValue": "1",
-        "bestRating": "5",
-        "worstRating": "1",
-        "alternateName": "Confirmed Scam"
-      }},
-      "itemReviewed": {{
-        "@type": "Organization",
-        "name": "{html_lib.escape(name)}"
-      }}
-    }}
-    </script>
-</head>
-<body>
-    <div style="max-width: 800px; margin: 0 auto 20px auto;">
-        <a href="/scammers" style="color: #38bdf8; text-decoration: none;">&larr; Back to Directory</a>
-    </div>
-    <div class="container">
-        <div class="header">
-            <h1>{html_lib.escape(name)}</h1>
-            <div class="badge">Risk Score: {risk_score}%</div>
+    content = f"""
+        <div style="margin-bottom: 20px;">
+            <a href="/scammers" style="color: #38bdf8; text-decoration: none;">&larr; Back to Directory</a>
+        </div>
+        <div class="dossier">
+            <div class="header">
+                <h1>{html_lib.escape(name)}</h1>
+                <div class="badge" style="background-color: {score_color};">Risk Score: {risk_score}%</div>
+            </div>
+            
+            <div class="details-grid">
+                <div class="detail-item"><strong>Domain</strong> {html_lib.escape(domain)}</div>
+                <div class="detail-item"><strong>Regulator Warning</strong> {html_lib.escape(regulator)}</div>
+                <div class="detail-item"><strong>Warning Type</strong> {html_lib.escape(warning_type)}</div>
+                <div class="detail-item"><strong>Warning Date</strong> {warning_date}</div>
+                <div class="detail-item"><strong>Jurisdiction</strong> {html_lib.escape(jurisdiction)}</div>
+                <div class="detail-item"><strong>Official Source</strong> <a href="{html_lib.escape(official_url)}" target="_blank" style="color: #38bdf8;">View Original Alert</a></div>
+            </div>
+
+            <div class="reason">
+                <h3 style="margin-top:0;">Reason for Warning</h3>
+                <p style="margin-bottom:0;">{html_lib.escape(reason)}</p>
+            </div>
         </div>
         
-        <div class="details-grid">
-            <div class="detail-item">
-                <strong>Domain</strong>
-                {html_lib.escape(domain)}
-            </div>
-            <div class="detail-item">
-                <strong>Regulator Warning</strong>
-                {html_lib.escape(regulator)}
-            </div>
-            <div class="detail-item">
-                <strong>Warning Type</strong>
-                {html_lib.escape(warning_type)}
-            </div>
-            <div class="detail-item">
-                <strong>Warning Date</strong>
-                {warning_date}
-            </div>
-            <div class="detail-item">
-                <strong>Jurisdiction</strong>
-                {html_lib.escape(jurisdiction)}
-            </div>
-            <div class="detail-item">
-                <strong>Official Source</strong>
-                <a href="{html_lib.escape(official_url)}" target="_blank" style="color: #38bdf8;">View Original Alert</a>
-            </div>
-        </div>
+        <script type="application/ld+json">
+        {{
+          "@context": "https://schema.org",
+          "@type": "ClaimReview",
+          "datePublished": "{warning_date}",
+          "url": "https://jobscamradar.com/scammer/{slug}",
+          "author": {{
+            "@type": "Organization",
+            "name": "JobScamRadar",
+            "url": "https://jobscamradar.com"
+          }},
+          "claimReviewed": "The company '{html_lib.escape(name)}' is offering legitimate jobs",
+          "reviewRating": {{
+            "@type": "Rating",
+            "ratingValue": "1",
+            "bestRating": "5",
+            "worstRating": "1",
+            "alternateName": "Confirmed Scam"
+          }},
+          "itemReviewed": {{
+            "@type": "Organization",
+            "name": "{html_lib.escape(name)}"
+          }}
+        }}
+        </script>
+    """
+    return HTMLResponse(content=wrap_html(f"{html_lib.escape(name)} - Scam Alert | JobScamRadar", content))
 
-        <div class="reason">
-            <h3 style="margin-top:0;">Reason for Warning</h3>
-            <p style="margin-bottom:0;">{html_lib.escape(reason)}</p>
-        </div>
-    </div>
-</body>
-</html>
-"""
-    return HTMLResponse(content=html)
 
 @app.get("/sitemap.xml")
 def sitemap_index():
