@@ -5,3 +5,8 @@ __pycache__/
 .env
 
 .env
+
+database_backup_before_purge.db
+deleted_slugs_sent_to_google.json
+database.db-shm
+database.db-wal
