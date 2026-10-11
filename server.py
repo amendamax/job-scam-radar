@@ -49,6 +49,23 @@ FOOTER_HTML = """<footer style="background-color: #05080f; padding: 60px 20px 20
     </div>
 </footer>"""
 
+INCOGNI_URL = os.getenv("INCOGNI_URL", "https://incogni.com/")
+FLEXJOBS_URL = os.getenv("FLEXJOBS_URL", "https://flexjobs.com/")
+
+AFFILIATE_HTML = """<div class="affiliate-section">
+            <div class="aff-card privacy">
+                <h4>🛡️ Delete Personal Info &amp; Dark Web Defense</h4>
+                <p>Shared your phone, email, or selfies with a fake recruiter? Automatically delete your records from 180+ data brokers.</p>
+                <a href="{INCOGNI_URL}" target="_blank" rel="sponsored noopener noreferrer">Remove My Data (Incogni)</a>
+            </div>
+            <div class="aff-card jobs">
+                <h4>🤝 Meet Genuine, Verified Employers</h4>
+                <p>Tired of WhatsApp recruiters and fake data entry jobs? Join platforms where every job is hand-screened.</p>
+                <a href="{FLEXJOBS_URL}" target="_blank" rel="sponsored noopener noreferrer">Find Safe Remote Jobs</a>
+            </div>
+            <p class="aff-disclosure">Disclosure: some links above are affiliate links. If you sign up through them we may earn a commission, at no extra cost to you.</p>
+        </div>""".replace("{INCOGNI_URL}", INCOGNI_URL).replace("{FLEXJOBS_URL}", FLEXJOBS_URL)
+
 def wrap_html(title, content):
     template = """<!DOCTYPE html>
 <html lang="en">
@@ -81,18 +98,27 @@ def wrap_html(title, content):
         .detail-item { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
         .detail-item strong { color: #94a3b8; display: block; font-size: 12px; text-transform: uppercase; margin-bottom: 5px; }
         .reason { margin-top: 30px; padding: 20px; background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; border-radius: 0 8px 8px 0; }
+        .affiliate-section { margin-top: 60px; display: grid; grid-template-columns: 1fr; gap: 20px; }
+        .aff-card { padding: 20px; border-radius: 8px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
+        .aff-card.privacy { background-color: #022c22; }
+        .aff-card.jobs { background-color: #451a03; }
+        .aff-card h4 { margin: 0 0 10px 0; font-size: 20px; }
+        .aff-card p { font-size: 14px; color: #cbd5e1; margin-bottom: 15px; }
+        .aff-card a { display: inline-block; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: bold; color: white; background: rgba(0,0,0,0.3); }
+        .aff-disclosure { font-size: 12px; color: #94a3b8; text-align: center; margin: 0; }
     </style>
 </head>
 <body>
     {HEADER_HTML}
     <div class="container">
         {content}
+        {AFFILIATE_HTML}
     </div>
     {FOOTER_HTML}
 </body>
 </html>
 """
-    return template.replace('{title}', title).replace('{content}', content).replace('{HEADER_HTML}', HEADER_HTML).replace('{FOOTER_HTML}', FOOTER_HTML)
+    return template.replace('{title}', title).replace('{content}', content).replace('{HEADER_HTML}', HEADER_HTML).replace('{FOOTER_HTML}', FOOTER_HTML).replace('{AFFILIATE_HTML}', AFFILIATE_HTML)
 
 import html as html_lib
 from datetime import datetime
@@ -157,15 +183,11 @@ def serve_index():
     try:
         with open("index.html", "r", encoding="utf-8") as f:
             html = f.read()
-        html = html.replace("{latest_scams}", cards_html)
+        html = html.replace("{latest_scams}", cards_html).replace("{affiliate_boxes}", AFFILIATE_HTML)
         return HTMLResponse(content=html)
     except Exception as e:
         return HTMLResponse(content=str(e))
 
-
-@app.get("/style.css")
-def serve_style():
-    return FileResponse("style.css")
 
 @app.get("/index.css")
 def serve_index_css():
