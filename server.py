@@ -37,7 +37,37 @@ def get_db_connection():
 # Static routes
 @app.get("/")
 def serve_index():
-    return FileResponse("index.html")
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT slug, entity_name, warning_type, warning_date, risk_score
+        FROM job_scam_reports
+        ORDER BY warning_date DESC
+        LIMIT 6
+    """)
+    rows = cursor.fetchall()
+    conn.close()
+    
+    cards_html = ""
+    for row in rows:
+        slug, entity_name, warning_type, warning_date, risk_score = row
+        score_color = "#ef4444" if risk_score and risk_score >= 80 else "#f59e0b"
+        cards_html += f"""
+        <a href="/scammer/{html_lib.escape(slug)}" class="card">
+            <div class="badge" style="background-color: {score_color};">Risk: {risk_score}%</div>
+            <h4>{html_lib.escape(entity_name)}</h4>
+            <p><strong>Type:</strong> {html_lib.escape(warning_type)}<br><strong>Warned:</strong> {warning_date}</p>
+        </a>
+        """
+    
+    try:
+        with open("index.html", "r", encoding="utf-8") as f:
+            html = f.read()
+        html = html.replace("{latest_scams}", cards_html)
+        return HTMLResponse(content=html)
+    except Exception as e:
+        return HTMLResponse(content=str(e))
+
 
 @app.get("/style.css")
 def serve_style():
