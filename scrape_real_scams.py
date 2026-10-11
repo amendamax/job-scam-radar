@@ -9,6 +9,25 @@ import re
 
 DB_PATH = 'database.db'
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+PROXY_HOST = os.getenv('ANYIP_HOST', 'portal.anyip.io')
+PROXY_PORT = os.getenv('ANYIP_PORT', '1080')
+PROXY_USER = os.getenv('ANYIP_USER', '')
+PROXY_PASS = os.getenv('ANYIP_PASS', '')
+
+PROXIES = None
+if PROXY_USER and PROXY_PASS:
+    proxy_url = f"http://{PROXY_USER}:{PROXY_PASS}@{PROXY_HOST}:{PROXY_PORT}"
+    PROXIES = {
+        'http': proxy_url,
+        'https': proxy_url
+    }
+
+
 def slugify(text):
     text = text.lower()
     text = re.sub(r'[^a-z0-9\s-]', '', text)
@@ -19,8 +38,15 @@ def scrape_reddit():
     print("Scraping Reddit /r/Scams via RSS...")
     url = "https://www.reddit.com/r/Scams/new.rss"
     reports = []
+
     try:
-        feed = feedparser.parse(url)
+        if PROXIES:
+            print("Fetching Reddit with AnyIP Proxy...")
+            response = requests.get(url, proxies=PROXIES, timeout=15)
+            feed = feedparser.parse(response.content)
+        else:
+            feed = feedparser.parse(url)
+
         for entry in feed.entries:
             title = entry.title
             
@@ -84,8 +110,15 @@ def scrape_google_news():
     
     for q in queries:
         url = f"https://news.google.com/rss/search?q={q.replace(' ', '+')}+when:14d"
+
         try:
-            feed = feedparser.parse(url)
+            if PROXIES:
+                print(f"Fetching Google News '{q}' with AnyIP Proxy...")
+                response = requests.get(url, proxies=PROXIES, timeout=15)
+                feed = feedparser.parse(response.content)
+            else:
+                feed = feedparser.parse(url)
+
             for entry in feed.entries[:10]: # Top 10 per query
                 title = entry.title
                 link = entry.link
