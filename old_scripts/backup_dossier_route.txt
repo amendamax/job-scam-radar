@@ -1,0 +1,313 @@
+def job_scam_detail(request: Request, slug: str, lang: str = "en"):
+    """
+    Dossier on an individual Job Scam Report.
+    """
+    if lang not in ("en", "ro", "it", "es", "fr", "de", "pt", "ru"):
+        lang = "en"
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT id, entity_name, domain, regulator, warning_type, warning_date, official_url, reason, jurisdiction, risk_score
+        FROM job_scam_reports WHERE slug = ?
+    """, (slug,))
+    row = cursor.fetchone()
+    conn.close()
+            
+    if not row:
+        raise HTTPException(status_code=404, detail="Job Scam Report Not Found")
+        
+    pid, name, domain, regulator, warning_type, warning_date, official_url, reason, jurisdiction, risk_score = row
+    
+    real_score = risk_score * 10 if risk_score <= 10 else risk_score
+    
+    T = {
+        "en": {
+            "title": f"{name} Job Scam Alert ({warning_type}) | JobScamRadar",
+            "meta_desc": f"Forensic dossier on fake recruiter/job scam '{name}' ({domain}). Read the full report and protect yourself from {warning_type}.",
+            "back": "&larr; Back to Scammer Blacklist",
+            "verify_face": "📷 Verify Recruiter Face (Free) ↗",
+            "risk_label": f"{real_score}% CONFIRMED JOB SCAM RISK",
+            "reported": "Reported",
+            "investigations": "Investigations",
+            "claimed_label": f"<strong>Reported Entity:</strong> {name} &bull; Domain: {domain} &bull; Jurisdiction: {jurisdiction}",
+            "victim_alert": f"⚠️ <strong>Warning:</strong> The entity known as {name} has been flagged for {warning_type}.",
+            "script_heading": "🎭 Scam Alert Reason / Report",
+            "flags_heading": "🚩 Key Red Flags & Source:",
+            "aliases_heading": f"<strong>Official Warning Source:</strong> {regulator}",
+            "chatting_q": "Are You Being Recruited By This Company?",
+            "chatting_desc": "Don't send any money, cryptocurrency, or pay 'training' fees. Run our instant AI facial recognition audit on your recruiter to uncover if they are using stolen photos.",
+            "scan_cta": "📷 Run Free Biometric Photo Scan ➔",
+            "pdf_cta": "📄 Download Official PDF Report (100% Free)",
+            "toolkit_title": "🛡️ Official Investigation & Safety Toolkit",
+            "toolkit_desc": "Verified tools to run background checks, delete stolen personal info, and find genuine matches.",
+        }
+    }
+    
+    t = T.get(lang, T["en"])
+    
+    # We will use 'reason' for the script, 'official_url' for flags
+    script_html = f"<p style='color: #cbd5e1; font-size: 15px; white-space: pre-wrap; margin-bottom: 25px;'>{reason}</p>"
+    flags_html = f'<li style="color: #f87171; margin-bottom: 6px;">🚩 <strong>Source Link:</strong> <a href="{official_url}" style="color:#38bdf8;" target="_blank">{official_url}</a></li>'
+
+
+    hreflangs_html = f"""
+    <link rel="canonical" href="https://jobscamradar.com{f'/{lang}' if lang != 'en' else ''}/scammer/{slug}">
+    <link rel="alternate" hreflang="en" href="https://jobscamradar.com/scammer/{slug}">
+    <link rel="alternate" hreflang="ro" href="https://jobscamradar.com/ro/scammer/{slug}">
+    <link rel="alternate" hreflang="it" href="https://jobscamradar.com/it/scammer/{slug}">
+    <link rel="alternate" hreflang="de" href="https://jobscamradar.com/de/scammer/{slug}">
+    <link rel="alternate" hreflang="fr" href="https://jobscamradar.com/fr/scammer/{slug}">
+    <link rel="alternate" hreflang="es" href="https://jobscamradar.com/es/scammer/{slug}">
+    <link rel="alternate" hreflang="pt" href="https://jobscamradar.com/pt/scammer/{slug}">
+    <link rel="alternate" hreflang="ru" href="https://jobscamradar.com/ru/scammer/{slug}">
+    <link rel="alternate" hreflang="x-default" href="https://jobscamradar.com/scammer/{slug}">
+    """
+    
+    html = f"""<!DOCTYPE html>
+<html lang="{lang}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{t['title']}</title>
+    <meta name="description" content="{t['meta_desc']}">
+    {hreflangs_html}
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Schema.org FactCheck / Person Structured Data -->
+    <script type="application/ld+json">
+    {{
+      "@context": "https://schema.org",
+      "@type": "FactCheck",
+      "claimReviewed": "Persona '{name}' is a genuine job partner ({domain})",
+      "reviewRating": {{
+        "@type": "Rating",
+        "ratingValue": "1",
+        "bestRating": "5",
+        "worstRating": "1",
+        "alternateName": "CONFIRMED_CATFISH_SCAM"
+      }},
+      "itemReviewed": {{
+        "@type": "Person",
+        "name": "{name}",
+        "jobTitle": "{domain}",
+        "address": "{jurisdiction}"
+      }},
+      "author": {{
+        "@type": "Organization",
+        "name": "JobScamRadar Forensics",
+        "url": "https://jobscamradar.com/"
+      }}
+    }}
+    </script>
+    
+    <style>
+        :root {{
+            --bg: #05080f;
+            --card: #0b1528;
+            --border: rgba(255, 255, 255, 0.08);
+            --pink: #ec4899;
+            --red: #ef4444;
+            --cyan: #38bdf8;
+            --green: #10b981;
+        }}
+        body {{ background: var(--bg); color: #f8fafc; font-family: 'Inter', sans-serif; margin: 0; padding: 30px 20px; line-height: 1.6; }}
+        .container {{ max-width: 950px; margin: 0 auto; }}
+        .card {{ background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px; margin-bottom: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1); }}
+        .affiliate-incogni-card:hover {{ transform: translateY(-4px); border-color: rgba(56, 189, 248, 0.7) !important; box-shadow: 0 15px 35px rgba(2, 132, 199, 0.35), 0 0 25px rgba(56, 189, 248, 0.2) !important; }}
+        .affiliate-match-card:hover {{ transform: translateY(-4px); border-color: rgba(236, 72, 153, 0.7) !important; box-shadow: 0 15px 35px rgba(236, 72, 153, 0.35), 0 0 25px rgba(236, 72, 153, 0.2) !important; }}
+        .badge-danger {{ background: rgba(239, 68, 68, 0.15); color: var(--red); border: 1px solid rgba(239, 68, 68, 0.35); padding: 5px 12px; border-radius: 8px; font-weight: 800; font-size: 12px; }}
+        .badge-cat {{ background: rgba(236, 72, 153, 0.15); color: var(--pink); border: 1px solid rgba(236, 72, 153, 0.35); padding: 5px 12px; border-radius: 8px; font-weight: 700; font-size: 12px; }}
+        .btn-cta {{ background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); color: #fff; font-family: 'Outfit'; font-weight: 800; text-decoration: none; padding: 14px 24px; border-radius: 10px; display: inline-flex; align-items: center; gap: 8px; font-size: 15px; box-shadow: 0 4px 16px rgba(236, 72, 153, 0.4); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }}
+        .btn-cta:hover {{ transform: translateY(-2px) scale(1.02); filter: brightness(1.2); box-shadow: 0 8px 24px rgba(236, 72, 153, 0.6); }}
+        .btn-pdf {{ background: #FFC439; color: #003087; font-family: 'Outfit'; font-weight: 800; text-decoration: none; padding: 14px 24px; border-radius: 10px; display: inline-flex; align-items: center; gap: 8px; font-size: 15px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }}
+        .btn-pdf:hover {{ transform: translateY(-2px) scale(1.02); filter: brightness(1.15); box-shadow: 0 8px 20px rgba(255, 196, 57, 0.45); }}
+        .btn-affiliate {{ transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }}
+        .btn-affiliate:hover {{ transform: translateY(-2px) scale(1.02); filter: brightness(1.2); box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5); }}
+    </style>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-950R9NXTL9"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+
+  gtag('config', 'G-950R9NXTL9');
+</script>
+    </head>
+<body>
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <a href="/scammers" style="color: var(--pink); text-decoration: none; font-weight: 700; font-size: 14px;">{t.get('back', '&larr; Back')}</a>
+            <a href="https://jobscamradar.com/" style="color: var(--cyan); text-decoration: none; font-weight: 700; font-size: 14px;">{t.get('verify_face', '📷 Verify Another Face (Free) ↗')}</a>
+        </div>
+        
+        <!-- Header Card -->
+        <div class="card" style="border-top: 4px solid var(--red);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
+                <div>
+                    <span class="badge-cat">{warning_type}</span>
+                    <span class="badge-danger" style="margin-left: 8px;">{t['risk_label']}</span>
+                </div>
+                <span style="color: #64748b; font-size: 12px;">{t['reported']}: {warning_date} &bull; 👁️ 1 {t['investigations']}</span>
+            </div>
+            
+            <h1 style="font-family: 'Outfit', sans-serif; font-size: 2.2rem; color: #fff; margin: 0 0 8px 0;">{name}</h1>
+            <p style="color: #94a3b8; font-size: 14px; margin: 0 0 15px 0;">{t['claimed_label']}</p>
+            <div style="background: rgba(239, 68, 68, 0.08); border-left: 3px solid var(--red); padding: 12px 16px; border-radius: 0 8px 8px 0; color: #fca5a5; font-size: 13px;">
+                {t['victim_alert']}
+            </div>
+        </div>
+
+        <!-- Modus Operandi & Script Card -->
+        <div class="card">
+            <h2 style="font-family: 'Outfit'; font-size: 20px; color: #fff; margin: 0 0 12px 0;">{t['script_heading']}</h2>
+            <div style="background: #020408; border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 16px; font-style: italic; color: #cbd5e1; font-size: 14px; line-height: 1.6; margin-bottom: 20px;">
+                "{reason}"
+            </div>
+            
+            <h3 style="font-family: 'Outfit'; font-size: 17px; color: #fff; margin: 0 0 10px 0;">{t['flags_heading']}</h3>
+            <ul style="padding-left: 20px; margin: 0 0 20px 0; font-size: 14px;">
+                {flags_html}
+            </ul>
+            
+            <p style="color: #94a3b8; font-size: 13px; margin: 0;">{t['aliases_heading']}</p>
+        </div>
+
+        <!-- CTA Action Box -->
+        <div class="card" style="background: linear-gradient(135deg, rgba(236, 72, 153, 0.12) 0%, rgba(190, 24, 93, 0.18) 100%); border-color: rgba(236, 72, 153, 0.35); text-align: center; padding: 35px 20px;">
+            <h2 style="font-family: 'Outfit'; font-size: 22px; color: #fff; margin: 0 0 8px 0;">{t['chatting_q']}</h2>
+            <p style="color: #cbd5e1; font-size: 14px; max-width: 650px; margin: 0 auto 25px auto;">
+                {t['chatting_desc']}
+            </p>
+            <div style="display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;">
+                <a href="https://jobscamradar.com/" class="btn-cta">{t['scan_cta']}</a>
+                <a href="https://jobscamradar.com/" class="btn-pdf" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #fff;">🛡️ 100% Free Verification</a>
+            </div>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- VERIFIED INVESTIGATION, PRIVACY & SAFE DATING TOOLKIT (CJ PARTNERS) -->
+        <!-- ================================================================= -->
+        <div style="margin-top: 30px; margin-bottom: 25px;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <h2 style="font-family: 'Outfit', sans-serif; font-size: 22px; color: #fff; margin: 0 0 6px 0;">{t['toolkit_title']}</h2>
+                <p style="color: #94a3b8; font-size: 13.5px; margin: 0;">{t['toolkit_desc']}</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px;">
+                
+                <!-- Card 1: Social Scammer & Surfshark (Reverse Lookup) -->
+                <div class="card affiliate-incogni-card" style="margin-bottom: 0; padding: 22px; background: linear-gradient(135deg, rgba(14, 165, 233, 0.25) 0%, rgba(2, 132, 199, 0.40) 100%); border: 1px solid rgba(56, 189, 248, 0.35);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span style="font-size: 24px;">🔍</span>
+                        <span style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px;">BACKGROUND AUDIT</span>
+                    </div>
+                    <h3 style="font-family: 'Outfit'; font-size: 17px; color: #fff; margin: 0 0 8px 0;">Reverse Phone & Email Lookup</h3>
+                    <p style="color: #cbd5e1; font-size: 13px; margin: 0 0 16px 0; line-height: 1.45;">
+                        Got a phone number, email address, or name from this contact? Run an instant public records & alias search.
+                    </p>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <a href="/go/socialscammer" target="_blank" rel="noopener sponsored" class="btn-affiliate" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; text-decoration: none; padding: 10px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 700; text-align: center;">
+                            🔍 Reverse Phone & Name Search (Social Scammer) ➔
+                        </a>
+                        <a href="/go/surfshark" target="_blank" rel="noopener sponsored" class="btn-affiliate" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(56, 189, 248, 0.3); color: #7dd3fc; text-decoration: none; padding: 9px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; text-align: center;">
+                            🦈 Instant Identity & Data Leak Search (Surfshark) ➔
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card 2: Incogni & NordVPN (Privacy & Dark Web) -->
+                <div class="card affiliate-incogni-card" style="margin-bottom: 0; padding: 22px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(5, 150, 105, 0.40) 100%); border: 1px solid rgba(16, 185, 129, 0.35);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span style="font-size: 24px;">🛡️</span>
+                        <span style="background: rgba(16, 185, 129, 0.2); color: #34d399; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px;">DATA DEFENSE</span>
+                    </div>
+                    <h3 style="font-family: 'Outfit'; font-size: 17px; color: #fff; margin: 0 0 8px 0;">Delete Personal Info & Dark Web</h3>
+                    <p style="color: #cbd5e1; font-size: 13px; margin: 0 0 16px 0; line-height: 1.45;">
+                        Shared phone numbers or photos? Automatically scrub your records from 180+ data companys and monitor identity leaks.
+                    </p>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <a href="/go/incogni" target="_blank" rel="noopener sponsored" class="btn-affiliate" style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color: #fff; text-decoration: none; padding: 10px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 700; text-align: center;">
+                            🛡️ Remove My Data from Scammer Companys (Incogni - 50% Off) ➔
+                        </a>
+                        <a href="/go/nordvpn" target="_blank" rel="noopener sponsored" class="btn-affiliate" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(16, 185, 129, 0.3); color: #6ee7b7; text-decoration: none; padding: 9px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; text-align: center;">
+                            👁️ 24/7 Dark Web Identity Monitor & Threat Defense (NordVPN) ➔
+                        </a>
+                        <a href="/go/intego" target="_blank" rel="noopener sponsored" class="btn-affiliate" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(79, 70, 229, 0.3) 100%); border: 1px solid rgba(129, 140, 248, 0.4); color: #c7d2fe; text-decoration: none; padding: 9px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; text-align: center;">
+                            🍏 {t.get('intego_cta', 'Intego Mac & iPhone Anti-Malware Suite (-35% Off)')} ➔
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card 3: JobScamRadar PRO & Safe Job Alternatives -->
+                <div class="card affiliate-match-card" style="margin-bottom: 0; padding: 22px; background: linear-gradient(135deg, rgba(236, 72, 153, 0.25) 0%, rgba(219, 39, 119, 0.40) 100%); border: 1px solid rgba(236, 72, 153, 0.35);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span style="font-size: 24px;">💖</span>
+                        <span style="background: rgba(236, 72, 153, 0.2); color: #f472b6; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px;">VERIFIED DATING</span>
+                    </div>
+                    <h3 style="font-family: 'Outfit'; font-size: 17px; color: #fff; margin: 0 0 8px 0;">Meet Genuine, Verified Singles</h3>
+                    <p style="color: #cbd5e1; font-size: 13px; margin: 0 0 16px 0; line-height: 1.45;">
+                        Tired of scammer bots and scammers? Switch to moderated job networks with official ID and photo verification.
+                    </p>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <a href="/" target="_blank" rel="noopener" class="btn-affiliate" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); color: #fff; text-decoration: none; padding: 10px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 700; text-align: center;">
+                            ⭐ Deep Biometric Face Audit (JobScamRadar - 100% Free) ➔
+                        </a>
+                        <a href="/go/job-singles" target="_blank" rel="noopener" class="btn-affiliate" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(236, 72, 153, 0.3); color: #f9a8d4; text-decoration: none; padding: 9px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; text-align: center;">
+                            💖 Browse Verified Profiles & Real Singles ➔
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- UNIFIED VASILEDEV ECOSYSTEM FOOTER -->
+        <footer class="vasiledev-ecosystem-footer" style="background: #03060a; border-top: 1px solid rgba(255, 255, 255, 0.1); padding: 40px 20px 24px; font-family: 'Inter', system-ui, -apple-system, sans-serif; color: #94a3b8; font-size: 0.85rem; line-height: 1.6; text-align: left; margin-top: 50px;">
+            <div style="max-width: 1140px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 36px; margin-bottom: 30px;">
+                <div>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                        <span style="display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 8px; background: rgba(236, 72, 153, 0.15); color: #ec4899; font-size: 16px;">
+                            <i class="fa-solid fa-heart-crack"></i>
+                        </span>
+                        <span style="font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 800; color: #ffffff; letter-spacing: -0.3px;">
+                            VERIFY<strong style="color: #ec4899;">DATING</strong>
+                        </span>
+                    </div>
+                    <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.5; margin: 0 0 12px 0;">
+                        AI Biometric Facial Recognition &amp; Job Scam Blacklist. Protecting job singles and exposing romance fraud syndicates.
+                    </p>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <span style="background: rgba(16, 185, 129, 0.12); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px;">✓ VIES Verified EU</span>
+                        <span style="background: rgba(236, 72, 153, 0.12); color: #ec4899; border: 1px solid rgba(236, 72, 153, 0.3); font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px;">🛡️ 100% Free Public Utility</span>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 style="font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 700; color: #ec4899; margin: 0 0 14px 0;">VasileDev Group Ecosystem</h4>
+                    <p style="margin: 0 0 8px 0; color: #cbd5e1; font-size: 0.85rem;">VAT / P.IVA: <code style="background: rgba(255, 255, 255, 0.1); color: #ec4899; padding: 2px 6px; border-radius: 4px; font-family: monospace;">IT04226190041</code></p>
+                    <p style="margin: 0 0 8px 0; color: #94a3b8; font-size: 0.85rem;">Locations: Garessio (CN), Italy &amp; Odobești, Romania</p>
+                    <p style="margin: 0; color: #94a3b8; font-size: 0.85rem;">Contact: <a href="mailto:amendamax@gmail.com" style="color: #cbd5e1; text-decoration: none;">amendamax@gmail.com</a></p>
+                </div>
+
+                <div>
+                    <h4 style="font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 700; color: #ec4899; margin: 0 0 14px 0;">Official Network</h4>
+                    <p style="margin: 0 0 8px 0;"><a href="https://jobscamradar.com" target="_blank" rel="noopener" style="color: #cbd5e1; text-decoration: none;">🏛️ JobScamRadar.com</a></p>
+                    <p style="margin: 0 0 8px 0;"><a href="https://jobscamradar.com" style="color: #ec4899; font-weight: 700; text-decoration: none;">🛡️ JobScamRadar.net</a></p>
+                    <p style="margin: 0 0 8px 0;"><a href="https://dreamcarhunt.com" target="_blank" rel="noopener" style="color: #cbd5e1; text-decoration: none;">🏎️ DreamCarHunt.com</a></p>
+                    <p style="margin: 0 0 8px 0;"><a href="https://airparkrefund.com" target="_blank" rel="noopener" style="color: #cbd5e1; text-decoration: none;">✈️ AirParkRefund.com</a></p>
+                    <p style="margin: 0;"><a href="https://vasiledev.com" target="_blank" rel="noopener" style="color: #cbd5e1; text-decoration: none;">👑 VasileDev.com</a></p>
+                </div>
+            </div>
+
+            <div style="max-width: 1140px; margin: 0 auto; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 18px; text-align: center; font-size: 0.8rem; color: #64748b;">
+                <p style="margin: 0;">&copy; 2026 JobScamRadar™ by VasileDev Group. All rights reserved. Powered globally by Cloudflare Edge Network.</p>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>"""
+    return HTMLResponse
