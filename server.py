@@ -77,6 +77,11 @@ def serve_style():
 def serve_index_css():
     return FileResponse("index.css")
 
+@app.get("/dev_bg.webp")
+def serve_dev_bg():
+    return FileResponse("dev_bg.webp")
+
+
 @app.get("/scammers")
 def job_scams_directory(request: Request):
     """
