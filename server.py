@@ -54,9 +54,9 @@ FLEXJOBS_URL = os.getenv("FLEXJOBS_URL", "https://flexjobs.com/")
 
 AFFILIATE_HTML = """<div class="affiliate-section">
             <div class="aff-card privacy">
-                <h4 style="color: #38bdf8;">🔒 Encrypt Your Data &amp; Stay Anonymous</h4>
-                <p>Clicked on a suspicious job link? Protect your devices and personal data from cybercriminals with a premium VPN.</p>
-                <a href="https://www.kqzyfj.com/click-101863908-13756265" target="_blank" rel="sponsored noopener noreferrer">Protect Yourself with NordVPN</a><img src="https://www.awltovhc.com/image-101863908-13756265" width="1" height="1" border="0" style="display:none;"/>
+                <h4 style="color: #38bdf8;">🛡️ Generate a Fake Identity</h4>
+                <p>Don\'t give fake recruiters your real phone number or email. Use Surfshark Alternative ID to generate working proxy details and protect yourself from spam and identity theft.</p>
+                <a href="https://www.tkqlhce.com/click-101863908-15740542" target="_blank" rel="sponsored noopener noreferrer">Protect Your Identity (Alternative ID)</a>
             </div>
             <div class="aff-card jobs">
                 <h4>🤝 Meet Genuine, Verified Employers</h4>
