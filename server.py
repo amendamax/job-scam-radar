@@ -29,21 +29,6 @@ FOOTER_HTML = """<footer style="background-color: #05080f; padding: 60px 20px 20
             </ul>
         </div>
 
-        <div>
-            <h4 style="color: #38bdf8; margin-top: 0; font-size: 16px; margin-bottom: 20px;">Official Network</h4>
-            <ul style="list-style: none; padding: 0; margin: 0; line-height: 2.2;">
-                <li><a href="https://isbrokersafe.com" style="color: #94a3b8; text-decoration: none;">🛡️ IsBrokerSafe.com</a></li>
-                <li><a href="https://jobscamradar.com" style="color: #38bdf8; font-weight: bold; text-decoration: none;">💼 JobScamRadar.com</a></li>
-                <li><a href="https://pillscamradar.com" style="color: #94a3b8; text-decoration: none;">💊 PillScamRadar.com</a></li>
-                <li><a href="https://verifydating.net" style="color: #94a3b8; text-decoration: none;">❤️ VerifyDating.net</a></li>
-                <li><a href="https://appscamradar.com" style="color: #94a3b8; text-decoration: none;">📱 AppScamRadar.com</a></li>
-                <li><a href="https://dreamcarhunt.com" style="color: #94a3b8; text-decoration: none;">🏎️ DreamCarHunt.com</a></li>
-                <li><a href="https://airparkrefund.com" style="color: #94a3b8; text-decoration: none;">✈️ AirParkRefund.com</a></li>
-                <li><a href="https://calcolaincentivi.it" style="color: #94a3b8; text-decoration: none;">⚡ CalcolaIncentivi.it</a></li>
-                <li><a href="https://vasiledev.com" style="color: #94a3b8; text-decoration: none;">👨‍💻 VasileDev.com</a></li>
-            </ul>
-        </div>
-
     </div>
     
     <div style="text-align: center; margin-top: 60px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.05); color: #64748b; font-size: 13px;">
