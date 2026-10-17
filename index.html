@@ -3,8 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JobScamRadar - Global Employment Fraud Database</title>
-    <meta name="description" content="Track, expose, and avoid fake job offers, recruitment scams, and employment fraud globally.">
+    <title>JobScamRadar — Global Employment Fraud &amp; Fake Recruiter Database</title>
+    <meta name="description" content="Verify suspicious job offers, check recruiter domains, and track fake WhatsApp/Telegram task scams, imposter HR emails, and FTC employment fraud alerts globally.">
+    <link rel="canonical" href="https://jobscamradar.com/">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="JobScamRadar">
+    <meta property="og:title" content="JobScamRadar — Global Employment Fraud &amp; Fake Recruiter Database">
+    <meta property="og:description" content="Verify suspicious job offers, check recruiter domains, and track fake WhatsApp/Telegram task scams and employment fraud globally.">
+    <meta property="og:url" content="https://jobscamradar.com/">
+    <meta property="og:image" content="https://jobscamradar.com/og_banner.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="JobScamRadar — Global Employment Fraud Database">
+    <meta name="twitter:description" content="Instant job offer &amp; recruiter domain forensic checker + verified directory of employment scams.">
+    <meta name="twitter:image" content="https://jobscamradar.com/og_banner.jpg">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-950R9NXTL9"></script>
     <script>
@@ -13,59 +25,118 @@
       gtag('js', new Date());
       gtag('config', 'G-950R9NXTL9');
     </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "JobScamRadar",
+      "url": "https://jobscamradar.com/",
+      "description": "Global employment fraud defense database and instant recruiter domain & job offer verification tool.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "VasileDev Group",
+        "url": "https://vasiledev.com",
+        "vatID": "IT04226190041"
+      },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://jobscamradar.com/scammers?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
     <style>
-        body { font-family: system-ui, -apple-system, sans-serif; background: linear-gradient(to bottom, rgba(2,6,23,0.5), rgba(2,6,23,0.9)), url('/dev_bg.webp') center top / cover fixed; color: #f8fafc; margin: 0; padding: 0; }
-        header { background-color: rgba(15,23,42,0.8); padding: 20px; text-align: center; border-bottom: 1px solid #1e293b; }
-        header h1 { margin: 0; font-size: 28px; color: #38bdf8; }
-        .hero { padding: 120px 20px; min-height: 400px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: transparent; }
-        .hero h2 { font-size: 42px; margin: 0 0 15px 0; text-shadow: 2px 2px 5px rgba(0,0,0,0.8); }
-        .hero p { color: #cbd5e1; font-size: 18px; max-width: 600px; margin: 0 auto 30px auto; line-height: 1.5; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); }
-        .hero a.btn { display: inline-block; background-color: #38bdf8; color: #0f172a; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 16px; }
-        
-        .container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; }
-        h3.section-title { font-size: 24px; border-bottom: 2px solid #1e293b; padding-bottom: 10px; margin-bottom: 20px; }
-        
+        body { font-family: system-ui, -apple-system, sans-serif; background: linear-gradient(to bottom, rgba(2,6,23,0.55), rgba(2,6,23,0.92)), url('/dev_bg.webp') center top / cover fixed; color: #f8fafc; margin: 0; padding: 0; }
+        header { background-color: rgba(15,23,42,0.88); padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; max-width: 100%; border-bottom: 1px solid #1e293b; backdrop-filter: blur(8px); }
+        header h1 { margin: 0; font-size: 24px; color: #38bdf8; }
+        header nav { display: flex; gap: 18px; align-items: center; font-size: 14px; font-weight: 600; }
+        header nav a { color: #cbd5e1; text-decoration: none; transition: color 0.2s; }
+        header nav a:hover { color: #38bdf8; }
+        .hero { padding: 72px 20px 44px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: transparent; }
+        .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(56,189,248,0.12); border: 1px solid rgba(56,189,248,0.35); color: #38bdf8; font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 999px; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.6px; }
+        .hero h2 { font-size: clamp(28px, 4.5vw, 44px); margin: 0 0 14px 0; text-shadow: 2px 2px 5px rgba(0,0,0,0.8); max-width: 820px; line-height: 1.15; }
+        .hero p { color: #cbd5e1; font-size: 17px; max-width: 680px; margin: 0 auto 28px auto; line-height: 1.55; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); }
+
+        .verifier-box { width: 100%; max-width: 780px; background: rgba(15,23,42,0.88); border: 1px solid rgba(56,189,248,0.35); border-radius: 14px; padding: 22px; box-shadow: 0 20px 45px rgba(0,0,0,0.45); backdrop-filter: blur(10px); text-align: left; }
+        .verifier-row { display: flex; gap: 10px; flex-wrap: wrap; }
+        .verifier-input { flex: 1; min-width: 240px; background: rgba(2,6,23,0.9); border: 1px solid #334155; color: #f8fafc; padding: 14px 16px; border-radius: 8px; font-size: 15px; outline: none; }
+        .verifier-input:focus { border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56,189,248,0.2); }
+        .verifier-btn { background: #38bdf8; color: #0f172a; border: none; padding: 14px 24px; border-radius: 8px; font-weight: 800; font-size: 15px; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
+        .verifier-btn:hover { background: #7dd3fc; }
+        .verifier-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; align-items: center; font-size: 12px; color: #94a3b8; }
+        .chip-btn { background: rgba(30,41,59,0.9); border: 1px solid #334155; color: #cbd5e1; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.15s; }
+        .chip-btn:hover { border-color: #38bdf8; color: #38bdf8; }
+        #verify-result { display: none; margin-top: 18px; padding: 18px; border-radius: 10px; background: rgba(2,6,23,0.92); border: 1px solid #334155; }
+
+        .container { max-width: 1040px; margin: 0 auto; padding: 30px 20px 40px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; border-bottom: 2px solid #1e293b; padding-bottom: 12px; margin-bottom: 22px; }
+        h3.section-title { font-size: 24px; margin: 0; }
+        .view-all-link { color: #38bdf8; text-decoration: none; font-weight: 700; font-size: 14px; }
+        .view-all-link:hover { text-decoration: underline; }
+
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .card { background-color: rgba(15,23,42,0.7); border: 1px solid #1e293b; border-radius: 8px; padding: 20px; transition: transform 0.2s; text-decoration: none; color: inherit; display: block; backdrop-filter: blur(5px); }
+        .card { background-color: rgba(15,23,42,0.78); border: 1px solid #1e293b; border-radius: 10px; padding: 20px; transition: transform 0.2s, border-color 0.2s; text-decoration: none; color: inherit; display: block; backdrop-filter: blur(5px); }
         .card:hover { transform: translateY(-3px); border-color: #38bdf8; }
-        .card h4 { margin: 0 0 10px 0; font-size: 18px; color: #e2e8f0; }
-        .card p { margin: 0; font-size: 14px; color: #94a3b8; line-height: 1.4; }
+        .card h4 { margin: 0 0 10px 0; font-size: 17px; color: #e2e8f0; line-height: 1.35; }
+        .card p { margin: 0; font-size: 13.5px; color: #94a3b8; line-height: 1.45; }
         .badge { display: inline-block; font-size: 12px; font-weight: bold; padding: 3px 8px; border-radius: 4px; margin-bottom: 10px; color: white; }
-        
-        .affiliate-section { margin-top: 60px; display: grid; grid-template-columns: 1fr; gap: 20px; }
-        .aff-card { padding: 20px; border-radius: 8px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
+
+        .affiliate-section { margin-top: 56px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .aff-card { padding: 24px 20px; border-radius: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
         .aff-card.privacy { background-color: #022c22; }
         .aff-card.jobs { background-color: #451a03; }
         .aff-card h4 { margin: 0 0 10px 0; font-size: 20px; }
-        .aff-card p { font-size: 14px; color: #cbd5e1; margin-bottom: 15px; }
-        .aff-disclosure { font-size: 12px; color: #94a3b8; text-align: center; margin: 0; }
-        .aff-card a { display: inline-block; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: bold; color: white; background: rgba(0,0,0,0.3); }
-        
-        footer { text-align: center; padding: 40px; color: #475569; font-size: 14px; margin-top: 40px; border-top: 1px solid #1e293b; }
+        .aff-card p { font-size: 14px; color: #cbd5e1; margin-bottom: 16px; line-height: 1.5; }
+        .aff-disclosure { grid-column: 1 / -1; font-size: 12px; color: #94a3b8; text-align: center; margin: 4px 0 0 0; }
+        .aff-card a { display: inline-block; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: bold; color: white; background: rgba(0,0,0,0.35); border: 1px solid rgba(56,189,248,0.4); transition: background 0.2s; }
+        .aff-card a:hover { background: rgba(0,0,0,0.55); }
+        .btn-disabled { display: inline-block; padding: 10px 20px; border-radius: 6px; font-weight: bold; color: #94a3b8; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); cursor: not-allowed; user-select: none; pointer-events: none; opacity: 0.75; }
     </style>
 </head>
 <body>
     <header>
-        <h1 style="text-decoration: none;"><a href="/" style="color: #38bdf8; text-decoration: none;">JobScamRadar</a></h1>
+        <h1><a href="/" style="color: #38bdf8; text-decoration: none;">💼 JobScamRadar</a></h1>
+        <nav>
+            <a href="/">Verifier</a>
+            <a href="/scammers">Scam Directory ({total_cases})</a>
+            <a href="/privacy">Privacy &amp; Legal</a>
+        </nav>
     </header>
-    
+
     <div class="hero">
-        <h2>Don't Let Fake Recruiters Steal Your Identity</h2>
-        <p>We monitor and index fraudulent employment offers, fake recruiters on WhatsApp, and remote job scams globally. Always verify before you apply.</p>
-        <a href="/scammers" class="btn">Browse Scam Directory</a>
+        <div class="hero-badge">🛡️ Forensic Employment Fraud &amp; Fake Recruiter Intelligence</div>
+        <h2>Don't Let Fake Recruiters Steal Your Identity or Savings</h2>
+        <p>We monitor and index fraudulent employment offers, imposter HR domains, WhatsApp/Telegram task scams, and FTC consumer alerts globally. Verify any recruiter or job message below before you apply.</p>
+
+        <div class="verifier-box">
+            <form onsubmit="runJobVerify(event)" class="verifier-row">
+                <input type="text" id="job-verify-input" class="verifier-input" placeholder="Paste recruiter email, domain (e.g. linkedrental.com), company name, or job offer text..." required>
+                <button type="submit" id="job-verify-btn" class="verifier-btn">🔍 Verify Job / Recruiter</button>
+            </form>
+            <div class="verifier-chips">
+                <span>Try sample checks:</span>
+                <button type="button" class="chip-btn" onclick="quickCheck('linkedrental.com')">linkedrental.com</button>
+                <button type="button" class="chip-btn" onclick="quickCheck('recruitmentoutreachgroup.com')">recruitmentoutreachgroup.com</button>
+                <button type="button" class="chip-btn" onclick="quickCheck('Add me on WhatsApp for $600/day remote task')">WhatsApp $600/day Task</button>
+                <button type="button" class="chip-btn" onclick="quickCheck('hr.department.hiring@gmail.com equipment check')">@gmail.com + Equipment Check</button>
+            </div>
+            <div id="verify-result"></div>
+        </div>
     </div>
 
     <div class="container">
-        <h3 class="section-title">Latest Reported Job Scams</h3>
+        <div class="section-header">
+            <h3 class="section-title">Latest Reported Job Scams &amp; Regulatory Alerts</h3>
+            <a href="/scammers" class="view-all-link">Browse All {total_cases} Verified Cases &rarr;</a>
+        </div>
         <div class="grid">
             {latest_scams}
         </div>
 
         {affiliate_boxes}
     </div>
-    
-    
-<footer class="vasiledev-ecosystem-footer" style="background: #03060a; border-top: 1px solid rgba(255, 255, 255, 0.1); padding: 50px 20px 24px; font-family: 'Inter', system-ui, -apple-system, sans-serif; color: #94a3b8; font-size: 0.85rem; line-height: 1.6; text-align: left; margin-top: 60px;">
+
+    <footer class="vasiledev-ecosystem-footer" style="background: #03060a; border-top: 1px solid rgba(255, 255, 255, 0.1); padding: 50px 20px 24px; font-family: 'Inter', system-ui, -apple-system, sans-serif; color: #94a3b8; font-size: 0.85rem; line-height: 1.6; text-align: left; margin-top: 60px;">
         <div style="max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 36px; margin-bottom: 36px;">
             <div>
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
@@ -111,9 +182,62 @@
 
         <div style="max-width: 1180px; margin: 0 auto; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 20px; text-align: center; font-size: 0.8rem; color: #64748b;">
             <p style="margin: 0;">&copy; 2026 JobScamRadar™ by VasileDev Group (P.IVA IT04226190041). All Rights Reserved. Intellectual Property Protected under EU Copyright Law.</p>
-        <div style="text-align: center; margin-top: 16px;"><a href="/directory/jobs/1" style="color: #38bdf8; text-decoration: none; font-weight: 600;">&bull; Browse Full Recruitment Scam Directory</a></div>
+            <div style="text-align: center; margin-top: 14px; display: flex; justify-content: center; gap: 18px; flex-wrap: wrap;">
+                <a href="/scammers" style="color: #38bdf8; text-decoration: none; font-weight: 600;">&bull; Browse Full Recruitment Scam Directory</a>
+                <a href="/privacy" style="color: #94a3b8; text-decoration: none;">Privacy Policy &amp; GDPR</a>
+                <a href="/sitemap.xml" style="color: #94a3b8; text-decoration: none;">XML Sitemap</a>
+                <a href="/llms.txt" style="color: #94a3b8; text-decoration: none;">LLMs.txt</a>
+            </div>
         </div>
     </footer>
 
+    <script>
+    function quickCheck(val) {
+        const inp = document.getElementById('job-verify-input');
+        inp.value = val;
+        runJobVerify(new Event('submit'));
+    }
+
+    async function runJobVerify(e) {
+        if (e && e.preventDefault) e.preventDefault();
+        const q = document.getElementById('job-verify-input').value.trim();
+        if (!q) return;
+        const box = document.getElementById('verify-result');
+        const btn = document.getElementById('job-verify-btn');
+        btn.disabled = true;
+        btn.textContent = 'Analyzing...';
+        box.style.display = 'block';
+        box.innerHTML = '<p style="margin:0;color:#94a3b8;font-size:14px;">Scanning employment fraud database &amp; forensic heuristics...</p>';
+        try {
+            const res = await fetch('/api/verify-job?q=' + encodeURIComponent(q));
+            const data = await res.json();
+            const color = data.risk_score >= 80 ? '#ef4444' : data.risk_score >= 50 ? '#f59e0b' : '#10b981';
+            let flagsHtml = '';
+            if (data.flags && data.flags.length) {
+                flagsHtml = '<ul style="margin:10px 0 0 18px;padding:0;color:#e2e8f0;font-size:13.5px;line-height:1.55;">' +
+                    data.flags.map(f => '<li style="margin-bottom:4px;">' + f + '</li>').join('') + '</ul>';
+            }
+            let matchesHtml = '';
+            if (data.matches && data.matches.length) {
+                matchesHtml = '<div style="margin-top:14px;padding-top:12px;border-top:1px solid #1e293b;">' +
+                    '<div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#38bdf8;margin-bottom:8px;">Matching Database Dossiers (' + data.matches.length + '):</div>' +
+                    data.matches.map(m => '<div style="margin-bottom:6px;font-size:13.5px;"><a href="/scammer/' + m.slug + '" style="color:#38bdf8;font-weight:600;text-decoration:none;">⚠️ ' + m.entity_name + '</a> <span style="color:#94a3b8;">(' + m.warning_type + ' — Risk ' + m.risk_score + '%)</span></div>').join('') +
+                    '</div>';
+            }
+            box.innerHTML =
+                '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">' +
+                '<strong style="font-size:16px;color:#fff;">' + data.verdict + '</strong>' +
+                '<span style="background:' + color + ';color:#fff;font-weight:800;font-size:12px;padding:4px 10px;border-radius:6px;">Risk Score: ' + data.risk_score + '%</span>' +
+                '</div>' +
+                '<p style="margin:8px 0 0 0;color:#cbd5e1;font-size:13.5px;line-height:1.5;">' + data.summary + '</p>' +
+                flagsHtml + matchesHtml;
+        } catch (err) {
+            box.innerHTML = '<p style="margin:0;color:#ef4444;font-size:14px;">Unable to complete verification. Please browse the <a href="/scammers" style="color:#38bdf8;">Scam Directory</a>.</p>';
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '🔍 Verify Job / Recruiter';
+        }
+    }
+    </script>
 </body>
 </html>
