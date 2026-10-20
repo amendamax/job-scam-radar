@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 
 HEADER_HTML = """<header>
-        <h1><a href="/" style="color: #38bdf8; text-decoration: none;">💼 JobScamRadar</a></h1>
+        <div style="font-size: 24px; font-weight: 800; margin: 0;"><a href="/" style="color: #38bdf8; text-decoration: none;">💼 JobScamRadar</a></div>
         <nav>
             <a href="/">Verifier</a>
             <a href="/scammers">Scam Directory</a>
